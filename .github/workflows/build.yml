@@ -79,6 +79,7 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git checkout --orphan registro-tmp
           git rm -rf --quiet . || true
+          git clean -fdxq
           cp /tmp/reg/* . 2>/dev/null || echo "sin registro" > build.log
           git add -A
           git commit -m "Registro de la compilación ${{ github.run_number }}"

@@ -248,6 +248,7 @@ private fun FilterBar(
  * Ventana para marcar varias opciones: OK marca o desmarca; «Aplicar» (o Atrás) guarda lo marcado.
  * Sin nada marcado = todas.
  */
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 private fun MultiChoiceDialog(title: String, options: List<Pair<String, String>>, initial: Set<String>, onDone: (Set<String>) -> Unit) {
     var sel by remember { mutableStateOf(initial) }
