@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="updates" path="updates/" />
+    <!-- Copia de seguridad cifrada para enviarla a otro aparato. -->
+    <cache-path name="copia" path="copia/" />
+</paths>

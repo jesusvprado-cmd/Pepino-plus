@@ -1,0 +1,139 @@
+# Canales con los que se comprueba el logo en cada compilación (nombre tal como lo da la lista).
+# «nombre|sección» para los que dependen de la sección (Liga RFEF, Fanplay).
+La 1
+La 1 HD
+La 1 UHD
+La 2
+Antena 3
+Cuatro
+Telecinco
+La Sexta
+FDF
+Neox
+Nova
+Mega
+Atreseries
+Trece
+DMAX
+Divinity
+Energy
+Be Mad
+Boing
+Clan
+Teledeporte
+24 Horas
+Paramount Network
+TEN
+DKISS
+Real Madrid TV
+GOL
+M+ LaLiga
+M+ LaLiga 2
+M+ LaLiga 3
+M+ LaLiga UHD
+M+ LaLiga HDR
+Movistar LaLiga
+M+ Liga de Campeones
+M+ Liga de Campeones 2
+M+ Deportes
+M+ Deportes 2
+M+ Vamos
+M+ Golf
+M+ Ellas
+M+ Estrenos
+M+ Cine Español
+M+ Comedia
+M+ Acción
+M+ Drama
+M+ Clásicos
+M+ Documentales
+M+ Series
+M+ Originales
+M+ Música
+M+ Romance
+M+ Baloncesto
+M+ Baloncesto 2
+M+ Plus
+Movistar Plus+
+Movistar TVG
+DAZN 1
+DAZN 2
+DAZN 3
+DAZN 4
+M. DAZN 3
+DAZN LaLiga
+DAZN LaLiga 2
+DAZN F1
+DAZN Baloncesto 1
+DAZN Baloncesto 2
+Eurosport 1
+Eurosport 2
+LaLiga TV Hypermotion
+Liga RFEF 3|LIGA RFEF
+Fanplay 1|FANPLAY
+TCM
+AXN
+AXN Movies
+Calle 13
+SyFy
+Cosmo
+Comedy Central
+Nickelodeon
+Disney Channel
+Disney Junior
+Canal Hollywood
+AMC
+Somos
+Sundance TV
+Star Channel
+Warner TV
+TNT
+Flixolé
+Flixolé 2
+BBC News
+BBC Earth
+BBC Lifestyle
+BBC Food
+BBC Series
+BBC Top Gear
+National Geographic
+Nat Geo Wild
+Discovery Channel
+Historia
+Odisea
+Canal Cocina
+Decasa
+Iberalia
+Iberalia Caza
+Iberalia Pesca
+Caza y Pesca
+Crímenes Reales
+DreamWorks
+Mezzo
+Mezzo Live
+MTV
+Sol Música
+Ubeat
+TVG
+TVG Europa
+TV3
+Super 3
+33
+Telemadrid
+La Otra
+Canal Sur
+Canal Sur 2
+Canal Sur Andalucía
+Andalucía TV
+ETB 1
+ETB 2
+À Punt
+Aragón TV
+CMM
+7 Región de Murcia
+Canal Extremadura
+IB3
+Televisión Canaria
+La 7
+Navarra TV
+TPA
