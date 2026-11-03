@@ -91,6 +91,10 @@ object DebridStore {
     var stats by mutableStateOf(Stats())
         private set
 
+    /** Torrents que no están listos (fallidos o a medias), con su estado. */
+    var notReady by mutableStateOf<List<AllDebrid.Magnet>>(emptyList())
+        private set
+
     /** Vídeos que no se muestran: muestras, tráileres y archivos muy pequeños. */
     var discarded by mutableIntStateOf(0)
         private set
@@ -166,6 +170,7 @@ object DebridStore {
                 val (l, st) = withContext(Dispatchers.IO) { fetchAll() }
                 files = l
                 stats = st
+                notReady = notReadyFetched
                 lastSync = System.currentTimeMillis()
                 withContext(Dispatchers.IO) { saveLibrary() }
                 rebuild()
@@ -179,16 +184,36 @@ object DebridStore {
         }
     }
 
+    /** Reintenta torrents fallidos y, al poco, vuelve a leer la cuenta. Devuelve un texto para avisar. */
+    suspend fun restart(ids: List<Long>): String {
+        if (ids.isEmpty()) return "No hay torrents fallidos que reintentar"
+        return try {
+            withContext(Dispatchers.IO) { AllDebrid.restart(ids) }
+            scope.launch {
+                delay(4000)
+                sync()
+            }
+            if (ids.size == 1) "Reintentando el torrent…" else "Reintentando ${ids.size} torrents…"
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            e.message ?: "No se pudo reintentar"
+        }
+    }
+
     /** Al desvincular la cuenta. */
     fun clear() {
         syncJob?.cancel()
         files = emptyList()
         titles = emptyList()
+        notReady = emptyList()
         loaded = false
         lastSync = 0
         runCatching { File(dir, "biblioteca.json").delete() }
         version++
     }
+
+    @Volatile
+    private var notReadyFetched: List<AllDebrid.Magnet> = emptyList()
 
     private fun fetchAll(): Pair<List<DFile>, Stats> {
         val out = ArrayList<DFile>()
@@ -220,6 +245,7 @@ object DebridStore {
             if (!ReleaseName.isVideo(s.name)) others++
             else if (seen.add(s.link)) out += DFile(s.link, s.name, "", s.size, s.date, Grouping.SAVED)
         }
+        notReadyFetched = all.filter { !it.ready }
         return out to Stats(all.size, mags.size, saved, out.size, others, noVideo)
     }
 
@@ -241,6 +267,13 @@ object DebridStore {
         runCatching {
             val o = JSONObject(File(dir, "biblioteca.json").readText())
             lastSync = o.optLong("t")
+            o.optJSONArray("notready")?.let { nr ->
+                notReady = (0 until nr.length()).mapNotNull { i ->
+                    val x = nr.optJSONObject(i) ?: return@mapNotNull null
+                    AllDebrid.Magnet(x.optLong("id"), x.optString("n"), x.optLong("s"), x.optLong("d"), false, x.optInt("c"), x.optString("st"), x.optLong("dl"))
+                }
+                notReadyFetched = notReady
+            }
             o.optJSONObject("stats")?.let { x ->
                 stats = Stats(x.optInt("m"), x.optInt("r"), x.optInt("s"), x.optInt("v"), x.optInt("o"), x.optInt("n"))
             }
@@ -271,7 +304,11 @@ object DebridStore {
         }
         val st = stats
         val so = JSONObject().put("m", st.magnets).put("r", st.ready).put("s", st.saved).put("v", st.videos).put("o", st.others).put("n", st.noVideo)
-        writeAtomic("biblioteca.json", JSONObject().put("t", lastSync).put("stats", so).put("files", a).toString())
+        val nr = JSONArray()
+        notReadyFetched.forEach { m ->
+            nr.put(JSONObject().put("id", m.id).put("n", m.name).put("s", m.size).put("d", m.date).put("c", m.code).put("st", m.status).put("dl", m.downloaded))
+        }
+        writeAtomic("biblioteca.json", JSONObject().put("t", lastSync).put("stats", so).put("notready", nr).put("files", a).toString())
     }
 
     private fun writeAtomic(name: String, text: String) {
@@ -404,38 +441,75 @@ object DebridStore {
         startProbing()
     }
 
+    /** Archivos que se están leyendo ahora mismo. */
+    private val inFlight = HashSet<String>()
+    private var probeQueue: List<String> = emptyList()
+    private var probeQueueFor: List<DTitle>? = null
+    private var byLinkCache: Map<String, List<Version>> = emptyMap()
+    private var queuePos = 0
+
+    /** Siguiente MKV por leer: primero los de la ficha abierta, luego del más reciente al más antiguo. */
+    private fun nextProbe(): String? {
+        if (probeQueueFor !== titles) {
+            probeQueueFor = titles
+            val m = HashMap<String, MutableList<Version>>()
+            titles.forEach { t -> t.versions.forEach { v -> m.getOrPut(v.file.link) { ArrayList() } += v } }
+            byLinkCache = m
+            probeQueue = titles.sortedByDescending { it.added }.asSequence()
+                .flatMap { it.versions.asSequence() }
+                .filter { ReleaseName.ext(it.file.name) == "mkv" }
+                .map { it.file.link }.distinct().toList()
+            queuePos = 0
+        }
+        while (true) {
+            val p = priority.removeFirstOrNull() ?: break
+            if (p !in probes && p !in inFlight && p in byLinkCache) return p
+        }
+        while (queuePos < probeQueue.size) {
+            val l = probeQueue[queuePos++]
+            if (l !in probes && l !in inFlight) return l
+        }
+        return null
+    }
+
+    /** Pendientes de leer (para mostrar el avance). */
+    fun probePending(): Int = probeQueue.count { it !in probes }
+
     private fun startProbing() {
         if (!probeOn || !AllDebrid.linked || probeJob?.isActive == true) return
         probeJob = scope.launch {
             delay(1500)
-            while (isActive && probeOn) {
-                val byLink = HashMap<String, List<Version>>()
-                titles.forEach { t -> t.versions.forEach { v -> byLink[v.file.link] = (byLink[v.file.link] ?: emptyList()) + v } }
-                val next = generateSequence { priority.removeFirstOrNull() }.firstOrNull { it !in probes && it in byLink }
-                    ?: titles.sortedByDescending { it.added }.asSequence()
-                        .flatMap { it.versions.asSequence() }
-                        .firstOrNull { it.file.link !in probes && ReleaseName.ext(it.file.name) == "mkv" }?.file?.link
-                    ?: break
-                val r: MkvTracks.Result? = try {
-                    withContext(Dispatchers.IO) { Probe.read(next) }
-                } catch (e: Exception) {
-                    if (e is kotlinx.coroutines.CancellationException) throw e
-                    if (e is AllDebrid.ApiError) {
-                        // Ese archivo no se puede abrir (borrado, etc.): no se vuelve a intentar.
-                        probes[next] = null
-                        bumpSoon()
-                    } else {
-                        // Sin conexión o AllDebrid ocupado: se espera y se sigue más tarde.
-                        priority.addFirst(next)
-                        delay(30_000)
-                    }
-                    continue
+            // Tres a la vez: cada lectura descarga solo el principio del archivo.
+            val workers = (1..3).map { launch { probeWorker() } }
+            workers.forEach { it.join() }
+        }
+    }
+
+    private suspend fun probeWorker() {
+        while (probeOn) {
+            val next = nextProbe() ?: return
+            inFlight += next
+            val r: MkvTracks.Result? = try {
+                withContext(Dispatchers.IO) { Probe.read(next) }
+            } catch (e: Exception) {
+                inFlight -= next
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                if (e is AllDebrid.ApiError) {
+                    // Ese archivo no se puede abrir (borrado, etc.): no se vuelve a intentar.
+                    probes[next] = null
+                    bumpSoon()
+                } else {
+                    // Sin conexión o AllDebrid ocupado: se espera y se sigue más tarde.
+                    priority.addFirst(next)
+                    delay(30_000)
                 }
-                probes[next] = r
-                byLink[next]?.forEach { it.probe = r }
-                bumpSoon()
-                delay(700)
+                continue
             }
+            inFlight -= next
+            probes[next] = r
+            byLinkCache[next]?.forEach { it.probe = r }
+            bumpSoon()
+            delay(150)
         }
     }
 

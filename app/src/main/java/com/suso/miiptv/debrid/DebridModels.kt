@@ -39,6 +39,8 @@ class Version(val file: DFile, val info: ReleaseName.Info) {
         val a = audio
         return when (l) {
             "spa" -> "es" in a || "lat" in a || (!probed && "multi" in a)
+            // El nombre no dice el idioma y aún no se ha leído el archivo (o el archivo no lo dice).
+            "unknown" -> a.isEmpty() || a.all { it == "?" }
             "vo" -> "vo" in a || "en" in a || "ja" in a || "fr" in a || "it" in a || "de" in a || "ko" in a
             else -> l in a || (!probed && "multi" in a && (l == "es" || l == "en"))
         }
@@ -177,6 +179,7 @@ data class DFilters(
         val AUDIO = listOf(
             "Castellano" to "es", "Latino" to "lat", "Inglés" to "en", "Versión original" to "vo",
             "Catalán" to "ca", "Gallego" to "gl", "Francés" to "fr", "Japonés" to "ja",
+            "Sin indicar" to "unknown",
         )
         val SUBS = listOf(
             "Español" to "es", "Español latino" to "lat", "Inglés" to "en", "Otros idiomas" to "other",

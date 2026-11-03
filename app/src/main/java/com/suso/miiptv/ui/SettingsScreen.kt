@@ -435,6 +435,10 @@ fun SettingsScreen(onChangeList: () -> Unit) {
             DebridPinPanel(onClose = { debridDialog = null })
             return
         }
+        "notready" -> {
+            NotReadyPanel(onClose = { debridDialog = null })
+            return
+        }
         "key" -> {
             UrlEntry(
                 title = "Clave API de AllDebrid", button = "Guardar", hint = "La ves en alldebrid.com/apikeys",

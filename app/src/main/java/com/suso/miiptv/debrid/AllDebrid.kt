@@ -177,7 +177,17 @@ object AllDebrid {
 
     // ---------- Contenido de la cuenta ----------
 
-    data class Magnet(val id: Long, val name: String, val size: Long, val date: Long, val ready: Boolean)
+    data class Magnet(
+        val id: Long,
+        val name: String,
+        val size: Long,
+        val date: Long,
+        val ready: Boolean,
+        val code: Int = 4,
+        /** Texto de estado de AllDebrid (en inglés). */
+        val status: String = "",
+        val downloaded: Long = 0,
+    )
 
     fun magnets(): List<Magnet> {
         val d = call("/v4.1/magnet/status")
@@ -186,10 +196,43 @@ object AllDebrid {
         for (i in 0 until arr.length()) {
             val m = arr.optJSONObject(i) ?: continue
             val date = m.optLong("completionDate").takeIf { it > 0 } ?: m.optLong("uploadDate")
-            l += Magnet(m.optLong("id"), m.optString("filename"), m.optLong("size"), date * 1000, m.optInt("statusCode", -1) == 4)
+            val code = m.optInt("statusCode", -1)
+            l += Magnet(
+                m.optLong("id"), m.optString("filename"), m.optLong("size"), date * 1000, code == 4,
+                code, m.optString("status"), m.optLong("downloaded"),
+            )
         }
         return l
     }
+
+    /** Vuelve a intentar torrents que fallaron. */
+    fun restart(ids: List<Long>) {
+        if (ids.isEmpty()) return
+        if (ids.size == 1) call("/v4/magnet/restart", listOf("id" to ids[0].toString()))
+        else ids.chunked(50).forEach { c -> call("/v4/magnet/restart", c.map { "ids[]" to it.toString() }) }
+    }
+
+    /** Qué le pasa a un torrent que no está listo, en castellano. */
+    fun statusText(code: Int): String = when (code) {
+        0 -> "En cola"
+        1 -> "Descargando"
+        2 -> "Preparando (comprimiendo o moviendo)"
+        3 -> "Subiendo"
+        5 -> "Falló al subir"
+        6 -> "Error al descomprimir"
+        7 -> "Sin fuentes: no se descargó en 20 minutos"
+        8 -> "Archivo demasiado grande"
+        9 -> "Error interno de AllDebrid"
+        10 -> "La descarga tardó más de 72 horas"
+        11 -> "Borrado en el servidor de origen"
+        12, 13 -> "Falló al procesarlo"
+        14 -> "Error al contactar con el tracker"
+        15 -> "Sin fuentes (nadie lo comparte)"
+        else -> "Estado desconocido ($code)"
+    }
+
+    /** true si el torrent ha fallado (se puede reintentar); false si sigue en marcha. */
+    fun failed(code: Int): Boolean = code >= 5
 
     data class RawFile(val name: String, val path: String, val size: Long, val link: String)
 

@@ -1,6 +1,10 @@
 package com.suso.miiptv.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +44,14 @@ internal fun DebridSection(ask: Ask, dialog: (String) -> Unit) {
             if (st.others > 0) rows += "Otros archivos" to "${st.others} (rar, iso, subtítulos, imágenes…)"
             rows += "Biblioteca" to "${ts.size - series.size} películas · ${series.size} series (${series.sumOf { it.episodeCount }} capítulos)"
             InfoCard(rows, "Cuenta vinculada" to S.ok)
+            val nr = DebridStore.notReady
+            if (nr.isNotEmpty()) {
+                val failed = nr.count { AllDebrid.failed(it.code) }
+                SettingRow(
+                    "Torrents no listos (${nr.size})", "ad_set_notready",
+                    subtitle = if (failed > 0) "$failed fallidos (se pueden reintentar) · ${nr.size - failed} en marcha" else "Todos siguen descargándose",
+                ) { dialog("notready") }
+            }
             SettingRow("Comprobar cuenta", "ad_set_check", subtitle = "Lee de nuevo el usuario y la fecha de fin") {
                 scope.launch {
                     val r = runCatching { kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { AllDebrid.checkUser() } }
@@ -71,7 +83,8 @@ internal fun DebridSection(ask: Ask, dialog: (String) -> Unit) {
         }
         ToggleRow(
             "Leer los idiomas de cada archivo", "ad_set_probe", DebridStore.probeOn,
-            subtitle = "Mira dentro de los MKV qué audios y subtítulos llevan de verdad (descarga solo el principio)",
+            subtitle = "Mira dentro de los MKV qué audios y subtítulos llevan de verdad (descarga solo el principio)" +
+                DebridStore.probePending().let { n -> if (DebridStore.probeOn && n > 0) ". Quedan $n archivos por leer." else "" },
         ) { DebridStore.probeOn = it }
 
         GroupLabel("Fichas")
@@ -86,5 +99,64 @@ internal fun DebridSection(ask: Ask, dialog: (String) -> Unit) {
             Actions.toast(ctx, "Buscando las fichas…")
         }
         Text("", fontSize = Sz.small)
+    }
+}
+
+/** Torrents de la cuenta que no están listos: motivo y reintentar. */
+@Composable
+internal fun NotReadyPanel(onClose: () -> Unit) {
+    androidx.activity.compose.BackHandler { onClose() }
+    @Suppress("UNUSED_VARIABLE") val dv = DebridStore.version
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val list = DebridStore.notReady.sortedWith(compareBy<AllDebrid.Magnet>({ !AllDebrid.failed(it.code) }, { it.name.lowercase() }))
+    val failed = list.filter { AllDebrid.failed(it.code) }
+    val fr = androidx.compose.runtime.remember { androidx.compose.ui.focus.FocusRequester() }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(120)
+        runCatching { fr.requestFocus() }
+    }
+    androidx.compose.foundation.layout.Box(
+        androidx.compose.ui.Modifier.fillMaxSize().background(C.bg),
+        contentAlignment = androidx.compose.ui.Alignment.TopCenter,
+    ) {
+        androidx.compose.foundation.lazy.LazyColumn(
+            androidx.compose.ui.Modifier.widthIn(max = 820.dp).fillMaxWidth(),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 32.dp, end = 32.dp, top = 32.dp, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item(key = "head") {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Torrents no listos", color = androidx.compose.ui.graphics.Color.White, fontSize = Sz.title, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(
+                        "No se pueden ver hasta que AllDebrid los tenga completos. Los fallidos se pueden reintentar: AllDebrid vuelve a buscarlos " +
+                            "(si nadie los comparte ya, volverán a fallar). Pulsa uno para reintentarlo.",
+                        color = C.text2, fontSize = Sz.body,
+                    )
+                    androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (failed.isNotEmpty()) TvButton("Reintentar los ${failed.size} fallidos", "nr_all", filled = true, focusRequester = fr) {
+                            scope.launch { Actions.toast(ctx, DebridStore.restart(failed.map { it.id })) }
+                        }
+                        TvButton("Volver", "nr_back", focusRequester = if (failed.isEmpty()) fr else null) { onClose() }
+                    }
+                }
+            }
+            items(list.size) { i ->
+                val m = list[i]
+                val f = AllDebrid.failed(m.code)
+                val pct = if (m.code == 1 && m.size > 0) " · ${(m.downloaded * 100 / m.size).coerceIn(0, 100)} %" else ""
+                val size = if (m.size >= 1L shl 30) String.format(java.util.Locale.US, "%.1f GB", m.size / 1073741824.0) else if (m.size > 0) "${m.size / 1048576} MB" else ""
+                SettingRow(
+                    m.name.ifBlank { "Torrent ${m.id}" }, "nr_${m.id}",
+                    subtitle = AllDebrid.statusText(m.code) + pct + (if (m.date > 0) " · añadido el ${dateStr(m.date)}" else ""),
+                    value = size.ifBlank { null },
+                    chevron = f,
+                    enabled = true,
+                ) {
+                    if (f) scope.launch { Actions.toast(ctx, DebridStore.restart(listOf(m.id))) }
+                    else Actions.toast(ctx, "Este sigue en marcha en AllDebrid")
+                }
+            }
+        }
     }
 }
