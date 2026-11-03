@@ -1,0 +1,287 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.suso.pepinoplus"
+4    android:versionCode="2"
+5    android:versionName="1.2" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:4:5-67
+11-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:5:5-79
+12-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:5:22-76
+13    <!-- Para instalar las actualizaciones de la propia app. -->
+14    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+14-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:7:5-83
+14-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:7:22-80
+15    <!-- Solo para leer archivos .conf de la carpeta Download en teles sin selector de archivos. -->
+16    <uses-permission
+16-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:9:5-107
+17        android:name="android.permission.READ_EXTERNAL_STORAGE"
+17-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:9:22-77
+18        android:maxSdkVersion="32" />
+18-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:9:78-104
+19    <!-- Para guardar la copia de seguridad en la carpeta Download (Android 9 o anterior). -->
+20    <uses-permission
+20-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:11:5-108
+21        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+21-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:11:22-78
+22        android:maxSdkVersion="28" />
+22-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:11:79-105
+23    <!-- Fila «Continuar viendo» de Android TV. -->
+24    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
+24-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:13:5-90
+24-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:13:22-87
+25
+26    <!-- Para ver qué reproductores de vídeo hay instalados (Android 11 o superior). -->
+27    <queries>
+27-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:16:5-21:15
+28        <intent>
+28-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:17:9-20:18
+29            <action android:name="android.intent.action.VIEW" />
+29-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:18:13-65
+29-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:18:21-62
+30
+31            <data android:mimeType="video/*" />
+31-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:19:13-48
+31-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:19:19-45
+32        </intent>
+33    </queries>
+34
+35    <uses-feature
+35-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:23:5-87
+36        android:name="android.software.leanback"
+36-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:23:19-59
+37        android:required="false" />
+37-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:23:60-84
+38    <uses-feature
+38-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:24:5-90
+39        android:name="android.hardware.touchscreen"
+39-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:24:19-62
+40        android:required="false" />
+40-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:24:63-87
+41
+42    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
+42-->[androidx.tvprovider:tvprovider:1.0.0] /home/runner/.gradle/caches/8.9/transforms/2e06955a83d5a3003d852cb64e258a47/transformed/tvprovider-1.0.0/AndroidManifest.xml:23:5-89
+42-->[androidx.tvprovider:tvprovider:1.0.0] /home/runner/.gradle/caches/8.9/transforms/2e06955a83d5a3003d852cb64e258a47/transformed/tvprovider-1.0.0/AndroidManifest.xml:23:22-86
+43
+44    <permission
+44-->[androidx.core:core:1.16.0] /home/runner/.gradle/caches/8.9/transforms/e8625fd53cede286bd4bc659d1d8738d/transformed/core-1.16.0/AndroidManifest.xml:22:5-24:47
+45        android:name="com.suso.pepinoplus.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+45-->[androidx.core:core:1.16.0] /home/runner/.gradle/caches/8.9/transforms/e8625fd53cede286bd4bc659d1d8738d/transformed/core-1.16.0/AndroidManifest.xml:23:9-81
+46        android:protectionLevel="signature" />
+46-->[androidx.core:core:1.16.0] /home/runner/.gradle/caches/8.9/transforms/e8625fd53cede286bd4bc659d1d8738d/transformed/core-1.16.0/AndroidManifest.xml:24:9-44
+47
+48    <uses-permission android:name="com.suso.pepinoplus.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+48-->[androidx.core:core:1.16.0] /home/runner/.gradle/caches/8.9/transforms/e8625fd53cede286bd4bc659d1d8738d/transformed/core-1.16.0/AndroidManifest.xml:26:5-97
+48-->[androidx.core:core:1.16.0] /home/runner/.gradle/caches/8.9/transforms/e8625fd53cede286bd4bc659d1d8738d/transformed/core-1.16.0/AndroidManifest.xml:26:22-94
+49
+50    <application
+50-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:26:5-88:19
+51        android:name="com.suso.miiptv.MiApp"
+51-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:30:9-30
+52        android:allowBackup="false"
+52-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:27:9-36
+53        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+53-->[androidx.core:core:1.16.0] /home/runner/.gradle/caches/8.9/transforms/e8625fd53cede286bd4bc659d1d8738d/transformed/core-1.16.0/AndroidManifest.xml:28:18-86
+54        android:banner="@drawable/banner"
+54-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:33:9-42
+55        android:dataExtractionRules="@xml/data_extraction_rules"
+55-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:28:9-65
+56        android:debuggable="true"
+57        android:extractNativeLibs="true"
+58        android:fullBackupContent="false"
+58-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:29:9-42
+59        android:icon="@mipmap/ic_launcher"
+59-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:32:9-43
+60        android:label="@string/app_name"
+60-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:31:9-41
+61        android:largeHeap="true"
+61-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:35:9-33
+62        android:requestLegacyExternalStorage="true"
+62-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:38:9-52
+63        android:supportsRtl="false"
+63-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:36:9-36
+64        android:theme="@style/AppTheme"
+64-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:34:9-40
+65        android:usesCleartextTraffic="true" >
+65-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:37:9-44
+66        <activity
+66-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:40:9-58:20
+67            android:name="com.suso.miiptv.MainActivity"
+67-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:41:13-41
+68            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation"
+68-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:43:13-126
+69            android:exported="true"
+69-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:42:13-36
+70            android:launchMode="singleTask"
+70-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:44:13-44
+71            android:windowSoftInputMode="adjustResize" >
+71-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:45:13-55
+72
+73            <!-- Reanudar desde «Continuar viendo» de la pantalla de inicio de Android TV. -->
+74            <intent-filter>
+74-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:47:13-52:29
+75                <action android:name="android.intent.action.VIEW" />
+75-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:18:13-65
+75-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:18:21-62
+76
+77                <category android:name="android.intent.category.DEFAULT" />
+77-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:49:17-76
+77-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:49:27-73
+78                <category android:name="android.intent.category.BROWSABLE" />
+78-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:50:17-78
+78-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:50:27-75
+79
+80                <data
+80-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:19:13-48
+81                    android:host="resume"
+81-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:51:51-72
+82                    android:scheme="pepinoplus" />
+82-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:51:23-50
+83            </intent-filter>
+84            <intent-filter>
+84-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:53:13-57:29
+85                <action android:name="android.intent.action.MAIN" />
+85-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:54:17-69
+85-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:54:25-66
+86
+87                <category android:name="android.intent.category.LAUNCHER" />
+87-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:55:17-77
+87-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:55:27-74
+88                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+88-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:56:17-86
+88-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:56:27-83
+89            </intent-filter>
+90        </activity>
+91        <activity
+91-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:60:9-66:129
+92            android:name="com.suso.miiptv.player.PlayerActivity"
+92-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:61:13-50
+93            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation"
+93-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:66:13-126
+94            android:exported="false"
+94-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:62:13-37
+95            android:resizeableActivity="true"
+95-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:64:13-46
+96            android:screenOrientation="sensorLandscape"
+96-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:65:13-56
+97            android:supportsPictureInPicture="true" />
+97-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:63:13-52
+98
+99        <!-- Entrega el APK descargado al instalador de Android. -->
+100        <provider
+101            android:name="androidx.core.content.FileProvider"
+101-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:70:13-62
+102            android:authorities="com.suso.pepinoplus.updates"
+102-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:71:13-59
+103            android:exported="false"
+103-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:72:13-37
+104            android:grantUriPermissions="true" >
+104-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:73:13-47
+105            <meta-data
+105-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:74:13-76:56
+106                android:name="android.support.FILE_PROVIDER_PATHS"
+106-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:75:17-67
+107                android:resource="@xml/update_paths" />
+107-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:76:17-53
+108        </provider>
+109
+110        <!-- Servicio de la VPN WireGuard (solo lo usa esta app). -->
+111        <service
+111-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:80:9-87:19
+112            android:name="com.wireguard.android.backend.GoBackend$VpnService"
+112-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:81:13-78
+113            android:exported="false"
+113-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:82:13-37
+114            android:permission="android.permission.BIND_VPN_SERVICE" >
+114-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:83:13-69
+115            <intent-filter>
+115-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:84:13-86:29
+116                <action android:name="android.net.VpnService" />
+116-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:85:17-65
+116-->/home/runner/work/Pepino-plus/Pepino-plus/app/src/main/AndroidManifest.xml:85:25-62
+117            </intent-filter>
+118        </service>
+119
+120        <activity
+120-->[androidx.compose.ui:ui-test-manifest:1.8.1] /home/runner/.gradle/caches/8.9/transforms/b2d548d6a2330245931172bbb11b2735/transformed/ui-test-manifest-1.8.1/AndroidManifest.xml:23:9-26:79
+121            android:name="androidx.activity.ComponentActivity"
+121-->[androidx.compose.ui:ui-test-manifest:1.8.1] /home/runner/.gradle/caches/8.9/transforms/b2d548d6a2330245931172bbb11b2735/transformed/ui-test-manifest-1.8.1/AndroidManifest.xml:24:13-63
+122            android:exported="true"
+122-->[androidx.compose.ui:ui-test-manifest:1.8.1] /home/runner/.gradle/caches/8.9/transforms/b2d548d6a2330245931172bbb11b2735/transformed/ui-test-manifest-1.8.1/AndroidManifest.xml:25:13-36
+123            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+123-->[androidx.compose.ui:ui-test-manifest:1.8.1] /home/runner/.gradle/caches/8.9/transforms/b2d548d6a2330245931172bbb11b2735/transformed/ui-test-manifest-1.8.1/AndroidManifest.xml:26:13-76
+124
+125        <provider
+125-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:24:9-32:20
+126            android:name="androidx.startup.InitializationProvider"
+126-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:25:13-67
+127            android:authorities="com.suso.pepinoplus.androidx-startup"
+127-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:26:13-68
+128            android:exported="false" >
+128-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:27:13-37
+129            <meta-data
+129-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
+130                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+130-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
+131                android:value="androidx.startup" />
+131-->[androidx.emoji2:emoji2:1.4.0] /home/runner/.gradle/caches/8.9/transforms/89c6dfedb510a62e789792dd2f010b6c/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
+132            <meta-data
+132-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/runner/.gradle/caches/8.9/transforms/b36cbce994df65969bc87e71c64ce467/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:29:13-31:52
+133                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+133-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/runner/.gradle/caches/8.9/transforms/b36cbce994df65969bc87e71c64ce467/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:30:17-78
+134                android:value="androidx.startup" />
+134-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/runner/.gradle/caches/8.9/transforms/b36cbce994df65969bc87e71c64ce467/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:31:17-49
+135            <meta-data
+135-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+136                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+136-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+137                android:value="androidx.startup" />
+137-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+138        </provider>
+139
+140        <receiver
+140-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+141            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+141-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+142            android:directBootAware="false"
+142-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+143            android:enabled="true"
+143-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+144            android:exported="true"
+144-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+145            android:permission="android.permission.DUMP" >
+145-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+146            <intent-filter>
+146-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+147                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+147-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+147-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+148            </intent-filter>
+149            <intent-filter>
+149-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+150                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+150-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+150-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+151            </intent-filter>
+152            <intent-filter>
+152-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+153                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+153-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+153-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+154            </intent-filter>
+155            <intent-filter>
+155-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+156                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+156-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+156-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/runner/.gradle/caches/8.9/transforms/51731dd513eae0dd172d46b422d33562/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+157            </intent-filter>
+158        </receiver>
+159    </application>
+160
+161</manifest>

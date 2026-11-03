@@ -1,0 +1,15 @@
+R_DEF: Internal format may change without notice
+local
+drawable banner
+font manrope_bold
+font manrope_extrabold
+font manrope_medium
+font manrope_regular
+font manrope_semibold
+mipmap ic_launcher
+mipmap ic_launcher_bg
+mipmap ic_launcher_fg
+string app_name
+style AppTheme
+xml data_extraction_rules
+xml update_paths
