@@ -74,6 +74,26 @@ object DebridStore {
         private set
 
     private var files: List<DFile> = emptyList()
+
+    /** Recuento de lo que hay en la cuenta (para comprobar que no falta nada). */
+    data class Stats(
+        val magnets: Int = 0,
+        val ready: Int = 0,
+        val saved: Int = 0,
+        /** Archivos de vídeo encontrados. */
+        val videos: Int = 0,
+        /** Otros archivos (rar, iso, subtítulos, imágenes...). */
+        val others: Int = 0,
+        /** Torrents listos sin ningún vídeo dentro. */
+        val noVideo: Int = 0,
+    )
+
+    var stats by mutableStateOf(Stats())
+        private set
+
+    /** Vídeos que no se muestran: muestras, tráileres y archivos muy pequeños. */
+    var discarded by mutableIntStateOf(0)
+        private set
     private val meta = HashMap<String, DMeta?>()
     private val metaTs = HashMap<String, Long>()
     private val epMeta = HashMap<String, Map<Int, EpMeta>>()
@@ -89,11 +109,12 @@ object DebridStore {
 
     var filters: DFilters
         get() = DFilters(
-            AllDebrid.str("f_q", "all"), AllDebrid.str("f_a", "all"), AllDebrid.str("f_s", "all"), AllDebrid.str("f_o", "recent"),
+            DFilters.parseSet(AllDebrid.str("f_q", "")), DFilters.parseSet(AllDebrid.str("f_a", "")),
+            DFilters.parseSet(AllDebrid.str("f_s", "")), AllDebrid.str("f_o", "recent"),
         )
         set(f) {
-            AllDebrid.putStr("f_q", f.quality); AllDebrid.putStr("f_a", f.audio)
-            AllDebrid.putStr("f_s", f.subs); AllDebrid.putStr("f_o", f.sort)
+            AllDebrid.putStr("f_q", f.quality.joinToString(",")); AllDebrid.putStr("f_a", f.audio.joinToString(","))
+            AllDebrid.putStr("f_s", f.subs.joinToString(",")); AllDebrid.putStr("f_o", f.sort)
             version++
         }
 
@@ -142,8 +163,9 @@ object DebridStore {
             syncing = true
             error = null
             try {
-                val l = withContext(Dispatchers.IO) { fetchAll() }
+                val (l, st) = withContext(Dispatchers.IO) { fetchAll() }
                 files = l
+                stats = st
                 lastSync = System.currentTimeMillis()
                 withContext(Dispatchers.IO) { saveLibrary() }
                 rebuild()
@@ -168,24 +190,37 @@ object DebridStore {
         version++
     }
 
-    private fun fetchAll(): List<DFile> {
+    private fun fetchAll(): Pair<List<DFile>, Stats> {
         val out = ArrayList<DFile>()
-        val mags = AllDebrid.magnets().filter { it.ready }
+        val all = AllDebrid.magnets()
+        val mags = all.filter { it.ready }
+        var others = 0
+        var noVideo = 0
         mags.chunked(40).forEach { chunk ->
             val fm = AllDebrid.magnetFiles(chunk.map { it.id })
             for (m in chunk) {
                 val fl = fm[m.id] ?: continue
+                var any = false
                 for (f in fl) {
-                    if (!ReleaseName.isVideo(f.name)) continue
+                    if (!ReleaseName.isVideo(f.name)) {
+                        others++
+                        continue
+                    }
+                    any = true
                     val folder = f.path.substringBeforeLast('/', "").substringAfterLast('/')
                     out += DFile(f.link, f.name, folder.ifBlank { if (fl.size > 1) m.name else "" }, f.size, m.date, m.name)
                 }
+                if (!any) noVideo++
             }
         }
+        val seen = out.mapTo(HashSet()) { it.link }
+        var saved = 0
         runCatching { AllDebrid.savedLinks() }.getOrDefault(emptyList()).forEach { s ->
-            if (ReleaseName.isVideo(s.name) && out.none { it.link == s.link }) out += DFile(s.link, s.name, "", s.size, s.date, Grouping.SAVED)
+            saved++
+            if (!ReleaseName.isVideo(s.name)) others++
+            else if (seen.add(s.link)) out += DFile(s.link, s.name, "", s.size, s.date, Grouping.SAVED)
         }
-        return out
+        return out to Stats(all.size, mags.size, saved, out.size, others, noVideo)
     }
 
     private suspend fun rebuild() {
@@ -193,9 +228,11 @@ object DebridStore {
         val built = withContext(Dispatchers.Default) { Grouping.build(f) }
         built.forEach { t -> t.versions.forEach { v -> probes[v.file.link]?.let { v.probe = it } } }
         titles = built
+        discarded = f.size - built.sumOf { it.versions.size }
         version++
         startMeta()
         startProbing()
+        buildCats()
     }
 
     // ---------- Disco ----------
@@ -204,6 +241,9 @@ object DebridStore {
         runCatching {
             val o = JSONObject(File(dir, "biblioteca.json").readText())
             lastSync = o.optLong("t")
+            o.optJSONObject("stats")?.let { x ->
+                stats = Stats(x.optInt("m"), x.optInt("r"), x.optInt("s"), x.optInt("v"), x.optInt("o"), x.optInt("n"))
+            }
             val a = o.optJSONArray("files") ?: JSONArray()
             files = (0 until a.length()).mapNotNull { i ->
                 val x = a.optJSONObject(i) ?: return@mapNotNull null
@@ -229,7 +269,9 @@ object DebridStore {
         files.forEach { f ->
             a.put(JSONObject().put("l", f.link).put("n", f.name).put("f", f.folder).put("s", f.size).put("a", f.added).put("src", f.source))
         }
-        writeAtomic("biblioteca.json", JSONObject().put("t", lastSync).put("files", a).toString())
+        val st = stats
+        val so = JSONObject().put("m", st.magnets).put("r", st.ready).put("s", st.saved).put("v", st.videos).put("o", st.others).put("n", st.noVideo)
+        writeAtomic("biblioteca.json", JSONObject().put("t", lastSync).put("stats", so).put("files", a).toString())
     }
 
     private fun writeAtomic(name: String, text: String) {
@@ -334,6 +376,8 @@ object DebridStore {
                 }
             }
             jobs.forEach { it.join() }
+            // Con los títulos de las fichas se encuentran más coincidencias con el catálogo IPTV.
+            buildCats()
         }
     }
 
@@ -395,13 +439,100 @@ object DebridStore {
         }
     }
 
+    // ---------- Categorías del IPTV ----------
+
+    /** Categoría del IPTV con cuántos títulos de AllDebrid hay en ella. [key]: «MOVIE|id» o «SERIES|id». */
+    data class DCat(val key: String, val name: String, val count: Int)
+
+    var movieCats by mutableStateOf<List<DCat>>(emptyList())
+        private set
+    var seriesCats by mutableStateOf<List<DCat>>(emptyList())
+        private set
+
+    /** Título → categorías del IPTV en las que está. */
+    private var catOf: Map<String, Set<String>> = emptyMap()
+    private var catJob: Job? = null
+
+    const val NO_CAT = "__none"
+
+    fun inCat(t: DTitle, cat: String): Boolean = when (cat) {
+        "" -> true
+        NO_CAT -> catOf[t.key].isNullOrEmpty()
+        else -> catOf[t.key]?.contains(cat) == true
+    }
+
+    fun uncategorized(kind: DKind): Int = titles.count { it.kind == kind && catOf[it.key].isNullOrEmpty() }
+
+    /**
+     * Cruza los títulos de AllDebrid con el catálogo de películas y series de la lista IPTV:
+     * cada título va a las mismas categorías que tiene en el IPTV (Netflix, HBO, Estrenos...).
+     */
+    private fun buildCats() {
+        if (!com.suso.miiptv.data.Repo.isReady() || com.suso.miiptv.data.Repo.source == null) return
+        catJob?.cancel()
+        catJob = scope.launch {
+            delay(800)
+            val out = HashMap<String, Set<String>>()
+            var movies: List<DCat> = emptyList()
+            var series: List<DCat> = emptyList()
+            for ((dk, k) in listOf(DKind.MOVIE to com.suso.miiptv.data.Kind.MOVIE, DKind.SERIES to com.suso.miiptv.data.Kind.SERIES)) {
+                val cats = try {
+                    com.suso.miiptv.data.Repo.categories(k)
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    continue
+                }
+                val items = try {
+                    com.suso.miiptv.data.Repo.items(k, null)
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    continue
+                }
+                val ts = titles.filter { it.kind == dk }
+                val names = ts.associate { t -> t.key to listOfNotNull(t.parsedName, meta[t.key]?.title).distinct() }
+                val years = ts.associate { t -> t.key to (meta[t.key]?.year ?: t.year) }
+                val match: Map<String, Set<String>> = withContext(Dispatchers.Default) {
+                    val index = HashMap<String, MutableList<Pair<Int?, String>>>()
+                    for (x in items) {
+                        if (x.categoryId.isBlank()) continue
+                        val (key, y) = ReleaseName.catalogKey(x.name)
+                        if (key.length < 2) continue
+                        index.getOrPut(key) { ArrayList() } += y to x.categoryId
+                    }
+                    val res = HashMap<String, MutableSet<String>>()
+                    for ((tk, ns) in names) {
+                        val ty = years[tk]
+                        for (n in ns) {
+                            val hits = index[ReleaseName.catalogKey(n).first] ?: continue
+                            for ((y, cat) in hits) {
+                                if (ty == null || y == null || kotlin.math.abs(y - ty) <= 1) res.getOrPut(tk) { HashSet() } += "${k.name}|$cat"
+                            }
+                        }
+                    }
+                    res
+                }
+                out.putAll(match)
+                val counts = HashMap<String, Int>()
+                match.values.forEach { set -> set.forEach { c -> counts[c] = (counts[c] ?: 0) + 1 } }
+                val l = cats.mapNotNull { c -> val key = "${k.name}|${c.id}"; counts[key]?.let { DCat(key, c.name, it) } }
+                if (dk == DKind.MOVIE) movies = l else series = l
+            }
+            catOf = out
+            movieCats = movies
+            seriesCats = series
+            version++
+        }
+    }
+
     // ---------- Para las pantallas ----------
 
     fun byKey(key: String): DTitle? = titles.firstOrNull { it.key == key }
 
     /** Títulos de un tipo que pasan los filtros, ya ordenados. */
-    fun list(kind: DKind?, f: DFilters): List<DTitle> {
-        val base = titles.filter { (kind == null || it.kind == kind) && (!f.active() || it.versions.any { v -> f.matches(v) }) }
+    fun list(kind: DKind?, f: DFilters, cat: String = ""): List<DTitle> {
+        val base = titles.filter {
+            (kind == null || it.kind == kind) && inCat(it, cat) && (!f.active() || it.versions.any { v -> f.matches(v) })
+        }
         return when (f.sort) {
             "title" -> base.sortedBy { displayName(it).lowercase(Locale.getDefault()) }
             "year" -> base.sortedByDescending { meta[it.key]?.year ?: it.year ?: 0 }

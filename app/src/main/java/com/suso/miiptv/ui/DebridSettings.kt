@@ -31,7 +31,14 @@ internal fun DebridSection(ask: Ask, dialog: (String) -> Unit) {
             val rows = mutableListOf<Pair<String, String>>()
             rows += "Usuario" to (AllDebrid.userName ?: "—")
             if (AllDebrid.premiumUntil > 0) rows += "Premium hasta" to dateStr(AllDebrid.premiumUntil)
-            rows += "Biblioteca" to "${DebridStore.titles.size} títulos"
+            val st = DebridStore.stats
+            val ts = DebridStore.titles
+            val series = ts.filter { it.kind == com.suso.miiptv.debrid.DKind.SERIES }
+            rows += "Torrents" to "${st.ready} listos de ${st.magnets}" + if (st.noVideo > 0) " (${st.noVideo} sin vídeo)" else ""
+            rows += "Enlaces guardados" to "${st.saved}"
+            rows += "Vídeos" to "${st.videos}" + if (DebridStore.discarded > 0) " (${DebridStore.discarded} muestras o tráileres no se muestran)" else ""
+            if (st.others > 0) rows += "Otros archivos" to "${st.others} (rar, iso, subtítulos, imágenes…)"
+            rows += "Biblioteca" to "${ts.size - series.size} películas · ${series.size} series (${series.sumOf { it.episodeCount }} capítulos)"
             InfoCard(rows, "Cuenta vinculada" to S.ok)
             SettingRow("Comprobar cuenta", "ad_set_check", subtitle = "Lee de nuevo el usuario y la fecha de fin") {
                 scope.launch {

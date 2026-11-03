@@ -132,37 +132,60 @@ class DTitle(
     val episodeCount: Int get() = episodes.values.sumOf { it.size }
 }
 
-/** Filtros de la sección. */
+/**
+ * Filtros de la sección. En cada grupo se pueden marcar varias opciones (vacío = todas):
+ * una copia vale si cumple alguna de las marcadas de cada grupo.
+ */
 data class DFilters(
-    val quality: String = "all",
-    val audio: String = "all",
-    val subs: String = "all",
+    val quality: Set<String> = emptySet(),
+    val audio: Set<String> = emptySet(),
+    val subs: Set<String> = emptySet(),
     val sort: String = "recent",
 ) {
-    fun active() = quality != "all" || audio != "all" || subs != "all"
+    fun active() = quality.isNotEmpty() || audio.isNotEmpty() || subs.isNotEmpty()
 
     fun matches(v: Version): Boolean {
-        val q = when (quality) {
-            "4k" -> v.res == 2160
-            "hdr" -> v.hdr != null
-            "1080" -> v.res == 1080
-            "720" -> v.res in 1..720
-            else -> true
+        if (quality.isNotEmpty() && quality.none { q ->
+                when (q) {
+                    "4k" -> v.res == 2160
+                    "hdr" -> v.hdr != null
+                    "1080" -> v.res == 1080
+                    "720" -> v.res in 1..720
+                    "unknown" -> v.res == 0
+                    else -> false
+                }
+            }
+        ) return false
+        if (audio.isNotEmpty() && audio.none { v.hasAudio(it) }) return false
+        if (subs.isNotEmpty()) {
+            val s = v.subs
+            if (subs.none { w ->
+                    when (w) {
+                        "any" -> s.isNotEmpty()
+                        "none" -> s.isEmpty()
+                        "other" -> s.any { it !in setOf("es", "lat", "en", "?") }
+                        else -> w in s
+                    }
+                }
+            ) return false
         }
-        if (!q) return false
-        val a = if (audio == "all") true else v.hasAudio(audio)
-        if (!a) return false
-        return when (subs) {
-            "es" -> "es" in v.subs
-            else -> true
-        }
+        return true
     }
 
     companion object {
-        val QUALITY = listOf("Todas" to "all", "4K" to "4k", "HDR / Dolby Vision" to "hdr", "1080p" to "1080", "720p o menos" to "720")
-        val AUDIO = listOf("Todos" to "all", "Castellano" to "es", "Latino" to "lat", "Español (cualquiera)" to "spa", "Inglés" to "en", "Versión original" to "vo")
-        val SUBS = listOf("Todos" to "all", "Con subtítulos en español" to "es")
+        val QUALITY = listOf("4K" to "4k", "HDR / Dolby Vision" to "hdr", "1080p" to "1080", "720p o menos" to "720", "Sin indicar" to "unknown")
+        val AUDIO = listOf(
+            "Castellano" to "es", "Latino" to "lat", "Inglés" to "en", "Versión original" to "vo",
+            "Catalán" to "ca", "Gallego" to "gl", "Francés" to "fr", "Japonés" to "ja",
+        )
+        val SUBS = listOf(
+            "Español" to "es", "Español latino" to "lat", "Inglés" to "en", "Otros idiomas" to "other",
+            "Con cualquier subtítulo" to "any", "Sin subtítulos" to "none",
+        )
         val SORT = listOf("Recientes" to "recent", "Título" to "title", "Año" to "year", "Tamaño" to "size")
+
+        /** Lo que había guardado antes de poder elegir varias («all», «4k»...) también vale. */
+        fun parseSet(s: String): Set<String> = s.split(',').map { it.trim() }.filter { it.isNotEmpty() && it != "all" }.toSet()
     }
 }
 

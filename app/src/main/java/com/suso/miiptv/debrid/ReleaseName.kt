@@ -254,6 +254,24 @@ object ReleaseName {
         return Info(title, year, season, episode, episodeEnd, res, hdr, codec, source, audio, subs, extra)
     }
 
+    private val CAT_PREFIX = Regex("""^\s*[\[(|]?\s*(?:[A-Za-z]{2,3}(?:[-/][A-Za-z]{2,3})?|4K|UHD|FHD|HD|VOSE|LAT|MULTI|NF|HBO|DSNP|AMZ|ATVP)\s*[\])|]?\s*[-:|·•]\s+""", IC)
+    private val CAT_TAGS = Regex("""\b(4k|uhd|fhd|hd|sd|1080p|720p|2160p|hdr\d*|dv|multi|dual|vose|vos|latino|castellano|subtitulad[ao]|sub|esp|lat|cam|ts|hevc|x265)\b""", IC)
+
+    /**
+     * Clave de un título del catálogo IPTV («ES - Dune: Parte Dos (2024) [4K]» → «dune parte dos», 2024),
+     * para cruzarlo con los archivos de AllDebrid.
+     */
+    fun catalogKey(name: String): Pair<String, Int?> {
+        var s = name
+        repeat(2) { s = s.replace(CAT_PREFIX, "") }
+        val year = YEAR.findAll(s).lastOrNull()?.value?.toIntOrNull()
+        s = s.replace(Regex("""[\[({][^\])}]*[\])}]"""), " ")
+        s = s.replace(CAT_TAGS, " ")
+        val noYear = s.replace(Regex("""\s(19[2-9]\d|20[0-4]\d)\s*$"""), " ")
+        val k = norm(noYear).ifBlank { norm(s) }
+        return k to year
+    }
+
     /** Clave para agrupar: sin tildes, en minúsculas y solo letras y números. */
     fun norm(s: String): String {
         val n = Normalizer.normalize(s.lowercase(), Normalizer.Form.NFD).replace(Regex("""\p{Mn}+"""), "")
