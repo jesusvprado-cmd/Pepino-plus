@@ -46,9 +46,23 @@ object Repo {
     fun init(ctx: Context) {
         if (isReady()) return
         DiskCache.init(ctx.applicationContext)
-        com.suso.miiptv.debrid.DebridStore.init(ctx.applicationContext)
+        removeOldDebridData(ctx.applicationContext)
         prefs = Prefs(ctx.applicationContext)
+        // Lo que quedó a medias de AllDebrid en «Continuar viendo» ya no se puede abrir.
+        runCatching {
+            prefs.progressList().map { it.play.key }.filter { it.startsWith("AD|") || it.startsWith("ADE|") }
+                .forEach { prefs.removeProgress(it) }
+        }
         prefs.loadConfig()?.let { activate(it, createSource(it)) }
+    }
+
+    /** Pepino+ ya no tiene la sección AllDebrid: se borra lo que guardó (clave, biblioteca, fichas). */
+    private fun removeOldDebridData(ctx: Context) {
+        runCatching {
+            val sp = ctx.getSharedPreferences("alldebrid", Context.MODE_PRIVATE)
+            if (sp.all.isNotEmpty()) sp.edit().clear().apply()
+            java.io.File(ctx.filesDir, "alldebrid").takeIf { it.exists() }?.deleteRecursively()
+        }
     }
 
     fun createSource(cfg: Config): Source = if (cfg.type == "xtream") XtreamSource(cfg) else M3uSource(cfg)

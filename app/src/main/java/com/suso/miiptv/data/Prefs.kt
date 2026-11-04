@@ -529,7 +529,7 @@ class Prefs(ctx: Context) {
 
     /** «EP|serie|episodio» → «EP|serie|» (el id de la serie puede llevar «|» en las listas M3U). */
     private fun seriesPrefix(key: String): String? =
-        if (key.startsWith("EP|") || key.startsWith("ADE|")) key.substringBeforeLast('|') + "|" else null
+        if (key.startsWith("EP|")) key.substringBeforeLast('|') + "|" else null
 
     fun clearProgress() = storeProgress(mutableListOf())
 

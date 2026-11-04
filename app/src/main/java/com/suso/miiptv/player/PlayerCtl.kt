@@ -78,23 +78,8 @@ object PlayQueue {
         if (Repo.prefs.externalPlayer) {
             // El otro reproductor abre su propia conexión: se corta la previsualización.
             PlayerHolder.stopPreview()
-            val item = list[index]
-            if (com.suso.miiptv.debrid.AllDebrid.isLazy(item.url)) {
-                // AllDebrid: primero se pide la dirección del vídeo y luego se abre el otro reproductor.
-                kotlinx.coroutines.MainScope().launch {
-                    val u = runCatching {
-                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.suso.miiptv.debrid.AllDebrid.resolve(item.url) }
-                    }.getOrNull()
-                    if (u == null || !openExternal(ctx, item.copy(url = u), pos)) openInternal(ctx)
-                }
-                return
-            }
-            if (openExternal(ctx, item, pos)) return
+            if (openExternal(ctx, list[index], pos)) return
         }
-        openInternal(ctx)
-    }
-
-    private fun openInternal(ctx: Context) {
         val i = Intent(ctx, PlayerActivity::class.java)
         if (ctx !is android.app.Activity) i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         // Sin animación de cambio de pantalla: la imagen pasa a pantalla completa al momento.
@@ -632,7 +617,6 @@ class PlayerCtl(ctx: Context) {
         error = null
         triedHls = false
         retries = 0
-        debridRefreshed = false
         position = pos
         duration = 0
         val it = current
@@ -697,34 +681,7 @@ class PlayerCtl(ctx: Context) {
         videoFormat?.let { onVideoFormat?.invoke(it) }
     }
 
-    /** Vídeo de AllDebrid: ya se pidió una dirección nueva al fallar (para no repetirlo sin fin). */
-    private var debridRefreshed = false
-
     private fun load(rawUrl: String, pos: Long, forceHls: Boolean) {
-        // AllDebrid: la dirección se desbloquea justo antes de abrir el vídeo (fuera del hilo principal).
-        if (com.suso.miiptv.debrid.AllDebrid.isLazy(rawUrl)) {
-            val idx = index
-            buffering = true
-            error = null
-            scope.launch {
-                val r = runCatching {
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.suso.miiptv.debrid.AllDebrid.resolve(rawUrl) }
-                }
-                if (idx != index) return@launch
-                r.onSuccess { u -> loadDirect(u, pos, forceHls) }
-                    .onFailure { e ->
-                        if (e is kotlinx.coroutines.CancellationException) throw e
-                        buffering = false
-                        error = e.message ?: "AllDebrid no ha dado el vídeo."
-                        com.suso.miiptv.data.ErrorLog.add("AllDebrid («${current.title}»): ${e.message}")
-                    }
-            }
-            return
-        }
-        loadDirect(rawUrl, pos, forceHls)
-    }
-
-    private fun loadDirect(rawUrl: String, pos: Long, forceHls: Boolean) {
         val url = if (altLiveFormat && current.live) swapLiveFormat(rawUrl) else rawUrl
         val b = MediaItem.Builder().setUri(url)
         if (forceHls || url.contains(".m3u8", ignoreCase = true)) b.setMimeType(MimeTypes.APPLICATION_M3U8)
@@ -796,13 +753,6 @@ class PlayerCtl(ctx: Context) {
                 load(next, 0, false)
                 return
             }
-        }
-        // AllDebrid: la dirección desbloqueada ha caducado o el servidor la rechaza: se pide otra una vez.
-        if (com.suso.miiptv.debrid.AllDebrid.isLazy(it.url) && code in 2000..2999 && !debridRefreshed) {
-            debridRefreshed = true
-            com.suso.miiptv.debrid.AllDebrid.forget(com.suso.miiptv.debrid.AllDebrid.linkOf(it.url))
-            load(it.url, position, triedHls)
-            return
         }
         // El decodificador de vídeo del aparato falla: se prueba una vez con el de software.
         if (code in 4000..4999 && trySoftware("el decodificador del aparato falla (${e.errorCodeName})")) return

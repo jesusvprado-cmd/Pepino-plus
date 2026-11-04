@@ -66,11 +66,9 @@ import kotlinx.coroutines.delay
 fun MainScreen() {
     // Si volvemos de una ficha, el foco lo recupera la tarjeta; si no, va a la pestaña.
     val restoring = remember { FocusMemory.restore != null }
-    // Biblioteca de AllDebrid: se carga en segundo plano al abrir la app (para Buscar y «Continuar viendo»).
-    LaunchedEffect(Unit) { com.suso.miiptv.debrid.DebridStore.open() }
     Box(Modifier.fillMaxSize().background(C.bg)) {
     // Fondo que toma el color de la carátula con el foco (Inicio, Películas y Series).
-    AmbientBackground(enabled = !com.suso.miiptv.data.Perf.light && (UiState.tab == Tab.HOME || UiState.tab == Tab.MOVIES || UiState.tab == Tab.SERIES || UiState.tab == Tab.DEBRID))
+    AmbientBackground(enabled = !com.suso.miiptv.data.Perf.light && (UiState.tab == Tab.HOME || UiState.tab == Tab.MOVIES || UiState.tab == Tab.SERIES))
     val mainCtx = androidx.compose.ui.platform.LocalContext.current
     // Móvil o tablet en vertical: secciones abajo, como en cualquier app de móvil.
     val compact = com.suso.miiptv.data.Device.touch && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 700
@@ -83,7 +81,6 @@ fun MainScreen() {
                 Tab.GUIDE -> GuideScreen()
                 Tab.MOVIES -> BrowseScreen(Kind.MOVIE)
                 Tab.SERIES -> BrowseScreen(Kind.SERIES)
-                Tab.DEBRID -> DebridScreen()
                 Tab.SEARCH -> SearchScreen()
             }
         }
@@ -292,7 +289,6 @@ private val TAB_ICONS: Map<Tab, ImageVector> by lazy {
         Tab.GUIDE to SIcons.guide,
         Tab.MOVIES to SIcons.video,
         Tab.SERIES to pathIcon("series", "M4,6H2v14c0,1.1 0.9,2 2,2h14v-2H4V6zM20,2H8c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h12c1.1,0 2,-0.9 2,-2V4c0,-1.1 -0.9,-2 -2,-2zM12,14.5v-9l6,4.5 -6,4.5z"),
-        Tab.DEBRID to pathIcon("nube", "M19.35,10.04C18.67,6.59 15.64,4 12,4 9.11,4 6.6,5.64 5.35,8.04 2.34,8.36 0,10.91 0,14c0,3.31 2.69,6 6,6h13c2.76,0 5,-2.24 5,-5 0,-2.64 -2.05,-4.78 -4.65,-4.96zM10,17l-3.5,-3.5 1.41,-1.41L10,14.17 15.18,9l1.41,1.41L10,17z"),
         Tab.SEARCH to Icons.Filled.Search,
     )
 }

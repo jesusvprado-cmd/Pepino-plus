@@ -72,7 +72,6 @@ import java.io.File
 
 internal enum class Sec(val label: String, val desc: String) {
     ACCOUNT("Cuenta", "Tu lista IPTV y el estado de la suscripción."),
-    ALLDEBRID("AllDebrid", "Tu cuenta de AllDebrid y qué copia se elige."),
     VPN("VPN", "Se conecta cuando tú quieras."),
     VIDEO("Vídeo", "Imagen, carga y forma de reproducir."),
     AUDIO("Audio", "Sonido de canales, películas y series."),
@@ -208,8 +207,6 @@ fun SettingsScreen(onChangeList: () -> Unit) {
     var epgUrlDialog by remember { mutableStateOf(false) }
     var nameDialog by remember { mutableStateOf<Int?>(null) }
     var serverDialog by remember { mutableStateOf(false) }
-    // AllDebrid: "pin", "key" o "tmdb".
-    var debridDialog by remember { mutableStateOf<String?>(null) }
     var serverBusy by remember { mutableStateOf(false) }
 
     /** Cambia solo la dirección del servidor (mismo usuario y contraseña); antes comprueba que responde. */
@@ -430,49 +427,6 @@ fun SettingsScreen(onChangeList: () -> Unit) {
         }
         return
     }
-    when (debridDialog) {
-        "pin" -> {
-            DebridPinPanel(onClose = { debridDialog = null })
-            return
-        }
-        "notready" -> {
-            NotReadyPanel(onClose = { debridDialog = null })
-            return
-        }
-        "key" -> {
-            UrlEntry(
-                title = "Clave API de AllDebrid", button = "Guardar", hint = "La ves en alldebrid.com/apikeys",
-                onCancel = { debridDialog = null },
-            ) { k ->
-                debridDialog = null
-                com.suso.miiptv.debrid.AllDebrid.setKey(k)
-                scope.launch {
-                    val r = runCatching { com.suso.miiptv.data.io { com.suso.miiptv.debrid.AllDebrid.checkUser() } }
-                    if (r.isSuccess) {
-                        Actions.toast(ctx, "Cuenta vinculada: ${r.getOrNull()}")
-                        com.suso.miiptv.debrid.DebridStore.clear()
-                        com.suso.miiptv.debrid.DebridStore.open(force = true)
-                    } else {
-                        com.suso.miiptv.debrid.AllDebrid.setKey(null)
-                        Actions.toast(ctx, r.exceptionOrNull()?.message ?: "Clave no válida")
-                    }
-                }
-            }
-            return
-        }
-        "tmdb" -> {
-            UrlEntry(
-                title = "Clave de TMDB", button = "Guardar", initial = com.suso.miiptv.debrid.AllDebrid.tmdbKey,
-                hint = "Clave API (v3) o token de lectura", onCancel = { debridDialog = null },
-            ) { k ->
-                debridDialog = null
-                com.suso.miiptv.debrid.AllDebrid.tmdbKey = k
-                com.suso.miiptv.debrid.DebridStore.refreshMeta()
-                Actions.toast(ctx, "Clave guardada. Buscando las fichas en español…")
-            }
-            return
-        }
-    }
     if (serverDialog) {
         val cfg = Repo.config
         val cur = if (cfg?.type == "xtream") cfg.server else cfg?.m3uUrl?.let { Uri.parse(it).let { u -> "${u.scheme}://${u.encodedAuthority}" } }.orEmpty()
@@ -565,7 +519,6 @@ fun SettingsScreen(onChangeList: () -> Unit) {
                         label = s.label,
                         icon = when (s) {
                             Sec.ACCOUNT -> SIcons.account
-                            Sec.ALLDEBRID -> DEBRID_ICON
                             Sec.VPN -> SIcons.shield
                             Sec.VIDEO -> SIcons.video
                             Sec.AUDIO -> SIcons.audio
@@ -671,9 +624,6 @@ fun SettingsScreen(onChangeList: () -> Unit) {
                             onServer = { picked -> if (picked == null) serverDialog = true else changeServer(picked) },
                             busy = serverBusy,
                         ) { t, o, s, f -> ask(t, o, s, f) } }
-                        Sec.ALLDEBRID -> item(key = "alldebrid") {
-                            DebridSection(ask = { t, o, sel, f -> ask(t, o, sel, f) }) { d -> debridDialog = d }
-                        }
                         Sec.VPN -> item(key = "vpn") {
                             VpnSection(
                                 onMode = { ask("Conexión VPN", VPN_MODE, p.vpnMode) { setVpnMode(it) } },

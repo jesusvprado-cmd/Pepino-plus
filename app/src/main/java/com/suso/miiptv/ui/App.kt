@@ -92,7 +92,6 @@ fun AppRoot(activity: Activity) {
                         Screen.Settings -> SettingsScreen(onChangeList = { editing = true })
                         Screen.HiddenCats -> HiddenCatsScreen()
                         Screen.MissingLogos -> MissingLogosScreen()
-                        is Screen.Debrid -> key(top) { DebridDetailScreen(top.key) }
                     }
                 }
             }

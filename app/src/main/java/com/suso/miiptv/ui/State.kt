@@ -17,8 +17,6 @@ sealed interface Screen {
     data object Settings : Screen
     data object HiddenCats : Screen
     data object MissingLogos : Screen
-    /** Ficha de una película o serie de AllDebrid (por su clave en la biblioteca). */
-    data class Debrid(val key: String) : Screen
 }
 
 enum class Tab(val label: String) {
@@ -27,7 +25,6 @@ enum class Tab(val label: String) {
     GUIDE("Guía"),
     MOVIES("Películas"),
     SERIES("Series"),
-    DEBRID("AllDebrid"),
     SEARCH("Buscar"),
 }
 

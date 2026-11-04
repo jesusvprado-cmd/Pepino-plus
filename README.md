@@ -1,21 +1,8 @@
 # Pepino+
 
-Pepino IPTV con una sección nueva: **AllDebrid**. Se instala aparte (no sustituye a Pepino IPTV).
+Copia de Pepino IPTV que se instala aparte (otro nombre e icono). Solo IPTV.
 
-## AllDebrid
-
-- Menú de arriba › **AllDebrid**: películas y series de tu cuenta (torrents listos y enlaces guardados), con carátulas.
-- **Vincular la cuenta:** Ajustes › AllDebrid › *Vincular con un código* (escribes el código en alldebrid.com/pin) o *Escribir la clave API*.
-- **Filtros:** calidad (4K, HDR/Dolby Vision, 1080p, 720p), audio (castellano, latino, inglés, VO), subtítulos en español, y orden.
-- **Etiquetas** en cada carátula (4K · DV · ES/EN). Si hay varias copias de la misma película, sale una sola carátula; en la ficha se elige la versión (la recomendada lleva ★).
-- **Idiomas reales:** la app lee el principio de cada MKV para saber qué audios y subtítulos lleva de verdad (se puede apagar en Ajustes).
-- **Fichas:** sin clave salen de Cinemeta (en inglés). Con una clave gratuita de TMDB (Ajustes › AllDebrid) salen en español.
-- Series: temporadas, capítulos, «Continuar» y paso automático al siguiente capítulo. Mantén OK en un capítulo para elegir otra versión.
-- Lo de AllDebrid también sale en **Buscar** y en **Continuar viendo**.
-
----
-
-# Mi IPTV (base)
+## Base: Mi IPTV
 
 Reproductor IPTV propio para Android TV (Mi Box, Smart TV con Android), tablets y móviles.
 No trae canales: se usa con tu propia lista (Xtream Codes o M3U).

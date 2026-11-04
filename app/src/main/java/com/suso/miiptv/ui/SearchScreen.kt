@@ -104,9 +104,6 @@ fun SearchScreen() {
             Spacer(Modifier.height(20.dp))
         }
         val r = res
-        // Resultados de la cuenta de AllDebrid (se buscan al momento, sin red).
-        val ad = if (q.trim().length >= 2) com.suso.miiptv.debrid.DebridStore.search(q) else emptyList()
-        if (ad.isNotEmpty()) item(key = "ad_results") { DebridSearchRow(ad) }
         when {
             loading -> item {
                 Text(
@@ -120,7 +117,7 @@ fun SearchScreen() {
                     color = C.text2, fontSize = Sz.body, modifier = Modifier.padding(horizontal = gap),
                 )
             }
-            r.live.isEmpty() && r.movies.isEmpty() && r.series.isEmpty() -> if (ad.isEmpty()) item {
+            r.live.isEmpty() && r.movies.isEmpty() && r.series.isEmpty() -> item {
                 Text("Sin resultados", color = C.text2, fontSize = Sz.body, modifier = Modifier.padding(horizontal = gap))
             }
             else -> {

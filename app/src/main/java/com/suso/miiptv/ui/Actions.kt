@@ -50,15 +50,6 @@ object Actions {
 
     fun resume(ctx: Context, p: Prefs.Progress) {
         val k = p.play.key
-        // Capítulo de AllDebrid: se carga la serie para que al terminar siga el siguiente.
-        if (k.startsWith("ADE|")) {
-            scope.launch {
-                com.suso.miiptv.debrid.DebridStore.ensureLoaded()
-                val q = com.suso.miiptv.debrid.DebridStore.queueForKey(k)
-                if (q != null) PlayQueue.start(ctx, q.first, q.second, p.pos) else PlayQueue.start(ctx, listOf(p.play), 0, p.pos)
-            }
-            return
-        }
         // Episodio a medias («Continuar viendo»): se carga la serie entera para que al terminar siga el siguiente.
         if (k.startsWith("EP|")) {
             // «EP|serie|episodio»: el id de la serie puede llevar «|» (listas M3U).
