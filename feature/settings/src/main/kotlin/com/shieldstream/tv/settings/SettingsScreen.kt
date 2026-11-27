@@ -662,12 +662,12 @@ private fun ErrorLogCard(onClick: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(
-                    if (Lang.isEnglish) "Error log" else "Registro de errores",
+                    if (com.shieldstream.tv.model.Lang.isEnglish) "Error log" else "Registro de errores",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = Color.White,
                 )
                 Text(
-                    if (Lang.isEnglish) "Why Pepino+ closed unexpectedly" else "Por qué se ha cerrado Pepino+ de repente",
+                    if (com.shieldstream.tv.model.Lang.isEnglish) "Why Pepino+ closed unexpectedly" else "Por qué se ha cerrado Pepino+ de repente",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
                 )
