@@ -1,9 +1,41 @@
-.gradle/
+# --- Compilación (se regenera) ---
 build/
-app/build/
+.gradle/
+.kotlin/
+*.apk
+*.aab
+.externalNativeBuild/
+.cxx/
+
+# --- Secretos: NUNCA a git (haz copia de seguridad aparte) ---
 local.properties
+keystore/
+*.jks
+*.keystore
+
+# --- Versiones generadas (los APK) ---
+releases/
+
+# --- Ficheros de trabajo del bucle con Claude ---
+_shots/
+_archivo/
+.build_*
+.adb_*
+.av1_*
+.git_request
+.git_running
+.git_log.txt
+.git_msg
+
+# --- Exportaciones de sesiones de agentes (registros en bruto) ---
+pi-session-*.html
+
+# --- IDE / sistema ---
 .idea/
 *.iml
 .DS_Store
-captures/
-.kotlin/
+Thumbs.db
+
+# Marca de compilación pública (APK sin claves para GitHub)
+.public_build
+_opus_trash/

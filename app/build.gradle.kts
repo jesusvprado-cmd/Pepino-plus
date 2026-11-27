@@ -1,57 +1,60 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.hilt)
 }
 
-// Número de compilación que pone GitHub (el mismo que el de la versión publicada): así la app sabe si hay una más nueva.
-val buildNumber = (project.findProperty("buildNumber") as String?)?.toIntOrNull() ?: 1
+import java.util.Properties
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+// APK para publicar en GitHub: si existe .public_build con "1", se compila SIN ninguna clave ni dato privado
+// (ni las claves iniciales ni el secreto de Trakt), pase lo que pase en local.properties.
+val publicBuild: Boolean = rootProject.file(".public_build").let { it.exists() && it.readText().trim() == "1" }
+val seedKeys: Boolean = !publicBuild && localProps.getProperty("seedKeys")?.trim()?.lowercase() == "true"
+fun seed(name: String): String = if (seedKeys) localProps.getProperty(name) ?: "" else ""
+fun privateProp(name: String): String = if (publicBuild) "" else localProps.getProperty(name)?.trim() ?: ""
+val rdToken: String = seed("rdToken")
+val subdlApiKey: String = seed("subdlApiKey")
+val tmdbApiKey: String = seed("tmdbApiKey")
+val traktClientId: String = localProps.getProperty("traktClientId")?.trim() ?: ""
+val traktClientSecret: String = privateProp("traktClientSecret")
+val buildNumber: Int = (project.findProperty("buildNumber") as String?)?.toIntOrNull() ?: 1
+// Llave de firma de Pepino+ (app/pepino.p12, cifrada). Su contraseña la pone GitHub desde el secreto SIGNING_PASSWORD
+// (o, en un ordenador, -PsigningPassword=...). Sin ella el APK de release sale sin firmar.
+val signingPass: String? = System.getenv("SIGNING_PASSWORD")?.takeIf { it.isNotBlank() }
+    ?: (project.findProperty("signingPassword") as String?)?.takeIf { it.isNotBlank() }
+val traktRedirectUri: String = localProps.getProperty("traktRedirectUri")?.trim() ?: "urn:ietf:wg:oauth:2.0:oob"
 
 android {
-    namespace = "com.suso.miiptv"
-    compileSdk = 35
+    namespace = "com.shieldstream.tv"
+    compileSdk = 37
 
     defaultConfig {
+        // Mismo identificador que el Pepino+ anterior: se instala encima de él y conserva su sistema de actualizaciones.
         applicationId = "com.suso.pepinoplus"
         minSdk = 21
         targetSdk = 35
+        // Número de compilación de GitHub Actions (-PbuildNumber). Coincide con la etiqueta vN de la versión publicada.
         versionCode = buildNumber
-        versionName = "1.$buildNumber"
+        versionName = "2.$buildNumber"
+        manifestPlaceholders["appLabel"] = "@string/app_name"
 
-        // Teles, boxes y móviles usan procesadores ARM: así el APK pesa menos.
-        ndk {
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
-        }
+        buildConfigField("String", "RD_TOKEN", "\"$rdToken\"")
+        buildConfigField("String", "SUBDL_API_KEY", "\"$subdlApiKey\"")
+        buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
+        buildConfigField("String", "TRAKT_CLIENT_ID", "\"$traktClientId\"")
+        buildConfigField("String", "TRAKT_CLIENT_SECRET", "\"$traktClientSecret\"")
+        buildConfigField("String", "TRAKT_REDIRECT_URI", "\"$traktRedirectUri\"")
     }
 
-    // Firma de la app: la llave (pepino.p12) va cifrada y su contraseña NO está en el código; la pone GitHub
-    // desde el secreto SIGNING_PASSWORD (o, en un ordenador, la propiedad -PsigningPassword=...).
-    val signingPass: String? = System.getenv("SIGNING_PASSWORD")?.takeIf { it.isNotBlank() }
-        ?: (project.findProperty("signingPassword") as String?)
-    signingConfigs {
-        create("propia") {
-            storeFile = file("pepino.p12")
-            storePassword = signingPass
-            keyAlias = "pepino"
-            keyPassword = signingPass
-            storeType = "pkcs12"
-        }
-    }
-
-    // Los logos hechos a mano (carpeta «logos») van dentro de la app, en assets/logos/.
-    sourceSets {
-        getByName("main") {
-            assets.srcDirs("src/main/assets", "build/generated/ownLogos")
-        }
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = if (signingPass != null) signingConfigs.getByName("propia") else null
-        }
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -61,64 +64,79 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    buildFeatures {
-        compose = true
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("pepino.p12")
+            storeType = "pkcs12"
+            storePassword = signingPass
+            keyAlias = "pepino"
+            keyPassword = signingPass
+        }
     }
-    testOptions {
-        // La prueba de logos lee los datos y los logos propios que van en assets.
-        unitTests.isIncludeAndroidResources = true
-    }
-    lint {
-        checkReleaseBuilds = false
-        abortOnError = false
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-pruebas"
+            manifestPlaceholders["appLabel"] = "Pepino+ (pruebas)"
+        }
+        release {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = if (signingPass != null) signingConfigs.getByName("release") else null
+        }
+        // Release-like performance testing without touching the stable app or enabling self-updates.
+        // Shares the debug package/data, but is non-debuggable so AGP packages the baseline profile.
+        create("benchmark") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-benchmark"
+            manifestPlaceholders["appLabel"] = "Pepino+ (benchmark)"
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += "release"
         }
     }
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
-    implementation(composeBom)
-    implementation("androidx.core:core-ktx:1.16.0")
-    implementation("androidx.activity:activity-compose:1.10.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-core")
+    implementation(project(":core:model"))
+    implementation(project(":core:strings"))
+    implementation(project(":core:domain"))
+    implementation(project(":core:network"))
+    implementation(project(":core:data"))
+    implementation(project(":core:media"))
+    implementation(project(":core:ui"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:details"))
+    implementation(project(":feature:player"))
+    implementation(project(":feature:settings"))
 
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
-    implementation("androidx.media3:media3-exoplayer-hls:1.8.0")
-    implementation("androidx.media3:media3-ui:1.8.0")
-    implementation("androidx.media3:media3-datasource-okhttp:1.8.0")
-    // Decodificador de audio (AC3, E-AC3, DTS...) para los equipos que no lo traen.
-    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.8.0+1")
-    // VPN WireGuard (WARP y perfiles propios).
-    implementation("com.wireguard.android:tunnel:1.0.20230706")
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.okhttp)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.tvprovider)
+    implementation(libs.coil)
+    implementation(files("libs/media3-decoder-av1-1.6.0.aar"))
+    implementation(libs.kotlinx.coroutines.android)
 
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    // Fila «Continuar viendo» de la pantalla de inicio de Android TV.
-    implementation("androidx.tvprovider:tvprovider:1.0.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
-    // Prueba automática de logos (se ejecuta en GitHub antes de publicar cada versión).
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.13")
-    // Capturas de pantalla de prueba (móvil, tablet y tele) para revisar el diseño sin el aparato.
-    testImplementation(composeBom)
-    testImplementation("androidx.compose.ui:ui-test-junit4")
-    // Servidor de prueba para las pruebas de lectura de listas (M3U y Xtream).
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }
-
-// Copia la carpeta «logos» del proyecto a assets/logos/ dentro del APK.
-val copyOwnLogos by tasks.registering(Copy::class) {
-    from(rootProject.file("logos"))
-    into(file("build/generated/ownLogos/logos"))
-}
-tasks.named("preBuild") { dependsOn(copyOwnLogos) }

@@ -1,0 +1,231 @@
+package com.shieldstream.tv.ui.component
+
+import com.shieldstream.tv.ui.theme.AppColors
+import androidx.annotation.StringRes
+import com.shieldstream.tv.strings.localizedStringResource
+import com.shieldstream.tv.strings.R as StringsR
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.res.painterResource
+import com.shieldstream.tv.ui.R
+import com.shieldstream.tv.ui.theme.LocalLightweightUi
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+enum class TopTab {
+    SEARCH,
+    HOME,
+    EPISODES,
+    TV,
+    MOVIES,
+    MY_LIST,
+}
+
+@get:StringRes
+private val TopTab.labelResource: Int
+    get() = when (this) {
+        TopTab.SEARCH -> StringsR.string.common_search
+        TopTab.HOME -> StringsR.string.common_home
+        TopTab.EPISODES -> StringsR.string.common_episodes
+        TopTab.TV -> StringsR.string.common_tv_shows
+        TopTab.MOVIES -> StringsR.string.common_movies
+        TopTab.MY_LIST -> StringsR.string.common_my_list
+    }
+
+@Composable
+fun TopBar(
+    selected: TopTab,
+    onSelect: (TopTab) -> Unit,
+    onSettings: () -> Unit,
+    selectedRequester: FocusRequester,
+    modifier: Modifier = Modifier,
+    profileInitial: String? = null,
+    profileAvatar: Int = 0,
+    profileImage: String? = null,
+    onProfile: () -> Unit = {},
+    newEpisodeCount: Int = 0,
+    /** Indicador de descargas arriba a la derecha (solo si hay alguna en marcha); al pulsarlo abre Descargas. */
+    downloads: DownloadIndicatorState? = null,
+    onDownloads: () -> Unit = {},
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(64.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 32.dp),
+        ) {
+            // Marca de Bambi: gatito + "BAMBI" (no enfocable). Las esquinas redondeadas ya vienen en el PNG.
+            Image(
+                painter = painterResource(R.drawable.bambi_logo),
+                contentDescription = "Pepino+",
+                modifier = Modifier.size(40.dp),
+            )
+            Spacer(Modifier.width(12.dp))
+            Image(
+                painter = painterResource(R.drawable.bambi_wordmark),
+                contentDescription = null,
+                modifier = Modifier.height(22.dp),
+            )
+        }
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TopTab.entries.forEach { tab ->
+                TopBarItem(
+                    icon = if (tab == TopTab.SEARCH) AppIcons.Search else null,
+                    label = if (tab == TopTab.SEARCH) null else localizedStringResource(tab.labelResource),
+                    selected = tab == selected,
+                    badgeCount = if (tab == TopTab.EPISODES) newEpisodeCount else 0,
+                    onClick = { onSelect(tab) },
+                    modifier = if (tab == selected) Modifier.focusRequester(selectedRequester) else Modifier,
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 32.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (downloads != null) {
+                DownloadIndicator(state = downloads, onClick = onDownloads)
+            }
+            if (profileInitial != null) {
+                ProfileButton(initial = profileInitial, avatar = profileAvatar, image = profileImage, onClick = onProfile)
+            }
+            TopBarItem(
+                icon = AppIcons.Settings,
+                label = null,
+                selected = false,
+                onClick = onSettings,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileButton(initial: String, avatar: Int, image: String?, onClick: () -> Unit) {
+    var focused by remember { mutableStateOf(false) }
+    val scale = if (LocalLightweightUi.current) {
+        if (focused) 1.12f else 1f
+    } else {
+        animateFloatAsState(if (focused) 1.12f else 1f, label = "profileScale").value
+    }
+    Box(
+        Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .border(
+                width = 2.dp,
+                color = if (focused) Color.White else Color.Transparent,
+                shape = RoundedCornerShape(8.dp),
+            )
+            .padding(3.dp)
+            .onFocusChanged { focused = it.isFocused }
+            .tvClickable(onClick = onClick),
+    ) {
+        ProfileAvatar(initial = initial, avatar = avatar, size = 32.dp, shape = RoundedCornerShape(6.dp), image = image)
+    }
+}
+
+@Composable
+private fun TopBarItem(
+    icon: ImageVector?,
+    label: String?,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    badgeCount: Int = 0,
+) {
+    var focused by remember { mutableStateOf(false) }
+    val scale = if (LocalLightweightUi.current) {
+        if (focused) 1.06f else 1f
+    } else {
+        animateFloatAsState(if (focused) 1.06f else 1f, label = "topBarScale").value
+    }
+    // Como en Bambi: pastilla blanca al enfocar y gris translúcida en la pestaña activa.
+    val background = when {
+        focused -> Color.White
+        selected -> Color.White.copy(alpha = 0.18f)
+        else -> Color.Transparent
+    }
+    val foreground = when {
+        focused -> Color.Black
+        selected -> Color.White
+        else -> Color.White.copy(alpha = 0.75f)
+    }
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            // Fondo dibujado ya redondeado (sin clip): en la Shield el clip de una capa escalada se perdía.
+            .background(background, RoundedCornerShape(50))
+            .onFocusChanged { focused = it.isFocused }
+            .tvClickable(onClick = onClick)
+            .padding(horizontal = if (label != null) 18.dp else 10.dp, vertical = 7.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = label, tint = foreground, modifier = Modifier.size(22.dp))
+        } else if (label != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = label,
+                    color = foreground,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = if (selected || focused) FontWeight.Bold else FontWeight.Medium,
+                    ),
+                )
+                // Hay novedades: un punto rojo, sin número (como en Netflix).
+                if (badgeCount > 0) {
+                    Spacer(Modifier.width(5.dp))
+                    Box(
+                        Modifier
+                            .align(Alignment.Top)
+                            .padding(top = 2.dp)
+                            .size(8.dp)
+                            .background(AppColors.Alert, CircleShape),
+                    )
+                }
+            }
+        }
+    }
+}

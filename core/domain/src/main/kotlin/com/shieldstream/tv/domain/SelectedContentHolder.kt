@@ -1,0 +1,82 @@
+package com.shieldstream.tv.domain
+
+import com.shieldstream.tv.model.CatalogItem
+import com.shieldstream.tv.model.PlaybackMedia
+import com.shieldstream.tv.model.StreamSource
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+data class NextEpisode(val showId: String, val season: Int, val episode: Int, val label: String)
+
+data class EpisodeTarget(val season: Int, val number: Int)
+
+data class DetailsRequest(
+    val item: CatalogItem,
+    val target: EpisodeTarget? = null,
+    val playImmediately: Boolean = false,
+    val requestedAtNs: Long = System.nanoTime(),
+)
+
+data class PlaybackRequest(
+    val sources: List<StreamSource>,
+    val label: String,
+    val progressKey: String? = null,
+    val fromStart: Boolean = false,
+    val media: PlaybackMedia? = null,
+    val next: NextEpisode? = null,
+    val requestedAtNs: Long = System.nanoTime(),
+    /** Fuente elegida a mano sin cambio automático: si falla, el reproductor no prueba otra y vuelve a la lista. */
+    val manualPick: Boolean = false,
+)
+
+class SelectedContentHolder {
+    @Volatile private var pickedSourceFailure: String? = null
+
+    /** El reproductor avisa de que la fuente elegida a mano no funcionó (con el motivo) antes de cerrarse. */
+    fun reportPickedSourceFailed(message: String) {
+        pickedSourceFailure = message
+    }
+
+    fun consumePickedSourceFailure(): String? = pickedSourceFailure.also { pickedSourceFailure = null }
+
+    private val _details = MutableStateFlow<DetailsRequest?>(null)
+    val details: StateFlow<DetailsRequest?> = _details.asStateFlow()
+
+    private val _playback = MutableStateFlow<PlaybackRequest?>(null)
+    val playback: StateFlow<PlaybackRequest?> = _playback.asStateFlow()
+
+    @Volatile private var nextRequested: NextEpisode? = null
+
+    fun requestNext(next: NextEpisode) {
+        nextRequested = next
+    }
+
+    fun consumeNextRequest(): NextEpisode? = nextRequested.also { nextRequested = null }
+
+    private val _prefetch = MutableStateFlow<NextEpisode?>(null)
+    val prefetch: StateFlow<NextEpisode?> = _prefetch.asStateFlow()
+
+    fun prefetchNext(next: NextEpisode) {
+        _prefetch.value = next
+    }
+
+    fun selectItem(item: CatalogItem, target: EpisodeTarget? = null, playImmediately: Boolean = false) {
+        _details.value = DetailsRequest(item, target, playImmediately)
+        _playback.value = null
+        _prefetch.value = null
+    }
+
+    fun playQueue(
+        sources: List<StreamSource>,
+        label: String,
+        progressKey: String? = null,
+        fromStart: Boolean = false,
+        media: PlaybackMedia? = null,
+        next: NextEpisode? = null,
+        requestedAtNs: Long = System.nanoTime(),
+        manualPick: Boolean = false,
+    ) {
+        _playback.value = PlaybackRequest(sources, label, progressKey, fromStart, media, next, requestedAtNs, manualPick)
+    }
+}

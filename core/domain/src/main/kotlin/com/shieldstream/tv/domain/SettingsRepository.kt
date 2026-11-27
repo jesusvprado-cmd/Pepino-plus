@@ -1,0 +1,126 @@
+package com.shieldstream.tv.domain
+
+import com.shieldstream.tv.model.AppLanguage
+import com.shieldstream.tv.model.DeviceOptimization
+import com.shieldstream.tv.model.SourceExclusions
+import com.shieldstream.tv.model.SubtitleAppearance
+import com.shieldstream.tv.model.SubtitlePreference
+import kotlinx.coroutines.flow.Flow
+
+interface SettingsRepository {
+    val token: Flow<String?>
+    suspend fun setToken(token: String?)
+
+    val catalogProvider: Flow<CatalogProvider>
+    suspend fun setCatalogProvider(provider: CatalogProvider)
+
+    val deviceOptimization: Flow<DeviceOptimization>
+    suspend fun setDeviceOptimization(optimization: DeviceOptimization)
+
+    val maxBufferSeconds: Flow<Int>
+    suspend fun setMaxBufferSeconds(seconds: Int)
+
+    val lightweightUi: Flow<Boolean>
+    val lightweightUiEnabled: Boolean
+    suspend fun setLightweightUi(enabled: Boolean)
+
+    /** Blur the backdrop behind Home rows. App-wide; on by default. */
+    /** Intro de Bambi cada vez que se abre la app (si no, solo al arrancar o cuando hay que recargar el Inicio). */
+    val introAlways: Flow<Boolean>
+    val introAlwaysEnabled: Boolean
+    suspend fun setIntroAlways(enabled: Boolean)
+
+    val softBackdrops: Flow<Boolean>
+    val softBackdropsEnabled: Boolean
+    suspend fun setSoftBackdrops(enabled: Boolean)
+
+    /** Load full-screen backdrops at TMDB's original size. App-wide; off by default. */
+    val highResBackdrops: Flow<Boolean>
+    val highResBackdropsEnabled: Boolean
+    suspend fun setHighResBackdrops(enabled: Boolean)
+
+    val seekThumbnails: Flow<Boolean>
+    suspend fun setSeekThumbnails(enabled: Boolean)
+
+    val language: AppLanguage
+    suspend fun setLanguage(language: AppLanguage)
+
+    val spanishFirst: Flow<Boolean>
+    suspend fun setSpanishFirst(enabled: Boolean)
+
+    val spanishOnlySources: Flow<Boolean>
+    suspend fun setSpanishOnlySources(enabled: Boolean)
+
+    val subtitlePreference: Flow<SubtitlePreference>
+    suspend fun setSubtitlePreference(preference: SubtitlePreference)
+
+    val subtitleAppearance: Flow<SubtitleAppearance>
+    suspend fun setSubtitleAppearance(appearance: SubtitleAppearance)
+
+    val experimentalSubtitleSync: Flow<Boolean>
+    suspend fun setExperimentalSubtitleSync(enabled: Boolean)
+
+    val matchContentFrameRate: Flow<Boolean>
+    suspend fun setMatchContentFrameRate(enabled: Boolean)
+
+    val autoNextEpisode: Flow<Boolean>
+    suspend fun setAutoNextEpisode(enabled: Boolean)
+
+    /**
+     * Si una fuente elegida a mano falla, saltar sola a la más parecida (true, por defecto) o avisar y volver a la
+     * lista de fuentes para elegir otra (false). "Reproducir" siempre salta sola: ahí la fuente la elige la app.
+     */
+    val switchFromPickedSource: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(true)
+
+    /** Formato de imagen del reproductor (bandas negras, ampliar o estirar); se recuerda para lo siguiente. */
+    val videoFit: Flow<com.shieldstream.tv.model.VideoFit> get() = kotlinx.coroutines.flow.flowOf(com.shieldstream.tv.model.VideoFit.FIT)
+    suspend fun setVideoFit(fit: com.shieldstream.tv.model.VideoFit) {}
+    suspend fun setSwitchFromPickedSource(enabled: Boolean) {}
+
+    /** Salta la intro y el "Anteriormente en…" solos, sin tener que pulsar el botón. */
+    val autoSkipIntro: Flow<Boolean>
+    suspend fun setAutoSkipIntro(enabled: Boolean)
+
+    /** Muestra la fila de reparto y equipo en las fichas. */
+    val showCast: Flow<Boolean>
+    suspend fun setShowCast(enabled: Boolean)
+
+    /** Panel de audio/subtítulos del reproductor: false = transparente sobre el vídeo (como siempre); true = tarjeta. */
+    /** Tope de calidad al elegir fuente automáticamente (lo que lo pasa va detrás). */
+    val preferredQuality: Flow<com.shieldstream.tv.model.PreferredQuality>
+    suspend fun setPreferredQuality(quality: com.shieldstream.tv.model.PreferredQuality)
+
+    val tracksPanelCard: Flow<Boolean>
+    suspend fun setTracksPanelCard(enabled: Boolean)
+
+    val searchQwerty: Flow<Boolean>
+    suspend fun setSearchQwerty(enabled: Boolean)
+
+    val hiddenCategories: Flow<Set<String>>
+    suspend fun setHiddenCategories(names: Set<String>)
+
+    val homeRowItemLimit: Flow<Int>
+    suspend fun setHomeRowItemLimit(limit: Int)
+
+    val sourceProviders: Flow<Set<SourceProvider>>
+    suspend fun setSourceProviders(providers: Set<SourceProvider>)
+
+    val sourceExclusions: Flow<SourceExclusions>
+    suspend fun setSourceExclusions(exclusions: SourceExclusions)
+
+    /** Fuentes que el usuario ha descartado por ir mal; no vuelven a ofrecerse hasta restaurarlas. */
+    val brokenSourceIds: Flow<Set<String>>
+    suspend fun markSourceBroken(id: String)
+    suspend fun clearBrokenSources()
+
+    /** Servicio debrid en uso (Real-Debrid por defecto). */
+    val debridService: Flow<DebridService>
+    suspend fun setDebridService(service: DebridService)
+
+    companion object {
+        const val DEFAULT_HOME_ROW_ITEM_LIMIT = 30
+        const val MIN_HOME_ROW_ITEM_LIMIT = 10
+        const val MAX_HOME_ROW_ITEM_LIMIT = 100
+        const val HOME_ROW_ITEM_LIMIT_STEP = 10
+    }
+}
