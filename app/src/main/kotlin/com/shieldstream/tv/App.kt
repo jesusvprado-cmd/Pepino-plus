@@ -43,6 +43,10 @@ class App : Application(), ImageLoaderFactory, Configuration.Provider {
     override fun onCreate() {
         // Lo primero: si la app se cierra por un error, que quede guardado para enseñarlo al volver a abrirla.
         com.shieldstream.tv.crash.CrashLog.install(this)
+        // Copia del registro de Android de antes de abrir (si hay permiso), por si la cerró el sistema.
+        if (com.shieldstream.tv.crash.SystemLog.hasPermission(this)) {
+            Thread { runCatching { com.shieldstream.tv.crash.SystemLog.snapshotAtStartup(this) } }.start()
+        }
         StartupTrace.mark("App.onCreate")
         Lang.current = AppLanguage.fromName(
             getSharedPreferences(AppLanguage.PREFS, MODE_PRIVATE).getString(AppLanguage.PREF_KEY, null),

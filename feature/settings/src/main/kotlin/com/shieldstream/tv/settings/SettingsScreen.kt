@@ -119,6 +119,7 @@ fun SettingsScreen(
     onOpenPhoneConfig: () -> Unit = {},
     onOpenAddons: () -> Unit = {},
     onOpenRequests: () -> Unit = {},
+    onOpenErrorLog: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -157,6 +158,7 @@ fun SettingsScreen(
                     onOpenSetup = onOpenSetup,
                     onOpenPhoneConfig = onOpenPhoneConfig,
                     onOpenRequests = onOpenRequests,
+                    onOpenErrorLog = onOpenErrorLog,
                     showRequests = isAdmin,
                     pendingRequestCount = pendingRequestCount,
                     onLanguage = { language -> viewModel.setLanguage(language) { restartApp(context) } },
@@ -199,6 +201,7 @@ private fun SettingsList(
     onOpenSetup: () -> Unit,
     onOpenPhoneConfig: () -> Unit,
     onOpenRequests: () -> Unit,
+    onOpenErrorLog: () -> Unit,
     showRequests: Boolean,
     pendingRequestCount: Int,
     onLanguage: (AppLanguage) -> Unit,
@@ -430,6 +433,7 @@ private fun SettingsList(
                 item { FamilyRequestsCard(count = pendingRequestCount, onClick = onOpenRequests) }
             }
             item { PhoneConfigCard(onClick = onOpenPhoneConfig) }
+            item { ErrorLogCard(onClick = onOpenErrorLog) }
             item { SetupGuideCard(onClick = onOpenSetup) }
         }
     }
@@ -639,6 +643,31 @@ private fun PhoneConfigCard(onClick: () -> Unit) {
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_phone_config_card_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Muted,
+                )
+            }
+            Text(
+                localizedStringResource(StringsR.string.settings_ok_to_open),
+                style = MaterialTheme.typography.labelLarge,
+                color = if (focused) Color.White else Color.Transparent,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorLogCard(onClick: () -> Unit) {
+    FocusCard(onClick = onClick) { focused ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (Lang.isEnglish) "Error log" else "Registro de errores",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                )
+                Text(
+                    if (Lang.isEnglish) "Why Pepino+ closed unexpectedly" else "Por qué se ha cerrado Pepino+ de repente",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
                 )

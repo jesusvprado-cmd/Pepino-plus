@@ -291,7 +291,11 @@ fun AppNavHost(
                 onOpenPhoneConfig = { navController.navigate("phone_config") },
                 onOpenAddons = { navController.navigate("addons") },
                 onOpenRequests = { navController.navigate("requests") },
+                onOpenErrorLog = { navController.navigate("error_log") },
             )
+        }
+        composable("error_log") { entry ->
+            com.shieldstream.tv.crash.ErrorLogScreen(onBack = { if (entry.isVisible()) navController.popBackStack() })
         }
         composable("addons") { entry ->
             AddonsScreen(onBack = { if (entry.isVisible()) navController.popBackStack() })
