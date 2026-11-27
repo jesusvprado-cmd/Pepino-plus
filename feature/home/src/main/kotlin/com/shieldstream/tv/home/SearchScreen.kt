@@ -105,6 +105,7 @@ fun SearchScreen(
         )
     }
     val qwerty by viewModel.qwerty.collectAsStateWithLifecycle()
+    val recent by viewModel.recent.collectAsStateWithLifecycle()
 
     val firstKey = remember { FocusRequester() }
     val layoutKey = remember { FocusRequester() }
@@ -145,7 +146,7 @@ fun SearchScreen(
     Row(Modifier.fillMaxSize().background(Color.Black)) {
         Column(
             Modifier
-                .width(if (qwerty) 452.dp else 330.dp)
+                .width(if (qwerty) 540.dp else 400.dp)
                 .fillMaxHeight()
                 .padding(start = 40.dp, top = 40.dp, end = 16.dp),
         ) {
@@ -243,6 +244,9 @@ fun SearchScreen(
                         .padding(horizontal = 14.dp, vertical = 6.dp),
                 )
             }
+            if (state is SearchUiState.Suggestions && recent.isNotEmpty()) {
+                RecentSearches(recent, onPick = viewModel::setQuery, onClear = viewModel::clearRecent)
+            }
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(118.dp),
                 contentPadding = PaddingValues(12.dp),
@@ -253,7 +257,10 @@ fun SearchScreen(
                 items(items, key = { it.key }) { item ->
                     PosterCard(
                         item = item,
-                        onClick = { onItemClick(item) },
+                        onClick = {
+                            viewModel.rememberCurrentSearch()
+                            onItemClick(item)
+                        },
                         onFocused = { lastCardKey = item.key },
                         width = 118.dp,
                         modifier = if (item.key == lastCardKey) Modifier.focusRequester(cardRequester) else Modifier,
@@ -310,33 +317,34 @@ private fun OnScreenKeyboard(
         }
     }
     val rows = if (qwerty) QWERTY_ROWS else KEYS.chunked(KEY_COLUMNS)
-    val keyWidth = if (qwerty) 36.dp else 42.dp
-    val fullWidth = if (qwerty) 36.dp * 10 + 4.dp * 9 else 42.dp * 6 + 4.dp * 5
+    // Pepino+: teclas más grandes, para acertar desde el sofá.
+    val keyWidth = if (qwerty) 44.dp else 52.dp
+    val fullWidth = if (qwerty) 44.dp * 10 + 4.dp * 9 else 52.dp * 6 + 4.dp * 5
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         rows.forEachIndexed { rowIndex, rowKeys ->
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 rowKeys.forEachIndexed { colIndex, c ->
                     val mod = if (rowIndex == 0 && colIndex == 0) Modifier.focusRequester(firstKeyRequester) else Modifier
                     KeyButton(width = keyWidth, onClick = { onChar(c) }, modifier = mod) {
-                        Text(c.uppercase(), style = MaterialTheme.typography.titleMedium, color = it)
+                        Text(c.uppercase(), style = MaterialTheme.typography.titleLarge, color = it)
                     }
                 }
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            KeyButton(width = fullWidth - 42.dp - 88.dp - 8.dp, onClick = { onChar(' ') }) {
+            KeyButton(width = fullWidth - 52.dp - 96.dp - 8.dp, onClick = { onChar(' ') }) {
                 Text(localizedStringResource(StringsR.string.home_space), style = MaterialTheme.typography.bodyMedium, color = it)
             }
-            KeyButton(width = 42.dp, onClick = onBackspace) {
-                Icon(AppIcons.Backspace, contentDescription = localizedStringResource(StringsR.string.home_clear), tint = it, modifier = Modifier.size(20.dp))
+            KeyButton(width = 52.dp, onClick = onBackspace) {
+                Icon(AppIcons.Backspace, contentDescription = localizedStringResource(StringsR.string.home_clear), tint = it, modifier = Modifier.size(24.dp))
             }
-            KeyButton(width = 88.dp, onClick = onClear) {
+            KeyButton(width = 96.dp, onClick = onClear) {
                 Text(localizedStringResource(StringsR.string.home_clear), style = MaterialTheme.typography.bodyMedium, color = it)
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             KeyButton(
-                width = 88.dp,
+                width = 96.dp,
                 onClick = {
                     toggled = true
                     onToggleLayout()
@@ -345,7 +353,7 @@ private fun OnScreenKeyboard(
             ) {
                 Text(if (qwerty) "ABC" else "QWERTY", style = MaterialTheme.typography.bodyMedium, color = it)
             }
-            KeyButton(width = fullWidth - 88.dp - 4.dp, onClick = onSystemKeyboard) {
+            KeyButton(width = fullWidth - 96.dp - 4.dp, onClick = onSystemKeyboard) {
                 Text(localizedStringResource(StringsR.string.home_system_keyboard), style = MaterialTheme.typography.bodyMedium, color = it, maxLines = 1)
             }
         }
@@ -363,11 +371,11 @@ private fun KeyButton(
     Box(
         modifier = modifier
             .width(width)
-            .height(40.dp)
+            .height(48.dp)
             .onFocusChanged { focused = it.isFocused }
-            .clip(RoundedCornerShape(4.dp))
-            .background(if (focused) Color.White else Color(0xFF1C1C1F))
-            .then(if (focused) Modifier else Modifier.border(1.dp, Color(0xFF2C2C30), RoundedCornerShape(4.dp)))
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (focused) Color.White else AppColors.Surface)
+            .then(if (focused) Modifier else Modifier.border(1.dp, AppColors.SurfaceFocused, RoundedCornerShape(8.dp)))
             .tvClickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -395,4 +403,43 @@ private fun androidx.compose.foundation.layout.BoxScope.LockedOverlay(asked: Boo
             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
         )
     }
+}
+
+/** Búsquedas recientes como pastillas: OK repite la búsqueda; la última, «Borrar», vacía la lista. */
+@Composable
+private fun RecentSearches(recent: List<String>, onPick: (String) -> Unit, onClear: () -> Unit) {
+    val en = com.shieldstream.tv.model.Lang.isEnglish
+    Column(Modifier.padding(start = 12.dp, bottom = 10.dp)) {
+        Text(
+            if (en) "Recent searches" else "Búsquedas recientes",
+            color = AppColors.TextSecondary,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            items(recent.size) { index -> RecentChip(recent[index], highlighted = false) { onPick(recent[index]) } }
+            item { RecentChip(if (en) "Clear" else "Borrar", highlighted = true, onClick = onClear) }
+        }
+    }
+}
+
+@Composable
+private fun RecentChip(text: String, highlighted: Boolean, onClick: () -> Unit) {
+    var focused by remember { mutableStateOf(false) }
+    Text(
+        text,
+        color = when {
+            focused -> Color.Black
+            highlighted -> AppColors.TextTertiary
+            else -> Color.White
+        },
+        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+        maxLines = 1,
+        modifier = Modifier
+            .onFocusChanged { focused = it.isFocused }
+            .clip(RoundedCornerShape(50))
+            .background(if (focused) Color.White else AppColors.Surface)
+            .tvClickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 8.dp),
+    )
 }

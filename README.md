@@ -5,7 +5,9 @@ fuentes mediante addons tipo Stremio y servicios debrid (Real-Debrid, AllDebrid,
 varios perfiles.
 
 Basado en [Bambi](https://github.com/grodri99/bambi) 1.0.8 de grodri99, con licencia GPL-3.0 (ver `LICENSE`).
-Esta versión cambia el nombre, el icono y el sistema de actualizaciones, y quita la intro animada.
+Esta versión cambia el nombre, el icono, los colores (verde pepino), la tipografía (Manrope), los iconos de
+perfil y el sistema de actualizaciones, y quita la intro animada. Los iconos del pepino se generan con
+`docs/design/pepino_icons.py`.
 
 ## Cómo obtener el APK
 

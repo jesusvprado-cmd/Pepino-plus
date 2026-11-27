@@ -66,11 +66,11 @@ data class ProfileIcon(val name: String, val url: String)
 data class ProfileIconGroup(val title: String, val icons: List<ProfileIcon>)
 
 /**
- * Lista de iconos de perfil: primero los propios de Bambi (dentro de la app) y después los de Netflix
+ * Lista de iconos de perfil: primero los propios de Pepino+ (dentro de la app) y después los de Netflix
  * (assets/profile_icons.json, por serie, con la URL de cada imagen: esos no van en la app, se cargan al verlos).
  */
 object ProfileIcons {
-    /** Iconos propios de Bambi: van dentro de la app (assets/profile_icons_bambi), no se descargan. */
+    /** Iconos propios de Pepino+ (el pepino, en 7 poses): van dentro de la app (assets/profile_icons_bambi), no se descargan. */
     private const val BAMBI_DIR = "profile_icons_bambi"
     const val ASSET_PREFIX = "file:///android_asset/"
 

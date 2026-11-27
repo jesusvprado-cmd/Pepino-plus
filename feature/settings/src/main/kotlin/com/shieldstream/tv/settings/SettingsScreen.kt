@@ -1,5 +1,17 @@
 package com.shieldstream.tv.settings
 
+import androidx.compose.foundation.focusGroup
+
+import androidx.compose.ui.focus.focusProperties
+
+import androidx.compose.ui.draw.clip
+
+import com.shieldstream.tv.ui.theme.TypeScale
+
+import androidx.compose.foundation.layout.fillMaxHeight
+
+import androidx.compose.runtime.key
+
 import com.shieldstream.tv.ui.component.ValueSelector
 
 import com.shieldstream.tv.ui.component.AppIcons
@@ -240,22 +252,30 @@ private fun SettingsList(
     val otherServices = state.services.filter { !it.service.isDebrid }
     val providerSections = SourceProvider.entries
         .map { it to localizedStringResource(it.sectionResource) }
+    // Pepino+: menú lateral por apartados; a la derecha, solo las opciones del apartado elegido.
+    var section by rememberSaveable { mutableStateOf(SettingsSection.SERVICES) }
+    Row(Modifier.fillMaxSize()) {
+    SettingsSideMenu(
+        title = localizedStringResource(StringsR.string.settings_settings),
+        current = section,
+        onSelect = { section = it },
+    )
+    key(section) {
     ProvideMinimalScroll(margin = 56.dp) {
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = 120.dp, vertical = 40.dp),
+            contentPadding = PaddingValues(start = 40.dp, end = 72.dp, top = 40.dp, bottom = 40.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.weight(1f).fillMaxHeight(),
         ) {
             item {
-                Column(Modifier.padding(bottom = 8.dp)) {
-                    Text(localizedStringResource(StringsR.string.settings_settings), fontFamily = DisplayFont, fontSize = 32.sp, lineHeight = 38.sp, color = Color.White)
-                    Text(
-                        localizedStringResource(StringsR.string.settings_service_keys_playback_and_app_version),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Muted,
-                    )
-                }
+                Text(
+                    section.title(),
+                    style = TypeScale.ScreenTitle,
+                    color = Color.White,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
             }
+            if (section == SettingsSection.SERVICES) {
             item { SectionTitle(localizedStringResource(StringsR.string.settings_debrid_service)) }
             item {
                 DebridSelectorCard(
@@ -307,6 +327,8 @@ private fun SettingsList(
                     modifier = Modifier.padding(start = 4.dp, top = 2.dp),
                 )
             }
+            }
+            if (section == SettingsSection.SOURCES) {
             item { SectionTitle(localizedStringResource(StringsR.string.settings_source_finders)) }
             items(providerSections.distinctBy { it.second }) { (provider, section) ->
                 val enabled = providerSections.filter { it.second == section }.all { it.first in providers }
@@ -394,14 +416,17 @@ private fun SettingsList(
                     )
                 }
             }
+            }
+            if (section == SettingsSection.LOOK) {
             item { SectionTitle(localizedStringResource(StringsR.string.settings_home)) }
             item { HomeRowLimitCard() }
             item { LightweightModeCard() }
-            item { IntroAlwaysCard() }
             item { SoftBackdropsCard() }
             item { HighResBackdropsCard() }
             item { SectionTitle("Idioma · Language") }
             item { LanguageCard(current = state.language, onApply = onLanguage) }
+            }
+            if (section == SettingsSection.PLAYBACK) {
             item { SectionTitle(localizedStringResource(StringsR.string.settings_playback)) }
             item { PlaybackPriorityCard() }
             item { PreferredQualityCard() }
@@ -436,6 +461,8 @@ private fun SettingsList(
                     onChange = onBuffer,
                 )
             }
+            }
+            if (section == SettingsSection.SYSTEM) {
             item { SectionTitle(localizedStringResource(StringsR.string.settings_about)) }
             item { AboutCard() }
             item { UpdateCard() }
@@ -445,6 +472,109 @@ private fun SettingsList(
             item { PhoneConfigCard(onClick = onOpenPhoneConfig) }
             item { ErrorLogCard(onClick = onOpenErrorLog) }
             item { SetupGuideCard(onClick = onOpenSetup) }
+            }
+        }
+    }
+    }
+    }
+}
+
+/** Apartados de Ajustes, en el orden del menú lateral. */
+private enum class SettingsSection { SERVICES, SOURCES, LOOK, PLAYBACK, SYSTEM }
+
+private fun SettingsSection.title(): String {
+    val en = com.shieldstream.tv.model.Lang.isEnglish
+    return when (this) {
+        SettingsSection.SERVICES -> if (en) "Services" else "Servicios"
+        SettingsSection.SOURCES -> if (en) "Sources" else "Fuentes"
+        SettingsSection.LOOK -> if (en) "Home and look" else "Inicio y aspecto"
+        SettingsSection.PLAYBACK -> if (en) "Playback" else "Reproducción"
+        SettingsSection.SYSTEM -> if (en) "System" else "Sistema"
+    }
+}
+
+private fun SettingsSection.subtitle(): String {
+    val en = com.shieldstream.tv.model.Lang.isEnglish
+    return when (this) {
+        SettingsSection.SERVICES -> if (en) "Debrid and keys" else "Debrid y claves"
+        SettingsSection.SOURCES -> if (en) "Finders and exclusions" else "Buscadores y exclusiones"
+        SettingsSection.LOOK -> if (en) "Rows, backdrops, language" else "Filas, fondos, idioma"
+        SettingsSection.PLAYBACK -> if (en) "Quality, subtitles, buffer" else "Calidad, subtítulos, búfer"
+        SettingsSection.SYSTEM -> if (en) "Version, phone, error log" else "Versión, móvil, registro"
+    }
+}
+
+/**
+ * Menú lateral: al moverse por él cambia el apartado de la derecha (como los ajustes de Android TV); ▶ entra en las
+ * opciones. El apartado abierto se marca con el color del tema; el foco, en blanco.
+ */
+@Composable
+private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: (SettingsSection) -> Unit) {
+    val requesters = remember { SettingsSection.entries.associateWith { FocusRequester() } }
+    Column(
+        Modifier
+            // Al volver al menú desde las opciones (◀), el foco cae en el apartado abierto, no en el que quede al lado.
+            .focusProperties {
+                @Suppress("DEPRECATION")
+                enter = { requesters.getValue(current) }
+            }
+            .focusGroup()
+            .width(320.dp)
+            .fillMaxHeight()
+            .background(AppColors.BackgroundRaised)
+            .padding(start = 40.dp, end = 20.dp, top = 40.dp),
+    ) {
+        Text(title, style = TypeScale.ScreenTitle, color = Color.White)
+        Spacer(Modifier.height(24.dp))
+        SettingsSection.entries.forEach { item ->
+            var focused by remember { mutableStateOf(false) }
+            val selected = item == current
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .focusRequester(requesters.getValue(item))
+                    .onFocusChanged {
+                        focused = it.isFocused
+                        if (it.isFocused) onSelect(item)
+                    }
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        when {
+                            focused -> Color.White
+                            selected -> AppColors.Accent.copy(alpha = 0.16f)
+                            else -> Color.Transparent
+                        },
+                    )
+                    .tvClickable(onClick = { onSelect(item) })
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+            ) {
+                Box(
+                    Modifier
+                        .width(4.dp)
+                        .height(36.dp)
+                        .background(if (selected && !focused) AppColors.Accent else Color.Transparent, RoundedCornerShape(2.dp)),
+                )
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(
+                        item.title(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = when {
+                            focused -> Color.Black
+                            selected -> AppColors.Accent
+                            else -> Color.White
+                        },
+                    )
+                    Text(
+                        item.subtitle(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextTertiary,
+                        maxLines = 1,
+                    )
+                }
+            }
         }
     }
 }

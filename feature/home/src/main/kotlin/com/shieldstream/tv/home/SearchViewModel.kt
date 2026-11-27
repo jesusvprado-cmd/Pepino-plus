@@ -36,6 +36,7 @@ sealed interface SearchUiState {
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
     private val catalogRepository: CatalogRepository,
     private val settings: SettingsRepository,
     private val texts: Texts,
@@ -61,6 +62,27 @@ class SearchViewModel @Inject constructor(
 
     fun toggleKeyboardLayout() {
         viewModelScope.launch { settings.setSearchQwerty(!qwerty.value) }
+    }
+
+    // Búsquedas recientes: se guarda lo buscado cuando se abre un resultado (así no quedan búsquedas a medio escribir).
+    private val recentPrefs = context.getSharedPreferences("search_recent", android.content.Context.MODE_PRIVATE)
+    private val _recent = MutableStateFlow(loadRecent())
+    val recent: StateFlow<List<String>> = _recent.asStateFlow()
+
+    private fun loadRecent(): List<String> =
+        recentPrefs.getString(RECENT_KEY, null)?.split(RECENT_SEPARATOR)?.filter { it.isNotBlank() }.orEmpty()
+
+    /** Guarda la búsqueda actual (al abrir uno de sus resultados). */
+    fun rememberCurrentSearch() {
+        val q = (_uiState.value as? SearchUiState.Results)?.query?.trim()?.takeIf { it.length >= 2 } ?: return
+        val updated = (listOf(q) + _recent.value.filterNot { it.equals(q, ignoreCase = true) }).take(MAX_RECENT)
+        _recent.value = updated
+        recentPrefs.edit().putString(RECENT_KEY, updated.joinToString(RECENT_SEPARATOR)).apply()
+    }
+
+    fun clearRecent() {
+        _recent.value = emptyList()
+        recentPrefs.edit().remove(RECENT_KEY).apply()
     }
 
     private val _query = MutableStateFlow("")
@@ -115,5 +137,11 @@ class SearchViewModel @Inject constructor(
                 }
                 .onFailure { e -> _uiState.value = SearchUiState.Error(e.message ?: texts.get(StringsR.string.home_search_error)) }
         }
+    }
+
+    private companion object {
+        const val RECENT_KEY = "queries"
+        const val RECENT_SEPARATOR = "\u001F"
+        const val MAX_RECENT = 6
     }
 }
