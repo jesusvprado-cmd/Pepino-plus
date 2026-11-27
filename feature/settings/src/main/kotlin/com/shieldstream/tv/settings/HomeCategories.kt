@@ -1,5 +1,9 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.component.AppIcons
+
+import androidx.compose.material3.Icon
+
 import com.shieldstream.tv.ui.theme.AppColors
 
 import com.shieldstream.tv.strings.R as StringsR
@@ -129,7 +133,7 @@ private fun CategoryToggle(category: Category, shown: Boolean, onClick: () -> Un
                 .background(if (shown) Red else Color.Transparent, RoundedCornerShape(5.dp))
                 .border(2.dp, if (shown) Red else Color.White.copy(alpha = 0.4f), RoundedCornerShape(5.dp)),
         ) {
-            if (shown) Text("✓", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            if (shown) Icon(AppIcons.Check, contentDescription = null, tint = AppColors.OnAccent, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.width(12.dp))
         Text(

@@ -1,5 +1,11 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.component.ValueSelector
+
+import com.shieldstream.tv.ui.component.AppIcons
+
+import androidx.compose.material3.Icon
+
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.ui.theme.AppColors
@@ -1457,10 +1463,11 @@ private fun SourceExclusionGroupCard(title: String, summary: String, expanded: B
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Text(
-                text = if (expanded) "▾" else "▸",
-                style = MaterialTheme.typography.headlineSmall,
-                color = if (focused) Color.White else Muted,
+            Icon(
+                if (expanded) AppIcons.ExpandMore else AppIcons.ChevronRight,
+                contentDescription = null,
+                tint = if (focused) Color.White else Muted,
+                modifier = Modifier.size(30.dp),
             )
         }
     }
@@ -1598,7 +1605,13 @@ private fun BufferCard(seconds: Int, enabled: Boolean, onChange: (Int) -> Unit) 
 
 @Composable
 private fun Arrow(symbol: String, enabled: Boolean) {
-    Text(symbol, fontSize = 18.sp, color = if (enabled) Color.White else Color.White.copy(alpha = 0.2f))
+    // Pepino+: icono vectorial en lugar del carácter ◀ ▶ (se ve igual en todas las teles).
+    Icon(
+        if (symbol == "◀") AppIcons.ChevronLeft else AppIcons.ChevronRight,
+        contentDescription = null,
+        tint = if (enabled) Color.White else Color.White.copy(alpha = 0.2f),
+        modifier = Modifier.size(28.dp),
+    )
 }
 
 @Composable
@@ -1851,11 +1864,7 @@ internal fun DownloadStorageCard(viewModel: DownloadStorageViewModel = hiltViewM
             }
             Spacer(Modifier.width(24.dp))
             Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = if (options.size > 1) "‹  ${current?.label.orEmpty()}  ›" else current?.label.orEmpty(),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
-                )
+                ValueSelector(current?.label.orEmpty(), showArrows = options.size > 1)
                 current?.let {
                     Text(
                         localizedStringResource(StringsR.string.downloads_storage_free, storageGb(it.freeBytes), storageGb(it.totalBytes)),
@@ -1930,11 +1939,7 @@ private fun CyclingSettingCard(title: String, hint: String, value: String, onShi
                 Text(hint, style = MaterialTheme.typography.bodyMedium, color = Muted)
             }
             Spacer(Modifier.width(24.dp))
-            Text(
-                "‹  $value  ›",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-            )
+            ValueSelector(value)
         }
     }
 }

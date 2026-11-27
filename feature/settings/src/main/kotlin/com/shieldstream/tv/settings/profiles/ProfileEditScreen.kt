@@ -68,6 +68,7 @@ import com.shieldstream.tv.settings.HomeCategoriesDialog
 import com.shieldstream.tv.ui.component.AppIcons
 import com.shieldstream.tv.ui.component.ProfileAvatar
 import com.shieldstream.tv.ui.component.TvButton
+import com.shieldstream.tv.ui.component.TvButtonVariant
 import com.shieldstream.tv.ui.component.tvClickable
 
 @Composable
@@ -249,6 +250,7 @@ fun ProfileEditScreen(
                         onDone()
                     },
                     modifier = Modifier.focusRequester(saveRequester),
+                    variant = TvButtonVariant.Primary,
                 )
                 if (editing.canDelete) {
                     TvButton(
@@ -259,6 +261,7 @@ fun ProfileEditScreen(
                         },
                         onClick = { if (viewModel.delete()) onDone() },
                         modifier = Modifier.onFocusChanged { if (!it.isFocused) viewModel.cancelConfirmations() },
+                        variant = TvButtonVariant.Danger,
                     )
                 }
                 TvButton(text = localizedStringResource(StringsR.string.settings_cancel), onClick = onDone)

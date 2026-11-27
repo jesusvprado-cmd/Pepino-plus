@@ -118,12 +118,11 @@ import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.component.tvClickable
 import java.util.Locale
 
-private val Green = AppColors.Success
 private val Grey = Color(0xFFB3B3B3)
 private val WatchedCountColor = AppColors.TextSecondary
 
 /** Cached bolt on a focused (white) row: a darker green keeps contrast. */
-private val CachedFocused = Color(0xFF0A8F3C)
+private val CachedFocused: Color get() = AppColors.AccentDark
 
 internal enum class DetailsBackAction { DISMISS_ACTIONS, DISMISS_SOURCES, EXIT_DETAILS }
 
@@ -1245,50 +1244,44 @@ private fun seasonWatchedLabel(state: DetailsUiState.Content): String? {
 @Composable
 private fun MetaRow(details: CatalogDetails, state: DetailsUiState.Content) {
     val item = details.item
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        item.rating?.takeIf { it > 0f }?.let {
-            Text(
-                text = localizedStringResource(StringsR.string.details_rating, (it * 10).toInt()),
-                color = Green,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            )
-            Spacer(Modifier.width(14.dp))
-        }
-        item.year?.let {
-            Text(it.toString(), color = Color.White, style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.width(14.dp))
-        }
+    // Pepino+: datos en texto con separadores (valoración, año, duración) y, detrás, las mismas etiquetas que en la
+    // lista de fuentes para la mejor fuente disponible (calidad, HDR, códec, audio).
+    val facts = buildList {
+        item.year?.let { add(it.toString()) }
         val duration = when {
             state.isSeries && details.seasons.isNotEmpty() ->
                 if (details.seasons.size == 1) localizedStringResource(StringsR.string.details_1_season) else localizedStringResource(StringsR.string.details_season_count, details.seasons.size)
             else -> details.runtimeMinutes?.let { formatRuntime(it) }
         }
-        duration?.let {
-            Text(it, color = Color.White, style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.width(14.dp))
+        duration?.let { add(it) }
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        item.rating?.takeIf { it > 0f }?.let {
+            Icon(AppIcons.Star, contentDescription = null, tint = AppColors.Accent, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = localizedStringResource(StringsR.string.details_rating, (it * 10).toInt()),
+                color = AppColors.Accent,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+            )
+            if (facts.isNotEmpty()) MetaDot()
+        }
+        facts.forEachIndexed { index, fact ->
+            if (index > 0) MetaDot()
+            Text(fact, color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold))
         }
         (state.sources as? SourcesState.Ready)?.sources?.firstOrNull {
             !state.sourceExclusions.excludes(it) && (!state.spanishOnly || it.advertisesSpanishAudio)
         }?.let { best ->
-            Badge(best.quality.label)
-            if (best.hdrType != HdrType.SDR) {
-                Spacer(Modifier.width(8.dp))
-                Badge(best.hdrType.label)
-            }
+            Spacer(Modifier.width(16.dp))
+            SourceMediaBadges(best)
         }
     }
 }
 
 @Composable
-private fun Badge(text: String) {
-    Text(
-        text = text,
-        color = Color.White,
-        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-        modifier = Modifier
-            .border(1.dp, AppColors.TextSecondary, RoundedCornerShape(3.dp))
-            .padding(horizontal = 6.dp, vertical = 1.dp),
-    )
+private fun MetaDot() {
+    Text("  ·  ", color = AppColors.TextTertiary, style = MaterialTheme.typography.bodyLarge)
 }
 
 @Composable
@@ -1511,12 +1504,13 @@ private fun EpisodeCard(
                     Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
-                        .size(26.dp)
-                        .clip(RoundedCornerShape(13.dp))
-                        .background(Color.Black.copy(alpha = 0.75f)),
+                        .size(30.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(AppColors.Accent),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("✓", color = Green, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
+                    // Visto: marca en el color del tema, bien visible sobre cualquier miniatura.
+                    Icon(AppIcons.Check, contentDescription = null, tint = AppColors.OnAccent, modifier = Modifier.size(20.dp))
                 }
             } else if (progress != null && progress.fraction > 0.01f) {
                 WatchBar(
@@ -1816,13 +1810,21 @@ private fun ProviderHeader(name: String, count: Int, cached: Int, expanded: Bool
             Icon(
                 AppIcons.Bolt,
                 contentDescription = localizedStringResource(StringsR.string.details_cached),
-                tint = if (focused) CachedFocused else Green,
+                tint = if (focused) CachedFocused else AppColors.Accent,
                 modifier = Modifier.size(16.dp),
             )
             Spacer(Modifier.width(3.dp))
             Text(cached.toString(), color = secondary, style = MaterialTheme.typography.bodyMedium)
         }
-        if (note == null) Text(if (expanded) "   ▾" else "   ›", color = color, style = MaterialTheme.typography.titleMedium)
+        if (note == null) {
+            Spacer(Modifier.width(10.dp))
+            Icon(
+                if (expanded) AppIcons.ExpandMore else AppIcons.ChevronRight,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(24.dp),
+            )
+        }
     }
 }
 
@@ -1851,38 +1853,50 @@ private fun SourceRow(
             else -> Color.White
         }
         val sub = if (focused) Color.Black.copy(alpha = 0.65f) else Color.White.copy(alpha = if (blocked) 0.3f else 0.55f)
-        Box(Modifier.width(26.dp)) {
-            if (source.isCached) Icon(AppIcons.Bolt, contentDescription = localizedStringResource(StringsR.string.details_in_your_real_debrid), tint = if (focused) CachedFocused else Green)
-        }
         Column(Modifier.weight(1f)) {
-            // Primary line: what the viewer chooses by (format, size, languages).
-            // Secondary line: torrent health and the raw release name.
+            // Primera línea: lo que decide la elección. Etiquetas (calidad, HDR, códec, audio), tamaño e idiomas.
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SourceMediaBadges(source)
-                Spacer(Modifier.width(8.dp))
+                SourceMediaBadges(source, onLight = focused)
+                Spacer(Modifier.width(10.dp))
+                if (source.sizeBytes > 0) {
+                    Text(
+                        formatSize(source.sizeBytes),
+                        color = fg,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
+                        maxLines = 1,
+                    )
+                    Spacer(Modifier.width(10.dp))
+                }
                 Text(
                     text = buildString {
-                        if (source.sizeBytes > 0) append(formatSize(source.sizeBytes))
-                        if (source.languages.isNotEmpty()) {
-                            if (isNotEmpty()) append(" · ")
-                            append(compactLanguages(source.languages))
-                        }
+                        if (source.languages.isNotEmpty()) append(compactLanguages(source.languages).replace("/", " · "))
                         if (blocked) {
-                            if (isNotEmpty()) append(" · ")
+                            if (isNotEmpty()) append("  ·  ")
                             append(localizedStringResource(StringsR.string.details_blocked_by_real_debrid))
                         }
                     },
-                    color = fg,
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = sub,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
+                if (source.isCached) {
+                    Spacer(Modifier.width(8.dp))
+                    CachedPill()
+                }
             }
-            Spacer(Modifier.height(2.dp))
-            // Enfocada, el nombre completo de la fuente se desplaza (marquesina) en vez de cortarse con "…".
+            Spacer(Modifier.height(4.dp))
+            // Segunda línea, misma altura siempre: semillas (o el proveedor); el nombre del archivo solo con foco,
+            // desplazándose en vez de cortarse.
+            val detail = when {
+                focused -> source.seeders?.let { "$it seeds · ${source.title}" } ?: source.title
+                source.seeders != null -> "${source.seeders} seeds"
+                source.provider.isNotBlank() -> source.provider
+                else -> source.title
+            }
             Text(
-                text = source.seeders?.let { "$it seeds · ${source.title}" } ?: source.title,
+                text = detail,
                 color = sub,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
@@ -1897,12 +1911,32 @@ private fun SourceRow(
     }
 }
 
+/** «En caché»: la fuente está ya en el servicio debrid y empieza al momento. Estado = color del tema. */
+@Composable
+private fun CachedPill() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .background(AppColors.Accent, RoundedCornerShape(50))
+            .padding(horizontal = 9.dp, vertical = 3.dp),
+    ) {
+        Icon(AppIcons.Bolt, contentDescription = null, tint = AppColors.OnAccent, modifier = Modifier.size(13.dp))
+        Spacer(Modifier.width(3.dp))
+        Text(
+            localizedStringResource(StringsR.string.details_cached),
+            color = AppColors.OnAccent,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+        )
+    }
+}
+
 @Composable
 private fun WatchBar(fraction: Float, modifier: Modifier = Modifier) {
     Box(
         modifier
-            .height(4.dp)
-            .clip(RoundedCornerShape(2.dp))
+            .height(5.dp)
+            .clip(RoundedCornerShape(3.dp))
             .background(Color.White.copy(alpha = 0.3f)),
     ) {
         Box(

@@ -77,6 +77,19 @@ object AppIcons {
     val SkipNext = icon("skip_next", "M6,18l8.5,-6L6,6v12zM16,6v12h2V6h-2z")
     val FastForward = icon("fast_forward", "M4,18l8.5,-6L4,6v12zM13,6v12l8.5,-6L13,6z")
 
+    // Iconos de Material (Apache 2.0) para sustituir los símbolos de texto ◀ ▶ ▲ ▼ ▾ ›.
+    val ChevronLeft = icon("chevron_left", "M15.41,7.41L14,6l-6,6 6,6 1.41,-1.41L10.83,12z")
+    val ChevronRight = icon("chevron_right", "M10,6L8.59,7.41 13.17,12l-4.58,4.59L10,18l6,-6z")
+    val ExpandMore = icon("expand_more", "M16.59,8.59L12,13.17 7.41,8.59 6,10l6,6 6,-6z")
+    val ExpandLess = icon("expand_less", "M12,8l-6,6 1.41,1.41L12,10.83l4.59,4.58L18,14z")
+    val ArrowUp = icon("arrow_drop_up", "M7,14l5,-5 5,5z")
+    val ArrowDown = icon("arrow_drop_down", "M7,10l5,5 5,-5z")
+    val Audio = icon(
+        "volume_up",
+        "M3,9v6h4l5,5V4L7,9H3zM16.5,12c0,-1.77 -1.02,-3.29 -2.5,-4.03v8.05c1.48,-0.73 2.5,-2.25 2.5,-4.02z" +
+            "M14,3.23v2.06c2.89,0.86 5,3.54 5,6.71s-2.11,5.85 -5,6.71v2.06c4.01,-0.91 7,-4.49 7,-8.77s-2.99,-7.86 -7,-8.77z",
+    )
+
     private fun icon(name: String, path: String): ImageVector =
         ImageVector.Builder(
             name = name,

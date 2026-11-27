@@ -1,5 +1,13 @@
 package com.shieldstream.tv.player
 
+import androidx.compose.foundation.layout.size
+
+import com.shieldstream.tv.ui.component.AppIcons
+
+import androidx.compose.material3.Icon
+
+import androidx.compose.foundation.border
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import com.shieldstream.tv.strings.Texts
@@ -430,7 +438,7 @@ private fun OptionColumn(
             Text(emptyText, color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyLarge)
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
                 contentPadding = PaddingValues(bottom = 8.dp),
                 modifier = Modifier.weight(1f),
             ) {
@@ -483,7 +491,7 @@ private fun AppearanceControlRow(
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f),
         )
-        Text(text = "‹", color = foreground.copy(alpha = 0.65f), style = MaterialTheme.typography.titleMedium)
+        Icon(AppIcons.ChevronLeft, contentDescription = null, tint = foreground.copy(alpha = 0.65f), modifier = Modifier.size(22.dp))
         Text(
             text = value,
             color = foreground,
@@ -491,7 +499,7 @@ private fun AppearanceControlRow(
             maxLines = 1,
             modifier = Modifier.padding(horizontal = 8.dp),
         )
-        Text(text = "›", color = foreground.copy(alpha = 0.65f), style = MaterialTheme.typography.titleMedium)
+        Icon(AppIcons.ChevronRight, contentDescription = null, tint = foreground.copy(alpha = 0.65f), modifier = Modifier.size(22.dp))
     }
 }
 
@@ -499,28 +507,46 @@ private fun AppearanceControlRow(
 private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
     val fg = if (focused) Color.Black else Color.White
+    val shape = RoundedCornerShape(10.dp)
+    // Pepino+: cada pista es una tarjeta. La elegida lleva borde y fondo del color del tema y una marca; el foco,
+    // como en toda la app, rellena de blanco.
     Row(
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged { focused = it.isFocused }
-            .clip(RoundedCornerShape(6.dp))
-            .background(if (focused) Color.White else Color.Transparent)
+            .clip(shape)
+            .background(
+                when {
+                    focused -> Color.White
+                    option.selected -> AppColors.Accent.copy(alpha = 0.16f)
+                    else -> Color.White.copy(alpha = 0.05f)
+                },
+            )
+            .border(
+                width = if (option.selected && !focused) 2.dp else 0.dp,
+                color = if (option.selected && !focused) AppColors.Accent else Color.Transparent,
+                shape = shape,
+            )
             .tvClickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = if (option.selected) "✓" else "",
-            color = if (focused) Color.Black else AppColors.Accent,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.width(24.dp),
-        )
+        Box(Modifier.width(28.dp)) {
+            if (option.selected) {
+                Icon(
+                    AppIcons.Check,
+                    contentDescription = null,
+                    tint = if (focused) Color.Black else AppColors.Accent,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
         Column(Modifier.weight(1f)) {
             Text(
                 text = option.title,
                 color = fg,
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = if (option.selected) FontWeight.Bold else FontWeight.Normal,
+                    fontWeight = if (option.selected) FontWeight.Bold else FontWeight.SemiBold,
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -528,7 +554,7 @@ private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifi
             if (option.detail.isNotBlank()) {
                 Text(
                     text = option.detail,
-                    color = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextTertiary,
+                    color = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextSecondary,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,

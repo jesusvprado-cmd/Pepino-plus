@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.ui.theme.AppShapes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -34,15 +36,30 @@ fun TvButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     enabled: Boolean = true,
+    variant: TvButtonVariant = TvButtonVariant.Neutral,
 ) {
     var focused by remember { mutableStateOf(false) }
     val duration = if (LocalLightweightUi.current) 0 else 150
     val background by animateColorAsState(
-        if (focused) Color.White else Color.White.copy(alpha = 0.16f),
+        when {
+            focused -> Color.White
+            variant == TvButtonVariant.Primary -> AppColors.Accent
+            variant == TvButtonVariant.Danger -> AppColors.Error.copy(alpha = 0.22f)
+            else -> Color.White.copy(alpha = 0.16f)
+        },
         tween(duration),
         label = "buttonBackground",
     )
-    val content by animateColorAsState(if (focused) Color.Black else Color.White, tween(duration), label = "buttonContent")
+    val content by animateColorAsState(
+        when {
+            variant == TvButtonVariant.Danger -> if (focused) Color(0xFFC62828) else AppColors.Error
+            focused -> Color.Black
+            variant == TvButtonVariant.Primary -> AppColors.OnAccent
+            else -> Color.White
+        },
+        tween(duration),
+        label = "buttonContent",
+    )
 
     Row(
         modifier = modifier
@@ -64,3 +81,6 @@ fun TvButton(
         )
     }
 }
+
+/** Neutral (por defecto); Primary = la acción principal, en el color del tema; Danger = borrar o algo sin vuelta atrás. */
+enum class TvButtonVariant { Neutral, Primary, Danger }

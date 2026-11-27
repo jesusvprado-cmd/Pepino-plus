@@ -1,5 +1,9 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.component.AppIcons
+
+import androidx.compose.material3.Icon
+
 import com.shieldstream.tv.ui.theme.AppColors
 
 import androidx.compose.ui.platform.LocalContext
@@ -623,7 +627,7 @@ private fun ConfiguredRow(service: ApiService, maskedKey: String?, detail: Strin
             .padding(horizontal = 18.dp, vertical = 14.dp),
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(28.dp).background(Green, CircleShape)) {
-            Text("✓", color = Color.Black, fontWeight = FontWeight.Bold)
+            Icon(AppIcons.Check, contentDescription = null, tint = Color.Black, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(14.dp))
         Column {
@@ -793,7 +797,7 @@ private fun ColumnScope.DoneStep(state: SetupUiState.Ready, onFinish: () -> Unit
         modifier = Modifier.fillMaxWidth().weight(1f),
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(84.dp).background(Green, CircleShape)) {
-            Text("✓", color = Color.Black, fontSize = 44.sp, fontWeight = FontWeight.Bold)
+            Icon(AppIcons.Check, contentDescription = null, tint = Color.Black, modifier = Modifier.size(52.dp))
         }
         Spacer(Modifier.height(16.dp))
         Text(localizedStringResource(SR.setup_all_set), fontFamily = DisplayFont, fontSize = 36.sp, lineHeight = 42.sp, color = Color.White)
@@ -861,7 +865,13 @@ private fun SummaryRow(label: String, ok: Boolean, required: Boolean) {
             .background(Panel, RoundedCornerShape(12.dp))
             .padding(horizontal = 18.dp, vertical = 12.dp),
     ) {
-        Text(mark, color = color, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.width(24.dp))
+        Box(Modifier.width(28.dp)) {
+            if (ok) {
+                Icon(AppIcons.Check, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+            } else {
+                Text(mark, color = color, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
+        }
         Text(label, style = MaterialTheme.typography.titleMedium, color = Color.White, modifier = Modifier.weight(1f))
         Text(note, style = MaterialTheme.typography.bodyMedium, color = color)
     }

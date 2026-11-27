@@ -181,15 +181,15 @@ private fun TopBarItem(
     } else {
         animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "topBarScale").value
     }
-    // Como en Bambi: pastilla blanca al enfocar y gris translúcida en la pestaña activa.
+    // Pastilla blanca al enfocar; la pestaña activa, en el color del tema (estado = verde, foco = blanco).
     val background = when {
         focused -> Color.White
-        selected -> Color.White.copy(alpha = 0.18f)
+        selected -> AppColors.Accent.copy(alpha = 0.22f)
         else -> Color.Transparent
     }
     val foreground = when {
         focused -> Color.Black
-        selected -> Color.White
+        selected -> AppColors.Accent
         else -> AppColors.TextSecondary
     }
     Box(

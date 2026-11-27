@@ -242,7 +242,7 @@ private fun MetaLine(featured: FeaturedItem) {
         }
         item.rating?.takeIf { it > 0f }?.let { rating ->
             Spacer(Modifier.width(12.dp))
-            Text("★", color = Color(0xFFFFC94A), style = MaterialTheme.typography.titleSmall)
+            Icon(AppIcons.Star, contentDescription = null, tint = Color(0xFFFFC94A), modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
             Text(
                 text = String.format(UiLocale, "%.1f", rating),

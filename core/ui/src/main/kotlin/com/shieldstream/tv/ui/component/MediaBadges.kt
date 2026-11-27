@@ -21,23 +21,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.shieldstream.tv.model.AudioCodec
 import com.shieldstream.tv.model.HdrType
 import com.shieldstream.tv.model.PlaybackVideoInfo
 import com.shieldstream.tv.model.Quality
 import com.shieldstream.tv.model.StreamSource
 
 @Composable
-fun SourceMediaBadges(source: StreamSource, modifier: Modifier = Modifier) {
+fun SourceMediaBadges(source: StreamSource, modifier: Modifier = Modifier, onLight: Boolean = false) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         if (source.quality != Quality.UNKNOWN) {
-            MediaBadge(source.quality.label, AppIcons.Movie, BadgeColors.Neutral)
+            MediaBadge(source.quality.label, AppIcons.Movie, BadgeColors.Neutral, onLight)
         }
         if (source.hdrType != HdrType.SDR) {
-            MediaBadge(hdrLabel(source.hdrType), hdrIcon(source.hdrType), hdrColor(source.hdrType))
+            MediaBadge(hdrLabel(source.hdrType), hdrIcon(source.hdrType), hdrColor(source.hdrType), onLight)
         }
-        source.videoCodec?.let { MediaBadge(it.label, AppIcons.Memory, BadgeColors.Codec) }
-        if (source.softwareDecode) MediaBadge("CPU", AppIcons.Memory, BadgeColors.Software)
+        source.videoCodec?.let { MediaBadge(it.label, AppIcons.Memory, BadgeColors.Codec, onLight) }
+        bestAudioLabel(source.audioCodecs)?.let { MediaBadge(it, AppIcons.Audio, BadgeColors.Audio, onLight) }
+        if (source.softwareDecode) MediaBadge("CPU", AppIcons.Memory, BadgeColors.Software, onLight)
     }
+}
+
+/** El mejor audio de la fuente, en corto: Atmos, TrueHD, DTS:X, DTS-HD, DD+, DD, DTS. */
+private fun bestAudioLabel(codecs: Set<AudioCodec>): String? = when {
+    AudioCodec.DOLBY_ATMOS in codecs -> "Atmos"
+    AudioCodec.DOLBY_TRUEHD in codecs -> "TrueHD"
+    AudioCodec.DTS_X in codecs -> "DTS:X"
+    AudioCodec.DTS_HD in codecs -> "DTS-HD"
+    AudioCodec.DOLBY_DIGITAL_PLUS in codecs -> "DD+"
+    AudioCodec.DOLBY_DIGITAL in codecs -> "DD"
+    AudioCodec.DTS in codecs -> "DTS"
+    else -> null
 }
 
 @Composable
@@ -56,19 +70,21 @@ fun PlaybackMediaBadges(info: PlaybackVideoInfo, modifier: Modifier = Modifier) 
 }
 
 @Composable
-private fun MediaBadge(text: String, icon: ImageVector, accent: Color) {
+private fun MediaBadge(text: String, icon: ImageVector, accent: Color, onLight: Boolean = false) {
+    // Sobre fondo blanco (fila enfocada) la etiqueta pasa a texto oscuro con el color de la etiqueta más intenso.
+    val ink = if (onLight) Color(0xFF111411) else Color.White
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .background(accent.copy(alpha = 0.20f), RoundedCornerShape(5.dp))
-            .border(1.dp, accent.copy(alpha = 0.58f), RoundedCornerShape(5.dp))
-            .padding(horizontal = 6.dp, vertical = 3.dp),
+            .background(accent.copy(alpha = if (onLight) 0.35f else 0.20f), RoundedCornerShape(5.dp))
+            .border(1.dp, accent.copy(alpha = if (onLight) 0.9f else 0.58f), RoundedCornerShape(5.dp))
+            .padding(horizontal = 7.dp, vertical = 3.dp),
     ) {
-        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(12.dp))
+        Icon(icon, contentDescription = null, tint = if (onLight) ink else accent, modifier = Modifier.size(13.dp))
         Spacer(Modifier.width(4.dp))
         Text(
             text = text,
-            color = Color.White,
+            color = ink,
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
         )
     }
@@ -85,6 +101,7 @@ private object BadgeColors {
     val Hdr = Color(0xFF66B5FF)
     val DolbyVision = Color(0xFFC49AFF)
     val Codec = Color(0xFF65D8D0)
+    val Audio = Color(0xFFF2A65A)
     val Hardware = Color(0xFF65D98A)
     val Software = AppColors.Warning
 }
