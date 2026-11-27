@@ -24,6 +24,8 @@ import kotlinx.serialization.json.Json
 
 private const val SESSION_DURATION_MS = 10 * 60 * 1000L
 private const val MAX_BODY_BYTES = 64 * 1024L
+/** Las copias de configuración incluyen progreso y Mi lista de todos los perfiles. */
+private const val MAX_BACKUP_BYTES = 8 * 1024 * 1024L
 
 data class PhoneConfigConnection(
     val url: String,
@@ -36,7 +38,12 @@ class PhoneConfigServer @Inject constructor(
     private val controller: PhoneConfigController,
     private val json: Json,
     private val texts: Texts,
+    private val backup: com.shieldstream.tv.domain.ConfigBackupRepository,
 ) {
+    private val _restored = MutableStateFlow(false)
+    /** true en cuanto se carga una copia desde el móvil: la app tiene que reiniciarse. */
+    val restored: StateFlow<Boolean> = _restored.asStateFlow()
+
     private var server: LocalServer? = null
     private val _lastConfig = MutableStateFlow<PhoneConfigDto?>(null)
     val lastConfig: StateFlow<PhoneConfigDto?> = _lastConfig.asStateFlow()
@@ -49,6 +56,7 @@ class PhoneConfigServer @Inject constructor(
         mode: PhoneConfigMode = PhoneConfigMode.EDIT,
     ): PhoneConfigConnection {
         stop()
+        _restored.value = false
         _lastConfig.value = null
         _lastSavedConfig.value = null
         val token = ByteArray(32).also(SecureRandom()::nextBytes).toUrlToken()
@@ -90,6 +98,18 @@ class PhoneConfigServer @Inject constructor(
             if (session.method == Method.GET && session.uri == "/logo.png") {
                 return imageResponse(logo)
             }
+            if (session.uri == "/api/backup" || session.uri == "/api/restore") {
+                if (!authorized(session.headers["authorization"])) return jsonResponse(Response.Status.UNAUTHORIZED, "{\"error\":\"unauthorized\"}")
+                return when {
+                    session.uri == "/api/backup" && session.method == Method.GET ->
+                        response(Response.Status.OK, "application/json; charset=utf-8", backup.export()).apply {
+                            addHeader("Content-Disposition", "attachment; filename=\"pepino-config.json\"")
+                            addHeader("Cache-Control", "no-store")
+                        }
+                    session.uri == "/api/restore" && session.method == Method.POST -> restore(session)
+                    else -> jsonResponse(Response.Status.METHOD_NOT_ALLOWED, "{\"error\":\"method_not_allowed\"}")
+                }
+            }
             if (session.uri != "/api/config") return jsonResponse(Response.Status.NOT_FOUND, "{\"error\":\"not_found\"}")
             if (!authorized(session.headers["authorization"])) return jsonResponse(Response.Status.UNAUTHORIZED, "{\"error\":\"unauthorized\"}")
             return when (session.method) {
@@ -122,6 +142,24 @@ class PhoneConfigServer @Inject constructor(
                 }
             } catch (e: IllegalArgumentException) {
                 jsonResponse(Response.Status.BAD_REQUEST, mapOf("error" to (e.message ?: texts.get(StringsR.string.settings_phone_config_invalid_request))))
+            } catch (_: Exception) {
+                jsonResponse(Response.Status.INTERNAL_ERROR, mapOf("error" to texts.get(StringsR.string.settings_phone_config_save_failed)))
+            }
+        }
+
+        private fun restore(session: IHTTPSession): Response {
+            val length = session.headers["content-length"]?.toLongOrNull()
+                ?: return jsonResponse(Response.Status.LENGTH_REQUIRED, "{\"error\":\"length_required\"}")
+            if (length > MAX_BACKUP_BYTES) return jsonResponse(Response.Status.PAYLOAD_TOO_LARGE, "{\"error\":\"too_large\"}")
+            return try {
+                val body = HashMap<String, String>()
+                session.parseBody(body)
+                val raw = body["postData"] ?: body["content"]?.let(::File)?.readText().orEmpty()
+                val restoredParts = backup.restore(raw)
+                _restored.value = true
+                jsonResponse(Response.Status.OK, mapOf("restored" to restoredParts))
+            } catch (e: IllegalArgumentException) {
+                jsonResponse(Response.Status.BAD_REQUEST, mapOf("error" to (e.message ?: "invalid_backup")))
             } catch (_: Exception) {
                 jsonResponse(Response.Status.INTERNAL_ERROR, mapOf("error" to texts.get(StringsR.string.settings_phone_config_save_failed)))
             }

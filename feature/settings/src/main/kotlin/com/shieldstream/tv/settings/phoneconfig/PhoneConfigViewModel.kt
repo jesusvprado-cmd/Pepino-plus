@@ -31,6 +31,7 @@ class PhoneConfigViewModel @Inject constructor(
     val uiState: StateFlow<PhoneConfigUiState> = _uiState.asStateFlow()
     val lastConfig: StateFlow<PhoneConfigDto?> = server.lastConfig
     val lastSavedConfig: StateFlow<PhoneConfigDto?> = server.lastSavedConfig
+    val restored: StateFlow<Boolean> = server.restored
     private var startJob: Job? = null
     private var expiryJob: Job? = null
 

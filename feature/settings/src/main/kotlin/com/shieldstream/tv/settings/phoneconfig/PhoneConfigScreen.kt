@@ -67,6 +67,15 @@ fun PhoneConfigScreen(
         withFrameNanos { }
         runCatching { buttonRequester.requestFocus() }
     }
+    // Se ha cargado una copia de la configuración desde el móvil: reiniciar para leerla.
+    val restored by viewModel.restored.collectAsStateWithLifecycle()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(restored) {
+        if (restored) {
+            kotlinx.coroutines.delay(2_500)
+            com.shieldstream.tv.ui.component.restartApp(context)
+        }
+    }
 
     Box(
         Modifier
@@ -190,6 +199,20 @@ fun PhoneConfigScreen(
                         color = Color.White,
                     )
                 }
+            }
+        }
+        if (restored) {
+            Box(
+                Modifier.fillMaxSize().background(Color(0xF2050A06)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    if (Lang.isEnglish) "Configuration copied. Restarting Pepino+…"
+                    else "Configuración copiada. Reiniciando Pepino+…",
+                    color = Color.White,
+                    fontSize = 30.sp,
+                    lineHeight = 36.sp,
+                )
             }
         }
     }

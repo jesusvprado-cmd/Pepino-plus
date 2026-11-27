@@ -126,4 +126,10 @@ abstract class DataModule {
     @Singleton
     abstract fun bindTrackMemoryRepository(impl: TrackMemoryRepositoryImpl): TrackMemoryRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindConfigBackupRepository(
+        impl: com.shieldstream.tv.data.backup.ConfigBackupRepositoryImpl,
+    ): com.shieldstream.tv.domain.ConfigBackupRepository
+
 }
