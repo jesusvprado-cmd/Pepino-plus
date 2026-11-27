@@ -508,6 +508,7 @@ private fun SettingsSection.subtitle(): String {
  * Menú lateral: al moverse por él cambia el apartado de la derecha (como los ajustes de Android TV); ▶ entra en las
  * opciones. El apartado abierto se marca con el color del tema; el foco, en blanco.
  */
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: (SettingsSection) -> Unit) {
     val requesters = remember { SettingsSection.entries.associateWith { FocusRequester() } }
@@ -515,7 +516,6 @@ private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: 
         Modifier
             // Al volver al menú desde las opciones (◀), el foco cae en el apartado abierto, no en el que quede al lado.
             .focusProperties {
-                @Suppress("DEPRECATION")
                 enter = { requesters.getValue(current) }
             }
             .focusGroup()
