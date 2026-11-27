@@ -56,7 +56,19 @@ fun ErrorLogScreen(onBack: () -> Unit) {
     val focus = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        text = withContext(Dispatchers.IO) { buildReport(context, en) }
+        text = withContext(Dispatchers.IO) {
+            val report = buildReport(context, en)
+            // Copia en un archivo que se puede sacar al ordenador con: adb pull <ruta>
+            val export = runCatching {
+                File(context.getExternalFilesDir(null), EXPORT_NAME).apply { writeText(report) }
+            }.getOrNull()
+            if (export == null) report else buildString {
+                appendLine(if (en) "Saved as a file. To copy it to the computer:" else "Guardado también como archivo. Para copiarlo al ordenador:")
+                appendLine("  adb pull ${export.absolutePath}")
+                appendLine()
+                append(report)
+            }
+        }
         runCatching { focus.requestFocus() }
     }
 
@@ -111,6 +123,8 @@ fun ErrorLogScreen(onBack: () -> Unit) {
         }
     }
 }
+
+private const val EXPORT_NAME = "registro-errores.txt"
 
 private fun buildReport(context: android.content.Context, en: Boolean): String = buildString {
     val folder = File(context.filesDir, "crashes")
