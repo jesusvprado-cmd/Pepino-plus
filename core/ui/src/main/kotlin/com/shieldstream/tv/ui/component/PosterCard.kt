@@ -98,7 +98,7 @@ fun PosterCard(
                 scaleY = scale
             }
             .clip(CardShape)
-            .background(Color(0xFF232327))
+            .background(Color(0xFF1F2621))
             .then(if (focused) Modifier.border(2.dp, Color.White, CardShape) else Modifier),
     ) {
         if (item.posterUrl != null) {
@@ -315,7 +315,7 @@ fun Top10Card(
         // Relleno oscuro + contorno gris superpuestos.
         Text(
             text = rank.toString(),
-            style = numberStyle.copy(color = Color(0xFF0E0E10)),
+            style = numberStyle.copy(color = Color(0xFF0D100E)),
             modifier = Modifier.align(Alignment.BottomStart).offset(x = (-4).dp, y = 36.dp),
         )
         Text(

@@ -56,7 +56,7 @@ fun RequestsScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFF0E0E10))
+            .background(Color(0xFF0D100E))
             .onBackKey(enabled = true) { onBack() },
     ) {
         Column(
@@ -112,7 +112,7 @@ private fun RequestCard(request: TitleRequest, onApprove: () -> Unit, onDismiss:
         modifier = Modifier
             .fillMaxWidth()
             .clip(AppShapes.Control)
-            .background(if (focused) Color(0xFF2A2D3D) else Color(0xFF1A1C27))
+            .background(if (focused) Color(0xFF27342A) else Color(0xFF18211B))
             .border(
                 1.dp,
                 if (focused) Color.White.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.08f),
@@ -125,7 +125,7 @@ private fun RequestCard(request: TitleRequest, onApprove: () -> Unit, onDismiss:
             Modifier
                 .size(width = 46.dp, height = 68.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(Color(0xFF232327)),
+                .background(Color(0xFF1F2621)),
         ) {
             request.posterUrl?.let { url ->
                 AsyncImage(

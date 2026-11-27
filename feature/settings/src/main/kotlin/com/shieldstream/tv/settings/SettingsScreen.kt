@@ -103,9 +103,9 @@ import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.component.tvClickable
 import com.shieldstream.tv.ui.theme.DisplayFont
 
-private val Background = Brush.verticalGradient(listOf(Color(0xFF151622), Color.Black))
-private val CardColor = Color(0xFF1A1C27)
-private val CardFocused = Color(0xFF2A2D3D)
+private val Background = Brush.verticalGradient(listOf(Color(0xFF131B15), Color.Black))
+private val CardColor = Color(0xFF18211B)
+private val CardFocused = Color(0xFF27342A)
 private val CardShape = RoundedCornerShape(14.dp)
 private val Muted = Color.White.copy(alpha = 0.6f)
 private val Green = Color(0xFF46D369)
@@ -235,7 +235,7 @@ private fun SettingsList(
         ) {
             item {
                 Column(Modifier.padding(bottom = 8.dp)) {
-                    Text(localizedStringResource(StringsR.string.settings_settings), fontFamily = DisplayFont, fontSize = 52.sp, color = Color.White)
+                    Text(localizedStringResource(StringsR.string.settings_settings), fontFamily = DisplayFont, fontSize = 52.sp, lineHeight = 58.sp, color = Color.White)
                     Text(
                         localizedStringResource(StringsR.string.settings_service_keys_playback_and_app_version),
                         style = MaterialTheme.typography.bodyLarge,
@@ -498,7 +498,7 @@ private fun SectionTitle(text: String) {
     Text(
         text = text.uppercase(),
         fontFamily = DisplayFont,
-        fontSize = 26.sp,
+        fontSize = 26.sp, lineHeight = 29.sp,
         color = Color.White.copy(alpha = 0.85f),
         modifier = Modifier.padding(top = 18.dp, bottom = 2.dp, start = 4.dp),
     )
@@ -598,7 +598,7 @@ private fun ServiceLogo(service: ApiService) {
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(52.dp).background(color, CircleShape),
     ) {
-        Text(initials, fontFamily = DisplayFont, fontSize = 24.sp, color = Color.White)
+        Text(initials, fontFamily = DisplayFont, fontSize = 24.sp, lineHeight = 27.sp, color = Color.White)
     }
 }
 
@@ -713,7 +713,7 @@ internal fun DebridSelectorCard(active: DebridService, onChange: (DebridService)
                     Text(
                         active.title.uppercase(),
                         fontFamily = DisplayFont,
-                        fontSize = 30.sp,
+                        fontSize = 30.sp, lineHeight = 34.sp,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 18.dp),
                     )
@@ -780,7 +780,7 @@ private fun HomeRowLimitCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 Text(
                     "$limit",
                     fontFamily = DisplayFont,
-                    fontSize = 34.sp,
+                    fontSize = 34.sp, lineHeight = 38.sp,
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 18.dp),
                 )
@@ -1534,7 +1534,7 @@ private fun BufferCard(seconds: Int, enabled: Boolean, onChange: (Int) -> Unit) 
                     Text(
                         "$seconds s",
                         fontFamily = DisplayFont,
-                        fontSize = 34.sp,
+                        fontSize = 34.sp, lineHeight = 38.sp,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 18.dp),
                     )

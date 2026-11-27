@@ -80,7 +80,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 private val UiLocale: Locale get() = Lang.locale
-private val NetflixRed = Color(0xFFE50914)
+private val NetflixRed = Color(0xFF62C33F)
 private val CardShape = RoundedCornerShape(18.dp)
 
 /**
@@ -421,7 +421,7 @@ private fun CategoryChip(
         Text(
             text = label.uppercase(UiLocale),
             fontFamily = DisplayFont,
-            fontSize = 25.sp,
+            fontSize = 25.sp, lineHeight = 28.sp,
             letterSpacing = 0.6.sp,
             color = if (focused) Color.Black else Color.White,
             maxLines = 1,

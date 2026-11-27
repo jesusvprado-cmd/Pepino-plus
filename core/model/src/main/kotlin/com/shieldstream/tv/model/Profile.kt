@@ -36,9 +36,9 @@ enum class ProfileTheme(
     val accentDark: Long,
     val onAccent: Long = 0xFFFFFFFF,
 ) {
-    BAMBI(0xFFE50914, 0xFF8C0610),
+    BAMBI(0xFF62C33F, 0xFF2D6B1E, onAccent = 0xFF0D1F08), // verde pepino
     OCEAN(0xFF2F80ED, 0xFF1B4C95),
-    FOREST(0xFF27AE60, 0xFF14683A),
+    FOREST(0xFFE50914, 0xFF8C0610), // rojo
     GOLD(0xFFF2C94C, 0xFFC08A12, onAccent = 0xFF1A1A1A),
     VIOLET(0xFF9B51E0, 0xFF5B2A8C),
     ROSE(0xFFEB5794, 0xFF9B2459),

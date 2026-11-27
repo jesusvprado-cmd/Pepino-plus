@@ -519,7 +519,7 @@ internal fun RowsBrowser(
                     Text(
                         text = it.uppercase(Lang.locale),
                         fontFamily = DisplayFont,
-                        fontSize = 30.sp,
+                        fontSize = 30.sp, lineHeight = 34.sp,
                         color = AppColors.Accent,
                     )
                 }
@@ -880,7 +880,7 @@ private fun metaLine(item: CatalogItem): String = buildList {
     item.rating?.takeIf { it > 0f }?.let { add("★ " + String.format(Lang.locale, "%.1f", it)) }
 }.joinToString("  ·  ")
 
-private val BillboardBackground = Brush.verticalGradient(listOf(Color(0xFF151622), Color.Black))
+private val BillboardBackground = Brush.verticalGradient(listOf(Color(0xFF131B15), Color.Black))
 private val SkeletonColor = Color(0xFF1C1E2A)
 
 @Composable

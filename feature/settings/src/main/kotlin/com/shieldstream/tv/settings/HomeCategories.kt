@@ -43,10 +43,10 @@ import com.shieldstream.tv.strings.localizedTitle
 import com.shieldstream.tv.ui.component.tvClickable
 import kotlinx.coroutines.delay
 
-private val Panel = Color(0xFF1A1C27)
-private val PanelFocused = Color(0xFF2A2D3D)
+private val Panel = Color(0xFF18211B)
+private val PanelFocused = Color(0xFF27342A)
 private val Dim = Color.White.copy(alpha = 0.6f)
-private val Red = Color(0xFFE50914)
+private val Red = Color(0xFF62C33F)
 
 @Composable
 internal fun HomeCategoriesDialog(

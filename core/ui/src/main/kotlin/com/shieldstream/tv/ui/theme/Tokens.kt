@@ -9,45 +9,45 @@ import androidx.compose.ui.unit.dp
 import com.shieldstream.tv.model.ProfileTheme
 
 /**
- * Colores compartidos con el estilo de Bambi: fondo casi negro, el foco invierte a blanco y el rojo de
- * Bambi marca progreso, selección, novedades y los indicadores activos.
+ * Colores de Pepino+: fondo casi negro con un toque verde, el foco invierte a blanco y el verde pepino
+ * marca progreso, selección, novedades y los indicadores activos.
  */
 object AppColors {
     /** Full-screen canvas. */
-    val Background = Color(0xFF0E0E10)
+    val Background = Color(0xFF0D100E)
 
     /** Top stop of subtle full-screen gradients and image placeholders behind backdrops. */
-    val BackgroundRaised = Color(0xFF151622)
+    val BackgroundRaised = Color(0xFF131B15)
 
     /** Panels, cards, dialogs, and unfocused controls. */
-    val Surface = Color(0xFF1A1C27)
+    val Surface = Color(0xFF18211B)
 
     /** Focused panel rows when the control does not invert to white. */
-    val SurfaceFocused = Color(0xFF2A2D3D)
+    val SurfaceFocused = Color(0xFF27342A)
 
     /** Text fields and inset areas inside a [Surface]. */
-    val Field = Color(0xFF101012)
+    val Field = Color(0xFF0E120F)
 
     /** Image and skeleton placeholders. */
-    val Placeholder = Color(0xFF232327)
+    val Placeholder = Color(0xFF1F2621)
 
     /** Acento del perfil activo: progreso, selección e indicadores activos. */
-    var Accent by mutableStateOf(Color(0xFFE50914))
+    var Accent by mutableStateOf(Color(0xFF62C33F))
         private set
 
     /** Variante oscura del acento (degradados y estados secundarios). */
-    var AccentDark by mutableStateOf(Color(0xFF8C0610))
+    var AccentDark by mutableStateOf(Color(0xFF2D6B1E))
         private set
 
     /** Content drawn on [Accent]. */
-    var OnAccent by mutableStateOf(Color.White)
+    var OnAccent by mutableStateOf(Color(0xFF0D1F08))
         private set
 
     /**
      * The single accent: "new" dots and counts, progress bars, the active rail marker and small
      * section labels. Keep it to small details; large accent areas compete with the artwork.
      */
-    var Highlight by mutableStateOf(Color(0xFFE50914))
+    var Highlight by mutableStateOf(Color(0xFF62C33F))
         private set
 
     /** Restricted age ratings only. */

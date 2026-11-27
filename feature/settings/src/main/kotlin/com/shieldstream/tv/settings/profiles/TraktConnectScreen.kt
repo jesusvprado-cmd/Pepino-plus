@@ -89,7 +89,7 @@ fun TraktConnectScreen(onDone: () -> Unit, viewModel: TraktConnectViewModel = hi
                                 Box(
                                     Modifier
                                         .size(width = 46.dp, height = 60.dp)
-                                        .background(Color(0xFF1A1C27), RoundedCornerShape(10.dp))
+                                        .background(Color(0xFF18211B), RoundedCornerShape(10.dp))
                                         .border(1.dp, Color.White.copy(alpha = 0.18f), RoundedCornerShape(10.dp)),
                                     contentAlignment = Alignment.Center,
                                 ) {
@@ -162,7 +162,7 @@ fun TraktConnectScreen(onDone: () -> Unit, viewModel: TraktConnectViewModel = hi
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .background(Color(0xFF1A1C27), RoundedCornerShape(18.dp))
+                        .background(Color(0xFF18211B), RoundedCornerShape(18.dp))
                         .padding(22.dp),
                 ) {
                     Box(

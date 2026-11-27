@@ -494,7 +494,7 @@ private fun TraktCard(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (focused) Color(0xFF2A2D3D) else Color(0xFF1A1C27), RoundedCornerShape(14.dp))
+            .background(if (focused) Color(0xFF27342A) else Color(0xFF18211B), RoundedCornerShape(14.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
                 color = if (focused) Color.White else Color.White.copy(alpha = 0.08f),

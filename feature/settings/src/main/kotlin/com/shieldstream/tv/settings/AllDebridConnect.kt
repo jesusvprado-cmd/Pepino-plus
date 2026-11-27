@@ -152,7 +152,7 @@ fun AllDebridQrPanel(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .width(250.dp)
-            .background(Color(0xFF1A1C27), RoundedCornerShape(18.dp))
+            .background(Color(0xFF18211B), RoundedCornerShape(18.dp))
             .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
             .padding(20.dp),
     ) {
@@ -211,7 +211,7 @@ fun AllDebridQrPanel(
 
 @Composable
 private fun PanelMessage(text: String) {
-    Text(text, color = Color(0xFF1A1C27), fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+    Text(text, color = Color(0xFF18211B), fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
 }
 
 @Composable

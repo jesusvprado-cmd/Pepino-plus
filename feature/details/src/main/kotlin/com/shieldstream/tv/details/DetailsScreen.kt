@@ -1491,7 +1491,7 @@ private fun EpisodeCard(
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
                 .clip(shape)
-                .background(Color(0xFF232327))
+                .background(Color(0xFF1F2621))
                 .then(if (focused) Modifier.border(2.dp, Color.White, shape) else Modifier)
                 .onFocusChanged { focused = it.isFocused }
                 .then(if (enabled) Modifier.tvClickable(onLongClick = onLongClick, onClick = onClick) else Modifier.tvClickable(enabled = false) {}),
