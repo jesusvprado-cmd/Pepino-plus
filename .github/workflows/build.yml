@@ -34,6 +34,22 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v5
 
+      # Claves de la aplicación de Trakt (secretos TRAKT_CLIENT_ID y TRAKT_CLIENT_SECRET). Sin ellas, Trakt queda desactivado.
+      - name: Claves de Trakt
+        env:
+          TRAKT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+        run: |
+          if [ -z "$TRAKT_ID" ] || [ -z "$TRAKT_SECRET" ]; then
+            echo "::warning::Sin los secretos TRAKT_CLIENT_ID y TRAKT_CLIENT_SECRET: el APK se compila sin Trakt"
+          fi
+          {
+            printf 'traktClientId=%s\n' "$TRAKT_ID"
+            printf 'traktClientSecret=%s\n' "$TRAKT_SECRET"
+            printf 'traktRedirectUri=urn:ietf:wg:oauth:2.0:oob\n'
+          } > local.properties
+          chmod 600 local.properties
+
       - name: Compilar
         env:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
