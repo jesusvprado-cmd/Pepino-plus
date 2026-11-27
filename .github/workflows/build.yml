@@ -34,14 +34,15 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v5
 
-      # Claves de la aplicación de Trakt (secretos TRAKT_CLIENT_ID y TRAKT_CLIENT_SECRET). Sin ellas, Trakt queda desactivado.
+      # Aplicación de Trakt: secreto TRAKT_CLIENT_ID (obligatorio para Trakt) y TRAKT_CLIENT_SECRET (opcional; las apps
+      # nuevas de Trakt usan PKCE y no tienen secreto). Sin TRAKT_CLIENT_ID, Trakt queda desactivado.
       - name: Claves de Trakt
         env:
           TRAKT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
           TRAKT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
-          if [ -z "$TRAKT_ID" ] || [ -z "$TRAKT_SECRET" ]; then
-            echo "::warning::Sin los secretos TRAKT_CLIENT_ID y TRAKT_CLIENT_SECRET: el APK se compila sin Trakt"
+          if [ -z "$TRAKT_ID" ]; then
+            echo "::warning::Sin el secreto TRAKT_CLIENT_ID: el APK se compila sin Trakt"
           fi
           {
             printf 'traktClientId=%s\n' "$TRAKT_ID"
