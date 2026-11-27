@@ -59,7 +59,7 @@ fun CrashDialog(report: CrashLog.Report, onDismiss: () -> Unit) {
             Text(
                 if (en) "Take a photo of this screen to find out what happened."
                 else "Haz una foto de esta pantalla para poder averiguar qué pasó.",
-                color = Color.White.copy(alpha = 0.7f),
+                color = AppColors.TextSecondary,
                 fontSize = 17.sp,
                 lineHeight = 22.sp,
             )
@@ -68,7 +68,7 @@ fun CrashDialog(report: CrashLog.Report, onDismiss: () -> Unit) {
                 report.summary,
                 color = Color.White.copy(alpha = 0.9f),
                 fontFamily = FontFamily.Monospace,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 lineHeight = 15.sp,
                 modifier = Modifier
                     .fillMaxWidth()

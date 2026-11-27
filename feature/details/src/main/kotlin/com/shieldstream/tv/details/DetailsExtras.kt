@@ -1,5 +1,7 @@
 package com.shieldstream.tv.details
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -120,7 +122,7 @@ internal fun PersonCard(person: Person, enabled: Boolean, onClick: () -> Unit, b
             } else {
                 Text(
                     text = initials(person.name),
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = AppColors.TextSecondary,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.Center),
@@ -135,7 +137,7 @@ internal fun PersonCard(person: Person, enabled: Boolean, onClick: () -> Unit, b
                 Text(
                     text = badge.uppercase(),
                     color = Color.Black,
-                    fontSize = 10.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.6.sp,
                     modifier = Modifier
@@ -148,8 +150,8 @@ internal fun PersonCard(person: Person, enabled: Boolean, onClick: () -> Unit, b
             Text(
                 text = person.name,
                 color = Color.White,
-                fontSize = 14.sp,
-                lineHeight = 16.sp,
+                fontSize = 15.sp,
+                lineHeight = 19.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -160,8 +162,8 @@ internal fun PersonCard(person: Person, enabled: Boolean, onClick: () -> Unit, b
         Text(
             text = person.role.orEmpty(),
             color = Color.White.copy(alpha = if (focused) 0.85f else 0.55f),
-            fontSize = 12.sp,
-            lineHeight = 15.sp,
+            fontSize = 13.sp,
+            lineHeight = 17.sp,
             maxLines = 2,
             minLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -209,4 +211,4 @@ internal fun initials(name: String): String =
 private val PersonCardWidth = 118.dp
 private val PersonPhotoHeight = 160.dp
 private val PersonCardShape = RoundedCornerShape(10.dp)
-private val PersonPlaceholder = Color(0xFF2A2D35)
+private val PersonPlaceholder = AppColors.SurfaceFocused

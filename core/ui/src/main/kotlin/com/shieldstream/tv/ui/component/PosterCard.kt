@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import com.shieldstream.tv.ui.theme.AppColors
 import com.shieldstream.tv.ui.theme.LocalLightweightUi
 import androidx.compose.animation.core.animateFloatAsState
@@ -79,7 +81,7 @@ fun PosterCard(
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     var focused by remember { mutableStateOf(false) }
-    val scale = focusScale(focused, 1.1f)
+    val scale = focusScale(focused, FocusStyle.Scale)
 
     Box(
         modifier = modifier
@@ -98,8 +100,8 @@ fun PosterCard(
                 scaleY = scale
             }
             .clip(CardShape)
-            .background(Color(0xFF1F2621))
-            .then(if (focused) Modifier.border(2.dp, Color.White, CardShape) else Modifier),
+            .background(AppColors.Placeholder)
+            .then(if (focused) Modifier.border(FocusStyle.Border, Color.White, CardShape) else Modifier),
     ) {
         if (item.posterUrl != null) {
             AsyncImage(
@@ -175,7 +177,7 @@ private fun BoxScope.BottomLabel(label: String, fraction: Float?) {
         Text(
             text = label,
             color = Color.White,
-            fontSize = 11.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -315,7 +317,7 @@ fun Top10Card(
         // Relleno oscuro + contorno gris superpuestos.
         Text(
             text = rank.toString(),
-            style = numberStyle.copy(color = Color(0xFF0D100E)),
+            style = numberStyle.copy(color = AppColors.Background),
             modifier = Modifier.align(Alignment.BottomStart).offset(x = (-4).dp, y = 36.dp),
         )
         Text(

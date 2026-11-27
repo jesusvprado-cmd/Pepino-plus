@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.phoneconfig
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,9 +46,9 @@ import com.shieldstream.tv.ui.component.TvButton
 import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.theme.DisplayFont
 
-private val PhoneBackground = Brush.verticalGradient(listOf(Color(0xFF131B15), Color.Black))
-private val PhoneMuted = Color.White.copy(alpha = 0.62f)
-private val PhonePanel = Color(0xFF18211B)
+private val PhoneBackground = Brush.verticalGradient(listOf(AppColors.BackgroundRaised, Color.Black))
+private val PhoneMuted = AppColors.TextSecondary
+private val PhonePanel = AppColors.Surface
 
 @Composable
 fun PhoneConfigScreen(
@@ -101,7 +103,7 @@ fun PhoneConfigScreen(
                             else StringsR.string.settings_configure_from_phone,
                         ),
                         fontFamily = DisplayFont,
-                        fontSize = 44.sp, lineHeight = 49.sp,
+                        fontSize = 32.sp, lineHeight = 38.sp,
                         color = Color.White,
                     )
                 }
@@ -128,7 +130,7 @@ fun PhoneConfigScreen(
                                 },
                             ),
                             style = MaterialTheme.typography.titleLarge,
-                            color = if (setupComplete || configurationSaved) Color(0xFF46D369) else PhoneMuted,
+                            color = if (setupComplete || configurationSaved) AppColors.Success else PhoneMuted,
                         )
                         Spacer(Modifier.height(20.dp))
                         Text(s.connection.displayUrl, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -147,7 +149,7 @@ fun PhoneConfigScreen(
                     PhoneConfigUiState.Error -> Text(
                         viewModel.errorMessage(),
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color(0xFFFF5A5F),
+                        color = AppColors.Error,
                     )
                 }
                 Spacer(Modifier.height(30.dp))

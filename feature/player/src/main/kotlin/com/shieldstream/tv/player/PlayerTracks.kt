@@ -222,7 +222,7 @@ fun TracksPanel(
         }
         Text(
             text = if (showExternal || showAppearance) localizedStringResource(StringsR.string.player_back_to_return_to_audio_subtitles) else localizedStringResource(StringsR.string.player_back_to_return_to_the_movie),
-            color = Color.White.copy(alpha = 0.5f),
+            color = AppColors.TextTertiary,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp),
         )
@@ -350,7 +350,7 @@ private fun ExternalSubtitlesView(
             )
             Text(
                 text = "OpenSubtitles · Podnapisi · SubDL",
-                color = Color.White.copy(alpha = 0.5f),
+                color = AppColors.TextTertiary,
                 style = MaterialTheme.typography.bodySmall,
             )
             Spacer(Modifier.height(16.dp))
@@ -405,7 +405,7 @@ private fun ExternalSubtitlesView(
 
 @Composable
 private fun StatusText(text: String) {
-    Text(text, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyLarge)
+    Text(text, color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyLarge)
 }
 
 @Composable
@@ -427,7 +427,7 @@ private fun OptionColumn(
         )
         Spacer(Modifier.height(10.dp))
         if (options.isEmpty()) {
-            Text(emptyText, color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.bodyLarge)
+            Text(emptyText, color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyLarge)
         } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -528,7 +528,7 @@ private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifi
             if (option.detail.isNotBlank()) {
                 Text(
                     text = option.detail,
-                    color = if (focused) Color.Black.copy(alpha = 0.65f) else Color.White.copy(alpha = 0.55f),
+                    color = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextTertiary,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -761,7 +761,7 @@ private fun LiveSubtitleEditor(
             )
             Text(
                 text = localizedStringResource(StringsR.string.subtitle_live_hint),
-                color = Color.White.copy(alpha = 0.55f),
+                color = AppColors.TextTertiary,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 14.dp, top = 4.dp, bottom = 12.dp),
             )

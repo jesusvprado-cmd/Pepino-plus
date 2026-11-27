@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.background
@@ -146,9 +148,9 @@ fun ActionDockCard(
 ) {
     var focused by remember { mutableStateOf(false) }
     val scale = if (LocalLightweightUi.current) {
-        if (focused) 1.06f else 1f
+        if (focused) FocusStyle.Scale else 1f
     } else {
-        animateFloatAsState(if (focused) 1.06f else 1f, label = "actionCardScale").value
+        animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "actionCardScale").value
     }
     val content = if (focused) Color.Black else Color.White
     Column(
@@ -172,8 +174,8 @@ fun ActionDockCard(
         Text(
             text = text,
             color = content,
-            fontSize = 14.sp,
-            lineHeight = 17.sp,
+            fontSize = 15.sp,
+            lineHeight = 19.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             maxLines = 2,

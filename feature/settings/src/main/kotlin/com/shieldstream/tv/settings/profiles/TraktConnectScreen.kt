@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -89,7 +91,7 @@ fun TraktConnectScreen(onDone: () -> Unit, viewModel: TraktConnectViewModel = hi
                                 Box(
                                     Modifier
                                         .size(width = 46.dp, height = 60.dp)
-                                        .background(Color(0xFF18211B), RoundedCornerShape(10.dp))
+                                        .background(AppColors.Surface, RoundedCornerShape(10.dp))
                                         .border(1.dp, Color.White.copy(alpha = 0.18f), RoundedCornerShape(10.dp)),
                                     contentAlignment = Alignment.Center,
                                 ) {
@@ -116,7 +118,7 @@ fun TraktConnectScreen(onDone: () -> Unit, viewModel: TraktConnectViewModel = hi
                     is TraktConnectUiState.Connected -> {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
-                                Modifier.size(40.dp).background(Color(0xFF46D369), RoundedCornerShape(50)),
+                                Modifier.size(40.dp).background(AppColors.Success, RoundedCornerShape(50)),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Icon(AppIcons.Check, contentDescription = null, tint = Color.Black, modifier = Modifier.size(28.dp))
@@ -147,7 +149,7 @@ fun TraktConnectScreen(onDone: () -> Unit, viewModel: TraktConnectViewModel = hi
                         }
                     }
                     is TraktConnectUiState.Error -> {
-                        Text(s.message, color = Color(0xFFFF5A5F), fontSize = 22.sp)
+                        Text(s.message, color = AppColors.Error, fontSize = 22.sp)
                         Spacer(Modifier.height(24.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             TvButton(localizedStringResource(StringsR.string.settings_retry), onClick = viewModel::start, modifier = Modifier.focusRequester(buttonRequester))
@@ -162,7 +164,7 @@ fun TraktConnectScreen(onDone: () -> Unit, viewModel: TraktConnectViewModel = hi
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .background(Color(0xFF18211B), RoundedCornerShape(18.dp))
+                        .background(AppColors.Surface, RoundedCornerShape(18.dp))
                         .padding(22.dp),
                 ) {
                     Box(

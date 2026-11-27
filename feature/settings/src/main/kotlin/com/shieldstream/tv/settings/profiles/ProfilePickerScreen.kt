@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import com.shieldstream.tv.ui.theme.AppColors
 
 import com.shieldstream.tv.strings.R as StringsR
@@ -53,8 +55,8 @@ import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.component.tvClickable
 import kotlinx.coroutines.delay
 
-internal val ProfileBackground = Brush.verticalGradient(listOf(Color(0xFF14151F), Color.Black))
-internal val ProfileMuted = Color.White.copy(alpha = 0.55f)
+internal val ProfileBackground = Brush.verticalGradient(listOf(AppColors.BackgroundRaised, Color.Black))
+internal val ProfileMuted = AppColors.TextTertiary
 
 @Composable
 fun ProfilePickerScreen(
@@ -231,7 +233,7 @@ private fun ProfileTile(profile: Profile, manage: Boolean, onClick: () -> Unit, 
                     scaleX = scale
                     scaleY = scale
                 }
-                .border(4.dp, if (focused) Color.White else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
+                .border(FocusStyle.Border, if (focused) Color.White else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
                 .padding(6.dp),
         ) {
             ProfileAvatar(initial = profile.initial, avatar = profile.avatar, size = TileSize, image = profile.avatarImage)
@@ -290,7 +292,7 @@ private fun AddTile(onClick: () -> Unit) {
                     scaleX = scale
                     scaleY = scale
                 }
-                .border(4.dp, if (focused) Color.White else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
+                .border(FocusStyle.Border, if (focused) Color.White else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
                 .padding(6.dp),
         ) {
             Box(

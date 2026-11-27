@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import com.shieldstream.tv.ui.theme.AppColors
 import com.shieldstream.tv.ui.theme.AppShapes
 import androidx.compose.foundation.background
@@ -56,7 +58,7 @@ fun UpNextCard(
     highlightBadge: Boolean = true,
 ) {
     var focused by remember { mutableStateOf(false) }
-    val scale = if (focused) 1.04f else 1f
+    val scale = if (focused) FocusStyle.Scale else 1f
 
     Box(
         modifier = modifier
@@ -74,7 +76,7 @@ fun UpNextCard(
             }
             .clip(UpNextCardShape)
             .background(AppColors.Placeholder)
-            .then(if (focused) Modifier.border(2.dp, Color.White.copy(alpha = 0.88f), UpNextCardShape) else Modifier),
+            .then(if (focused) Modifier.border(FocusStyle.Border, Color.White, UpNextCardShape) else Modifier),
     ) {
         val imageUrl = upNextImageUrl(item, episode)
         if (imageUrl != null) {
@@ -128,7 +130,7 @@ fun UpNextCard(
             Spacer(Modifier.height(3.dp))
             Text(
                 text = label,
-                color = Color.White.copy(alpha = 0.78f),
+                color = AppColors.TextSecondary,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -137,7 +139,7 @@ fun UpNextCard(
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = releaseLabel,
-                    color = Color.White.copy(alpha = 0.58f),
+                    color = AppColors.TextTertiary,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

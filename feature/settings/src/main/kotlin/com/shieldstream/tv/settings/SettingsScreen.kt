@@ -1,5 +1,9 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.lifecycle.ViewModel
 import com.shieldstream.tv.domain.DownloadsRepository
 import com.shieldstream.tv.model.StorageOption
@@ -103,14 +107,14 @@ import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.component.tvClickable
 import com.shieldstream.tv.ui.theme.DisplayFont
 
-private val Background = Brush.verticalGradient(listOf(Color(0xFF131B15), Color.Black))
-private val CardColor = Color(0xFF18211B)
-private val CardFocused = Color(0xFF27342A)
+private val Background = Brush.verticalGradient(listOf(AppColors.BackgroundRaised, Color.Black))
+private val CardColor = AppColors.Surface
+private val CardFocused = AppColors.SurfaceFocused
 private val CardShape = RoundedCornerShape(14.dp)
-private val Muted = Color.White.copy(alpha = 0.6f)
-private val Green = Color(0xFF46D369)
-private val Amber = Color(0xFFF5B83D)
-private val Red = Color(0xFFFF5A5F)
+private val Muted = AppColors.TextSecondary
+private val Green = AppColors.Success
+private val Amber = AppColors.Warning
+private val Red = AppColors.Error
 
 @Composable
 fun SettingsScreen(
@@ -238,7 +242,7 @@ private fun SettingsList(
         ) {
             item {
                 Column(Modifier.padding(bottom = 8.dp)) {
-                    Text(localizedStringResource(StringsR.string.settings_settings), fontFamily = DisplayFont, fontSize = 52.sp, lineHeight = 58.sp, color = Color.White)
+                    Text(localizedStringResource(StringsR.string.settings_settings), fontFamily = DisplayFont, fontSize = 32.sp, lineHeight = 38.sp, color = Color.White)
                     Text(
                         localizedStringResource(StringsR.string.settings_service_keys_playback_and_app_version),
                         style = MaterialTheme.typography.bodyLarge,
@@ -447,7 +451,7 @@ private fun FamilyRequestsCard(count: Int, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(if (focused) CardFocused else CardColor, CardShape)
-            .border(if (focused) 2.dp else 1.dp, if (focused) Color.White else Color.White.copy(alpha = 0.08f), CardShape)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.White.copy(alpha = 0.08f), CardShape)
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 18.dp),
@@ -476,7 +480,7 @@ private fun BrokenSourcesCard(count: Int, onRestore: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(if (focused) CardFocused else CardColor, CardShape)
-            .border(if (focused) 2.dp else 1.dp, if (focused) Color.White else Color.White.copy(alpha = 0.08f), CardShape)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.White.copy(alpha = 0.08f), CardShape)
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onRestore)
             .padding(horizontal = 24.dp, vertical = 18.dp),
@@ -500,10 +504,10 @@ private fun BrokenSourcesCard(count: Int, onRestore: () -> Unit) {
 @Composable
 private fun SectionTitle(text: String) {
     Text(
-        text = text.uppercase(),
+        text = text,
         fontFamily = DisplayFont,
-        fontSize = 26.sp, lineHeight = 29.sp,
-        color = Color.White.copy(alpha = 0.85f),
+        fontSize = 22.sp, lineHeight = 26.sp,
+        color = AppColors.TextSecondary,
         modifier = Modifier.padding(top = 18.dp, bottom = 2.dp, start = 4.dp),
     )
 }
@@ -567,8 +571,8 @@ internal fun ServiceCard(ui: ServiceUi, onClick: () -> Unit, modifier: Modifier 
                     Text(
                         ui.maskedKey ?: localizedStringResource(StringsR.string.settings_no_key),
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.45f),
+                        fontSize = 15.sp,
+                        color = AppColors.TextTertiary,
                     )
                 }
                 Spacer(Modifier.width(16.dp))
@@ -602,7 +606,7 @@ private fun ServiceLogo(service: ApiService) {
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(52.dp).background(color, CircleShape),
     ) {
-        Text(initials, fontFamily = DisplayFont, fontSize = 24.sp, lineHeight = 27.sp, color = Color.White)
+        Text(initials, fontFamily = DisplayFont, fontSize = 22.sp, lineHeight = 26.sp, color = Color.White)
     }
 }
 
@@ -740,9 +744,9 @@ internal fun DebridSelectorCard(active: DebridService, onChange: (DebridService)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Arrow("◀", enabled = focused)
                     Text(
-                        active.title.uppercase(),
+                        active.title,
                         fontFamily = DisplayFont,
-                        fontSize = 30.sp, lineHeight = 34.sp,
+                        fontSize = 24.sp, lineHeight = 28.sp,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 18.dp),
                     )
@@ -809,7 +813,7 @@ private fun HomeRowLimitCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 Text(
                     "$limit",
                     fontFamily = DisplayFont,
-                    fontSize = 34.sp, lineHeight = 38.sp,
+                    fontSize = 30.sp, lineHeight = 35.sp,
                     color = Color.White,
                     modifier = Modifier.padding(horizontal = 18.dp),
                 )
@@ -1313,7 +1317,7 @@ private fun DeviceOptimizationCard(
                 Text(
                     "${capabilities.model} · ${capabilities.heapLimitBytes / (1024 * 1024)} MB$memory\n$codecs\n$hdr",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.45f),
+                    color = AppColors.TextTertiary,
                     modifier = Modifier.padding(top = 8.dp),
                 )
             }
@@ -1514,7 +1518,7 @@ private fun SegmentOption(text: String, selected: Boolean) {
     Text(
         text,
         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-        color = if (selected) Color.Black else Color.White.copy(alpha = 0.7f),
+        color = if (selected) Color.Black else AppColors.TextSecondary,
         modifier = Modifier
             .background(if (selected) Color.White else Color.Transparent, RoundedCornerShape(50))
             .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -1563,7 +1567,7 @@ private fun BufferCard(seconds: Int, enabled: Boolean, onChange: (Int) -> Unit) 
                     Text(
                         "$seconds s",
                         fontFamily = DisplayFont,
-                        fontSize = 34.sp, lineHeight = 38.sp,
+                        fontSize = 30.sp, lineHeight = 35.sp,
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 18.dp),
                     )
@@ -1659,7 +1663,7 @@ private fun KeyEditorDialog(
         Column(
             Modifier
                 .width(if (editor.service == ApiService.ALLDEBRID) 1040.dp else 720.dp)
-                .background(Color(0xFF1B1D29), RoundedCornerShape(20.dp))
+                .background(AppColors.Surface, RoundedCornerShape(20.dp))
                 .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(20.dp))
                 .padding(36.dp),
         ) {
@@ -1727,7 +1731,7 @@ private fun KeyEditorDialog(
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF101119), RoundedCornerShape(10.dp))
+                            .background(AppColors.Field, RoundedCornerShape(10.dp))
                             .border(
                                 width = if (fieldFocused) 2.dp else 1.dp,
                                 color = if (fieldFocused) Color.White else Color.White.copy(alpha = 0.2f),

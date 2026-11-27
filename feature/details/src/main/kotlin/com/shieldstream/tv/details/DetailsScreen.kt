@@ -1,5 +1,7 @@
 package com.shieldstream.tv.details
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import com.shieldstream.tv.ui.theme.AppColors
 import com.shieldstream.tv.ui.theme.AppShapes
 
@@ -116,9 +118,9 @@ import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.component.tvClickable
 import java.util.Locale
 
-private val Green = Color(0xFF46D369)
+private val Green = AppColors.Success
 private val Grey = Color(0xFFB3B3B3)
-private val WatchedCountColor = Color.White.copy(alpha = 0.75f)
+private val WatchedCountColor = AppColors.TextSecondary
 
 /** Cached bolt on a focused (white) row: a darker green keeps contrast. */
 private val CachedFocused = Color(0xFF0A8F3C)
@@ -904,7 +906,7 @@ private fun MoreSidePanel(
 private fun MoreSectionHeader(text: String) {
     Text(
         text.uppercase(java.util.Locale.getDefault()),
-        color = Color.White.copy(alpha = 0.45f),
+        color = AppColors.TextTertiary,
         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
         modifier = Modifier.padding(start = 12.dp, top = 18.dp, bottom = 6.dp),
     )
@@ -1164,7 +1166,7 @@ private fun RatingStarsControl(
             }
             .clip(AppShapes.Control)
             .background(if (focused) Color.White.copy(alpha = 0.08f) else Color.Transparent)
-            .border(1.dp, if (focused) Color.White.copy(alpha = 0.65f) else Color.Transparent, AppShapes.Control)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.Transparent, AppShapes.Control)
             .tvClickable(enabled = enabled, onClick = onSave)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
@@ -1284,7 +1286,7 @@ private fun Badge(text: String) {
         color = Color.White,
         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
         modifier = Modifier
-            .border(1.dp, Color.White.copy(alpha = 0.6f), RoundedCornerShape(3.dp))
+            .border(1.dp, AppColors.TextSecondary, RoundedCornerShape(3.dp))
             .padding(horizontal = 6.dp, vertical = 1.dp),
     )
 }
@@ -1449,7 +1451,7 @@ private fun SeasonChip(label: String, selected: Boolean, enabled: Boolean, onCli
         color = when {
             focused -> Color.Black
             selected -> Color.White
-            else -> Color.White.copy(alpha = 0.75f)
+            else -> AppColors.TextSecondary
         },
         style = MaterialTheme.typography.titleSmall.copy(fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium),
         modifier = Modifier
@@ -1475,7 +1477,7 @@ private fun EpisodeCard(
 ) {
     var focused by remember { mutableStateOf(false) }
     LaunchedEffect(focused) { if (focused) onFocused() }
-    val scale by animateFloatAsState(if (focused) 1.06f else 1f, label = "episodeScale")
+    val scale by animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "episodeScale")
     val shape = RoundedCornerShape(6.dp)
     Column(
         Modifier
@@ -1491,8 +1493,8 @@ private fun EpisodeCard(
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
                 .clip(shape)
-                .background(Color(0xFF1F2621))
-                .then(if (focused) Modifier.border(2.dp, Color.White, shape) else Modifier)
+                .background(AppColors.Placeholder)
+                .then(if (focused) Modifier.border(FocusStyle.Border, Color.White, shape) else Modifier)
                 .onFocusChanged { focused = it.isFocused }
                 .then(if (enabled) Modifier.tvClickable(onLongClick = onLongClick, onClick = onClick) else Modifier.tvClickable(enabled = false) {}),
         ) {
@@ -1542,7 +1544,7 @@ private fun EpisodeCard(
         Spacer(Modifier.height(8.dp))
         Text(
             text = "${episode.number}. ${episode.title}",
-            color = if (selected || focused) Color.White else Color.White.copy(alpha = 0.8f),
+            color = if (selected || focused) Color.White else AppColors.TextSecondary,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

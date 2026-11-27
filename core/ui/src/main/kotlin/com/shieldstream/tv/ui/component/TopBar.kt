@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import com.shieldstream.tv.ui.theme.AppColors
 import androidx.annotation.StringRes
 import com.shieldstream.tv.strings.localizedStringResource
@@ -141,9 +143,9 @@ fun TopBar(
 private fun ProfileButton(initial: String, avatar: Int, image: String?, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
     val scale = if (LocalLightweightUi.current) {
-        if (focused) 1.12f else 1f
+        if (focused) FocusStyle.Scale else 1f
     } else {
-        animateFloatAsState(if (focused) 1.12f else 1f, label = "profileScale").value
+        animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "profileScale").value
     }
     Box(
         Modifier
@@ -175,9 +177,9 @@ private fun TopBarItem(
 ) {
     var focused by remember { mutableStateOf(false) }
     val scale = if (LocalLightweightUi.current) {
-        if (focused) 1.06f else 1f
+        if (focused) FocusStyle.Scale else 1f
     } else {
-        animateFloatAsState(if (focused) 1.06f else 1f, label = "topBarScale").value
+        animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "topBarScale").value
     }
     // Como en Bambi: pastilla blanca al enfocar y gris translúcida en la pestaña activa.
     val background = when {
@@ -188,7 +190,7 @@ private fun TopBarItem(
     val foreground = when {
         focused -> Color.Black
         selected -> Color.White
-        else -> Color.White.copy(alpha = 0.75f)
+        else -> AppColors.TextSecondary
     }
     Box(
         modifier = modifier

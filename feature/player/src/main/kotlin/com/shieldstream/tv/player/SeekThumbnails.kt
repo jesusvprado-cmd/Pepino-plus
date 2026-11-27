@@ -1,5 +1,7 @@
 package com.shieldstream.tv.player
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -303,7 +305,7 @@ private fun ThumbCard(bitmap: Bitmap?, label: String?, visible: Boolean, highlig
             .size(width, height)
             .clip(shape)
             .background(Color(0xFF15161E))
-            .border(if (highlighted) 2.dp else 1.dp, if (highlighted) Color.White else Color.White.copy(alpha = 0.15f), shape),
+            .border(if (highlighted) FocusStyle.Border else 1.dp, if (highlighted) Color.White else Color.White.copy(alpha = 0.15f), shape),
     ) {
         if (bitmap != null) {
             Image(

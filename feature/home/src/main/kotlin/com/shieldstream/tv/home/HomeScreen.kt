@@ -517,9 +517,9 @@ internal fun RowsBrowser(
             ) {
                 header?.let {
                     Text(
-                        text = it.uppercase(Lang.locale),
+                        text = it,
                         fontFamily = DisplayFont,
-                        fontSize = 30.sp, lineHeight = 34.sp,
+                        fontSize = 24.sp, lineHeight = 28.sp,
                         color = AppColors.Accent,
                     )
                 }
@@ -682,7 +682,7 @@ private fun CatalogRowView(
                 Text(
                     text = "   " + localizedStringResource(StringsR.string.home_hold_ok_for_options),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.45f),
+                    color = AppColors.TextTertiary,
                 )
             }
         }
@@ -829,8 +829,8 @@ private fun HeroBackdrop(item: CatalogItem) {
             area.background(
                 Brush.horizontalGradient(
                     0f to Color.Black,
-                    0.30f to Color.Black.copy(alpha = 0.55f),
-                    0.65f to Color.Transparent,
+                    0.35f to Color.Black.copy(alpha = 0.7f),
+                    0.72f to Color.Transparent,
                 ),
             ),
         )
@@ -859,13 +859,13 @@ private fun HeroInfo(item: CatalogItem) {
         Text(
             text = metaLine(item),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = Color(0xFF46D369),
+            color = AppColors.Success,
         )
         Spacer(Modifier.height(8.dp))
         Text(
             text = item.overview,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.85f),
+            color = AppColors.TextSecondary,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.widthIn(max = 520.dp),
@@ -880,8 +880,8 @@ private fun metaLine(item: CatalogItem): String = buildList {
     item.rating?.takeIf { it > 0f }?.let { add("★ " + String.format(Lang.locale, "%.1f", it)) }
 }.joinToString("  ·  ")
 
-private val BillboardBackground = Brush.verticalGradient(listOf(Color(0xFF131B15), Color.Black))
-private val SkeletonColor = Color(0xFF1C1E2A)
+private val BillboardBackground = Brush.verticalGradient(listOf(AppColors.BackgroundRaised, Color.Black))
+private val SkeletonColor = AppColors.Placeholder
 
 @Composable
 private fun delayedSkeletonAlpha(): Float {

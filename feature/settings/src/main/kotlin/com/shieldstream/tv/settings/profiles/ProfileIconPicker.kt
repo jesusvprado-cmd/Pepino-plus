@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -263,8 +265,8 @@ internal fun ProfileIconPicker(
 private fun TileLabel(text: String) {
     Text(
         text,
-        color = Color.White.copy(alpha = 0.6f),
-        fontSize = 13.sp,
+        color = AppColors.TextSecondary,
+        fontSize = 15.sp,
         modifier = Modifier.padding(top = 4.dp, start = 6.dp),
     )
 }
@@ -324,13 +326,13 @@ private fun PhotoUploadDialog(profileId: String, onUploaded: (String) -> Unit, o
                 Text(
                     if (failed) localizedStringResource(StringsR.string.settings_upload_photo_no_network)
                     else localizedStringResource(StringsR.string.settings_upload_photo_steps),
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = AppColors.TextSecondary,
                     fontSize = 17.sp,
                     lineHeight = 24.sp,
                 )
                 connection?.let {
                     Spacer(Modifier.height(10.dp))
-                    Text(it.displayUrl, color = Color.White.copy(alpha = 0.45f), fontSize = 14.sp)
+                    Text(it.displayUrl, color = AppColors.TextTertiary, fontSize = 15.sp)
                 }
                 Spacer(Modifier.height(24.dp))
                 com.shieldstream.tv.ui.component.TvButton(
@@ -381,7 +383,7 @@ private fun IconTile(
                 width = 3.dp,
                 color = when {
                     focused -> Color.White
-                    selected -> Color.White.copy(alpha = 0.5f)
+                    selected -> AppColors.TextTertiary
                     else -> Color.Transparent
                 },
                 shape = RoundedCornerShape(IconSize * 0.18f),

@@ -1,5 +1,9 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -190,7 +194,7 @@ fun ProfileEditScreen(
                     Text(
                         localizedStringResource(StringsR.string.settings_if_the_file_has_no_subtitles_in),
                         color = ProfileMuted,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         modifier = Modifier.padding(top = 6.dp),
                     )
                     Spacer(Modifier.height(12.dp))
@@ -364,7 +368,7 @@ private fun NameField(value: String, onValueChange: (String) -> Unit, modifier: 
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF101119), RoundedCornerShape(10.dp))
+                    .background(AppColors.Field, RoundedCornerShape(10.dp))
                     .border(
                         width = if (focused) 2.dp else 1.dp,
                         color = if (focused) Color.White else Color.White.copy(alpha = 0.2f),
@@ -429,7 +433,7 @@ private fun AvatarButton(initial: String, avatar: Int, image: String?, onClick: 
     var focused by remember { mutableStateOf(false) }
     Box(
         Modifier
-            .border(3.dp, if (focused) Color.White else Color.Transparent, RoundedCornerShape(26.dp))
+            .border(FocusStyle.Border, if (focused) Color.White else Color.Transparent, RoundedCornerShape(26.dp))
             .padding(5.dp)
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick),
@@ -458,7 +462,7 @@ private fun ColorChoice(initial: String, avatar: Int, selected: Boolean, onClick
                 width = 3.dp,
                 color = when {
                     focused -> Color.White
-                    selected -> Color.White.copy(alpha = 0.55f)
+                    selected -> AppColors.TextTertiary
                     else -> Color.Transparent
                 },
                 shape = RoundedCornerShape(10.dp),
@@ -494,7 +498,7 @@ private fun TraktCard(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (focused) Color(0xFF27342A) else Color(0xFF18211B), RoundedCornerShape(14.dp))
+            .background(if (focused) AppColors.SurfaceFocused else AppColors.Surface, RoundedCornerShape(14.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
                 color = if (focused) Color.White else Color.White.copy(alpha = 0.08f),
@@ -518,7 +522,7 @@ private fun TraktCard(
         Spacer(Modifier.width(18.dp))
         Column {
             Text(title, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text(subtitle, color = if (state.confirmDisconnect) Color(0xFFF5B83D) else ProfileMuted, fontSize = 15.sp)
+            Text(subtitle, color = if (state.confirmDisconnect) AppColors.Warning else ProfileMuted, fontSize = 15.sp)
         }
     }
 }

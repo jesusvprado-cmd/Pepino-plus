@@ -1,5 +1,7 @@
 package com.shieldstream.tv.details
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -162,7 +164,7 @@ private fun PersonContent(details: PersonDetails, onOpenItem: (CatalogItem) -> U
                     ).joinToString("  ·  ")
                     if (meta.isNotBlank()) {
                         Spacer(Modifier.height(6.dp))
-                        Text(meta, color = Color.White.copy(alpha = 0.6f), style = MaterialTheme.typography.bodyMedium)
+                        Text(meta, color = AppColors.TextSecondary, style = MaterialTheme.typography.bodyMedium)
                     }
                     if (details.biography.isNotBlank()) {
                         Spacer(Modifier.height(12.dp))
@@ -191,7 +193,7 @@ private fun PersonContent(details: PersonDetails, onOpenItem: (CatalogItem) -> U
             if (movies.isEmpty() && shows.isEmpty()) {
                 Text(
                     localizedStringResource(StringsR.string.person_no_titles),
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = AppColors.TextSecondary,
                     modifier = Modifier.padding(start = 56.dp),
                 )
             }

@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -66,7 +68,7 @@ import com.shieldstream.tv.ui.component.tvClickable
 import com.shieldstream.tv.ui.theme.AppColors
 import com.shieldstream.tv.ui.theme.AppShapes
 
-private val AddonMuted = Color.White.copy(alpha = 0.6f)
+private val AddonMuted = AppColors.TextSecondary
 
 @Composable
 fun AddonsScreen(
@@ -196,7 +198,7 @@ private fun AddonCard(
             .fillMaxWidth()
             .onFocusChanged { focused = it.isFocused }
             .background(if (focused) AppColors.SurfaceFocused else AppColors.Surface, AppShapes.Control)
-            .border(1.dp, if (focused) Color.White.copy(alpha = 0.7f) else Color.Transparent, AppShapes.Control)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.Transparent, AppShapes.Control)
             .tvClickable(onClick = onClick)
             .padding(20.dp),
     ) {

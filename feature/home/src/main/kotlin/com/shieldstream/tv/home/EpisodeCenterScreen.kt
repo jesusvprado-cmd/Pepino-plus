@@ -1,5 +1,7 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -56,12 +58,12 @@ fun EpisodeCenterScreen(
         )
         Spacer(Modifier.height(16.dp))
         when (val s = state) {
-            EpisodeCenterUiState.Loading -> Text(localizedStringResource(StringsR.string.home_finding_episodes), color = Color.White.copy(alpha = 0.6f), modifier = Modifier.padding(start = EdgeStart))
+            EpisodeCenterUiState.Loading -> Text(localizedStringResource(StringsR.string.home_finding_episodes), color = AppColors.TextSecondary, modifier = Modifier.padding(start = EdgeStart))
             is EpisodeCenterUiState.Content -> {
                 if (s.available.isEmpty() && s.upcoming.isEmpty()) {
                     Text(
                         text = localizedStringResource(StringsR.string.home_no_recent_or_upcoming_episodes_in_your),
-                        color = Color.White.copy(alpha = 0.65f),
+                        color = AppColors.TextSecondary,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(start = EdgeStart, end = EdgeEnd),
                     )
@@ -119,7 +121,7 @@ fun EpisodeCenterScreen(
                         item(key = "dismiss_hint") {
                             Text(
                                 text = localizedStringResource(StringsR.string.home_hold_ok_to_dismiss),
-                                color = Color.White.copy(alpha = 0.45f),
+                                color = AppColors.TextTertiary,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(start = EdgeStart),
                             )

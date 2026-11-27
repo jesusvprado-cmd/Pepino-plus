@@ -50,13 +50,19 @@ object AppColors {
     var Highlight by mutableStateOf(Color(0xFF62C33F))
         private set
 
-    /** Restricted age ratings only. */
-    val Alert = Color(0xFFE50914)
+    /** Avisos que llaman la atención (punto de novedades). Rojo anaranjado: con la marca verde, el rojo Netflix chocaba. */
+    val Alert = Color(0xFFFF5A36)
+
+    /** Tres niveles de texto, y nada más: principal, secundario (datos, descripciones) y terciario (pistas, notas). */
+    val TextPrimary = Color.White
+    val TextSecondary = Color.White.copy(alpha = 0.75f)
+    val TextTertiary = Color.White.copy(alpha = 0.55f)
 
     /** Translucent backing for pills drawn over artwork. */
     val PillScrim = Color.Black.copy(alpha = 0.62f)
 
-    val Success = Color(0xFF46D369)
+    /** Estado correcto (activado, guardado). Verde agua, para no confundirse con el verde pepino de la marca. */
+    val Success = Color(0xFF35D0BA)
     val Warning = Color(0xFFF5B83D)
     val Error = Color(0xFFFF5A5F)
 
@@ -88,4 +94,13 @@ object AppShapes {
 object AppSpacing {
     /** Horizontal inset from the screen edge for browse screens. */
     val ScreenEdge = 48.dp
+}
+
+/**
+ * Una sola regla de foco en toda la app: lo elegible crece un 5 % y lleva borde blanco de 3 dp. Los botones se
+ * rellenan de blanco. El verde marca estado (activado, elegido, visto), nunca el foco.
+ */
+object FocusStyle {
+    const val Scale = 1.05f
+    val Border = 3.dp
 }

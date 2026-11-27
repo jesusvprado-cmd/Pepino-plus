@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -84,5 +86,5 @@ private object BadgeColors {
     val DolbyVision = Color(0xFFC49AFF)
     val Codec = Color(0xFF65D8D0)
     val Hardware = Color(0xFF65D98A)
-    val Software = Color(0xFFF5B83D)
+    val Software = AppColors.Warning
 }

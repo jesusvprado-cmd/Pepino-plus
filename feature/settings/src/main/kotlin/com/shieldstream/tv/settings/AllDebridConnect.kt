@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -152,7 +154,7 @@ fun AllDebridQrPanel(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .width(250.dp)
-            .background(Color(0xFF18211B), RoundedCornerShape(18.dp))
+            .background(AppColors.Surface, RoundedCornerShape(18.dp))
             .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
             .padding(20.dp),
     ) {
@@ -190,18 +192,18 @@ fun AllDebridQrPanel(
                     localizedStringResource(StringsR.string.settings_waiting_the_code_expires_in) +
                         "%d:%02d".format(s.secondsLeft / 60, s.secondsLeft % 60),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.62f),
+                    color = AppColors.TextSecondary,
                     textAlign = TextAlign.Center,
                 )
             }
-            AllDebridConnectUiState.Connected -> PanelStatus(localizedStringResource(StringsR.string.settings_connected), Color(0xFF46D369))
+            AllDebridConnectUiState.Connected -> PanelStatus(localizedStringResource(StringsR.string.settings_connected), AppColors.Success)
             AllDebridConnectUiState.Expired -> {
                 PanelStatus(localizedStringResource(StringsR.string.settings_the_code_has_expired), Color.White)
                 Spacer(Modifier.height(10.dp))
                 TvButton(localizedStringResource(StringsR.string.settings_get_a_new_code), onClick = { viewModel.start { currentOnConnected() } })
             }
             is AllDebridConnectUiState.Error -> {
-                PanelStatus(s.message, Color(0xFFFF5A5F))
+                PanelStatus(s.message, AppColors.Error)
                 Spacer(Modifier.height(10.dp))
                 TvButton(localizedStringResource(StringsR.string.settings_retry), onClick = { viewModel.start { currentOnConnected() } })
             }
@@ -211,7 +213,7 @@ fun AllDebridQrPanel(
 
 @Composable
 private fun PanelMessage(text: String) {
-    Text(text, color = Color(0xFF18211B), fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+    Text(text, color = AppColors.Surface, fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
 }
 
 @Composable

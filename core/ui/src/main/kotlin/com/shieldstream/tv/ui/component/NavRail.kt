@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.annotation.StringRes
 import com.shieldstream.tv.strings.localizedStringResource
 import com.shieldstream.tv.strings.R as StringsR
@@ -123,7 +125,7 @@ private fun RailItem(
     val tint = when {
         focused -> Color.Black
         selected -> Color.White
-        else -> Color.White.copy(alpha = 0.55f)
+        else -> AppColors.TextTertiary
     }
     Row(
         modifier = modifier

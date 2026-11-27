@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.requests
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -56,7 +58,7 @@ fun RequestsScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFF0D100E))
+            .background(AppColors.Background)
             .onBackKey(enabled = true) { onBack() },
     ) {
         Column(
@@ -72,19 +74,19 @@ fun RequestsScreen(
             )
             Text(
                 localizedStringResource(StringsR.string.settings_family_requests_hint),
-                color = Color.White.copy(alpha = 0.6f),
+                color = AppColors.TextSecondary,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(20.dp))
             when {
                 !isAdmin -> Text(
                     localizedStringResource(StringsR.string.settings_family_requests_admin_only),
-                    color = Color.White.copy(alpha = 0.65f),
+                    color = AppColors.TextSecondary,
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 requests.isEmpty() -> Text(
                     localizedStringResource(StringsR.string.settings_family_requests_empty),
-                    color = Color.White.copy(alpha = 0.65f),
+                    color = AppColors.TextSecondary,
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 else -> LazyColumn(
@@ -112,7 +114,7 @@ private fun RequestCard(request: TitleRequest, onApprove: () -> Unit, onDismiss:
         modifier = Modifier
             .fillMaxWidth()
             .clip(AppShapes.Control)
-            .background(if (focused) Color(0xFF27342A) else Color(0xFF18211B))
+            .background(if (focused) AppColors.SurfaceFocused else AppColors.Surface)
             .border(
                 1.dp,
                 if (focused) Color.White.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.08f),
@@ -125,7 +127,7 @@ private fun RequestCard(request: TitleRequest, onApprove: () -> Unit, onDismiss:
             Modifier
                 .size(width = 46.dp, height = 68.dp)
                 .clip(RoundedCornerShape(6.dp))
-                .background(Color(0xFF1F2621)),
+                .background(AppColors.Placeholder),
         ) {
             request.posterUrl?.let { url ->
                 AsyncImage(
@@ -147,7 +149,7 @@ private fun RequestCard(request: TitleRequest, onApprove: () -> Unit, onDismiss:
             )
             Text(
                 localizedStringResource(StringsR.string.settings_family_requested_by, request.profileName),
-                color = Color.White.copy(alpha = 0.6f),
+                color = AppColors.TextSecondary,
                 style = MaterialTheme.typography.bodyMedium,
             )
         }

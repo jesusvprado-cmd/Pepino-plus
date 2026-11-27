@@ -148,7 +148,7 @@ fun DownloadsScreen(
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 localizedStringResource(StringsR.string.downloads_empty),
-                color = Color.White.copy(alpha = 0.6f),
+                color = AppColors.TextSecondary,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.widthIn(max = 520.dp),
             )
@@ -216,7 +216,7 @@ fun DownloadsScreen(
 private fun DownloadRow(download: Download, onClick: () -> Unit, onLongClick: () -> Unit, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
     val fg = if (focused) Color.Black else Color.White
-    val sub = if (focused) Color.Black.copy(alpha = 0.65f) else Color.White.copy(alpha = 0.6f)
+    val sub = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextSecondary
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier

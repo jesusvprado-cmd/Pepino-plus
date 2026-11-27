@@ -1,5 +1,7 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.FocusStyle
+
 import com.shieldstream.tv.model.Lang
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
@@ -80,7 +82,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 private val UiLocale: Locale get() = Lang.locale
-private val NetflixRed = Color(0xFF62C33F)
+private val NetflixRed: Color get() = AppColors.Accent
 private val CardShape = RoundedCornerShape(18.dp)
 
 /**
@@ -111,7 +113,7 @@ internal fun FeaturedCarousel(
             .fillMaxWidth()
             .padding(horizontal = 28.dp)
             .clip(CardShape)
-            .border(if (focused) 3.dp else 0.dp, if (focused) Color.White else Color.Transparent, CardShape)
+            .border(if (focused) FocusStyle.Border else 0.dp, if (focused) Color.White else Color.Transparent, CardShape)
             .onFocusChanged { focused = it.isFocused }
             .onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown || items.size < 2) return@onPreviewKeyEvent false
@@ -168,13 +170,14 @@ private fun FeaturedSlide(featured: FeaturedItem) {
         Box(
             Modifier.fillMaxSize().background(
                 Brush.horizontalGradient(
-                    0f to Color.Black.copy(alpha = 0.85f),
-                    0.45f to Color.Black.copy(alpha = 0.35f),
-                    0.75f to Color.Transparent,
+                    // Pepino+: más oscuro bajo el texto para que se lea sobre cualquier imagen.
+                    0f to Color.Black.copy(alpha = 0.92f),
+                    0.45f to Color.Black.copy(alpha = 0.55f),
+                    0.8f to Color.Transparent,
                 ),
             ),
         )
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.85f))))
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.92f))))
 
         Column(
             Modifier
@@ -192,10 +195,9 @@ private fun FeaturedSlide(featured: FeaturedItem) {
                 )
             } else {
                 Text(
-                    text = item.title.uppercase(UiLocale),
+                    text = item.title,
                     fontFamily = DisplayFont,
-                    fontSize = 54.sp,
-                    lineHeight = 52.sp,
+                    fontSize = 44.sp, lineHeight = 52.sp,
                     color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -402,7 +404,7 @@ private fun CategoryChip(
                 brush = if (focused) {
                     Brush.verticalGradient(listOf(Color.White, Color.White))
                 } else {
-                    Brush.verticalGradient(listOf(Color(0xFF2A2C3C), Color(0xFF17181F)))
+                    Brush.verticalGradient(listOf(AppColors.SurfaceFocused, AppColors.Surface))
                 },
             )
             .border(1.dp, Color.White.copy(alpha = if (focused) 0f else 0.12f), shape)
@@ -419,9 +421,9 @@ private fun CategoryChip(
             androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
         }
         Text(
-            text = label.uppercase(UiLocale),
+            text = label,
             fontFamily = DisplayFont,
-            fontSize = 25.sp, lineHeight = 28.sp,
+            fontSize = 18.sp, lineHeight = 21.sp,
             letterSpacing = 0.6.sp,
             color = if (focused) Color.Black else Color.White,
             maxLines = 1,

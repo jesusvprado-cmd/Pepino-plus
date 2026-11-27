@@ -676,7 +676,7 @@ private fun ControlsOverlay(
                         thumbnailsEnabled -> localizedStringResource(StringsR.string.player_ok_pause_seek_audio_subtitles)
                         else -> localizedStringResource(StringsR.string.player_ok_pause_10_s_audio_subtitles)
                     },
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = AppColors.TextTertiary,
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Spacer(Modifier.width(24.dp))
@@ -704,7 +704,7 @@ private fun SeekBar(playback: PlaybackState, positionMs: Long) {
     BoxWithConstraints(Modifier.fillMaxWidth().height(14.dp), contentAlignment = Alignment.CenterStart) {
         Box(Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)).background(Color.White.copy(alpha = 0.25f)))
         if (played != null && buffered != null) {
-            Box(Modifier.fillMaxWidth(buffered).height(4.dp).clip(RoundedCornerShape(2.dp)).background(Color.White.copy(alpha = 0.45f)))
+            Box(Modifier.fillMaxWidth(buffered).height(4.dp).clip(RoundedCornerShape(2.dp)).background(AppColors.TextTertiary))
             Box(Modifier.fillMaxWidth(played).height(4.dp).clip(RoundedCornerShape(2.dp)).background(AppColors.Accent))
             Box(
                 Modifier
@@ -739,7 +739,7 @@ private fun StatusOverlay(title: String, message: String, loading: Boolean) {
         }
         Text(
             text = message,
-            color = Color.White.copy(alpha = 0.8f),
+            color = AppColors.TextSecondary,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 640.dp),

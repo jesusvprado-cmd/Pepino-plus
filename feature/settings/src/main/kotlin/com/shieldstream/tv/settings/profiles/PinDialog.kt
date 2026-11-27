@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -107,7 +109,7 @@ fun PinDialog(
                         Modifier
                             .size(16.dp)
                             .background(if (i < pin.length) Color.White else Color.Transparent, CircleShape)
-                            .border(2.dp, Color.White.copy(alpha = 0.7f), CircleShape),
+                            .border(2.dp, AppColors.TextSecondary, CircleShape),
                     )
                 }
             }

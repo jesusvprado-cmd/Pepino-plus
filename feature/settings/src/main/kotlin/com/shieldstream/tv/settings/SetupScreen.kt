@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import androidx.compose.ui.platform.LocalContext
 import com.shieldstream.tv.ui.component.restartApp
 import com.shieldstream.tv.model.AppLanguage
@@ -85,12 +87,12 @@ import com.shieldstream.tv.ui.component.onBackKey
 import com.shieldstream.tv.ui.component.tvClickable
 import com.shieldstream.tv.ui.theme.DisplayFont
 
-private val Background = Brush.verticalGradient(listOf(Color(0xFF131B15), Color.Black))
-private val Panel = Color(0xFF18211B)
-private val Muted = Color.White.copy(alpha = 0.62f)
-private val Green = Color(0xFF46D369)
-private val Red = Color(0xFFFF5A5F)
-private val Accent = Color(0xFF62C33F)
+private val Background = Brush.verticalGradient(listOf(AppColors.BackgroundRaised, Color.Black))
+private val Panel = AppColors.Surface
+private val Muted = AppColors.TextSecondary
+private val Green = AppColors.Success
+private val Red = AppColors.Error
+private val Accent: Color get() = AppColors.Accent
 
 @Composable
 fun SetupScreen(
@@ -225,7 +227,7 @@ private fun SetupHeader(step: SetupStep) {
         Image(painterResource(R.drawable.bambi_wordmark), contentDescription = "Pepino+", modifier = Modifier.height(20.dp))
         Spacer(Modifier.weight(1f))
         step.number?.let { n ->
-            Text(localizedStringResource(SR.setup_step_counter, n), fontFamily = DisplayFont, fontSize = 22.sp, lineHeight = 25.sp, color = Muted)
+            Text(localizedStringResource(SR.setup_step_counter, n), fontFamily = DisplayFont, fontSize = 18.sp, lineHeight = 21.sp, color = Muted)
             Spacer(Modifier.width(14.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 (1..4).forEach { i ->
@@ -258,7 +260,7 @@ private fun ColumnScope.WelcomeStep(onStart: () -> Unit, onLater: () -> Unit, on
     ) {
         Image(painterResource(R.drawable.bambi_logo), contentDescription = null, modifier = Modifier.size(120.dp))
         Spacer(Modifier.height(16.dp))
-        Text(localizedStringResource(SR.setup_welcome_title), fontFamily = DisplayFont, fontSize = 44.sp, lineHeight = 49.sp, color = Color.White)
+        Text(localizedStringResource(SR.setup_welcome_title), fontFamily = DisplayFont, fontSize = 32.sp, lineHeight = 38.sp, color = Color.White)
         Text(
             localizedStringResource(SR.setup_welcome_body),
             style = MaterialTheme.typography.bodyLarge,
@@ -332,7 +334,7 @@ private fun ColumnScope.PlaybackPreferencesStep(
         runCatching { firstRequester.requestFocus() }
     }
     Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
-        Text(localizedStringResource(SR.setup_audio_subtitles_title), fontFamily = DisplayFont, fontSize = 38.sp, lineHeight = 43.sp, color = Color.White)
+        Text(localizedStringResource(SR.setup_audio_subtitles_title), fontFamily = DisplayFont, fontSize = 30.sp, lineHeight = 35.sp, color = Color.White)
         Text(
             localizedStringResource(SR.setup_preferences_saved),
             style = MaterialTheme.typography.bodyMedium,
@@ -520,7 +522,7 @@ private fun ColumnScope.KeyStep(
 
     Row(Modifier.fillMaxWidth().weight(1f)) {
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            Text(title.uppercase(), fontFamily = DisplayFont, fontSize = 38.sp, lineHeight = 43.sp, color = Color.White)
+            Text(title, fontFamily = DisplayFont, fontSize = 30.sp, lineHeight = 35.sp, color = Color.White)
             Text(intro, style = MaterialTheme.typography.bodyMedium, color = Muted)
             Spacer(Modifier.height(10.dp))
             steps.forEachIndexed { i, text ->
@@ -699,7 +701,7 @@ private fun KeyField(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF101119), RoundedCornerShape(10.dp))
+                    .background(AppColors.Field, RoundedCornerShape(10.dp))
                     .border(
                         width = if (focused) 2.dp else 1.dp,
                         color = if (focused) Color.White else Color.White.copy(alpha = 0.2f),
@@ -794,7 +796,7 @@ private fun ColumnScope.DoneStep(state: SetupUiState.Ready, onFinish: () -> Unit
             Text("✓", color = Color.Black, fontSize = 44.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(16.dp))
-        Text(localizedStringResource(SR.setup_all_set), fontFamily = DisplayFont, fontSize = 48.sp, lineHeight = 54.sp, color = Color.White)
+        Text(localizedStringResource(SR.setup_all_set), fontFamily = DisplayFont, fontSize = 36.sp, lineHeight = 42.sp, color = Color.White)
         Text(
             localizedStringResource(SR.setup_done_body),
             style = MaterialTheme.typography.bodyLarge,

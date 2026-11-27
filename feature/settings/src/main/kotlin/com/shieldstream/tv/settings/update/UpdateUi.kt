@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings.update
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -43,9 +45,9 @@ import com.shieldstream.tv.ui.component.TvButton
 import com.shieldstream.tv.ui.component.tvClickable
 import kotlinx.coroutines.delay
 
-private val Panel = Color(0xFF18211B)
-private val Muted = Color.White.copy(alpha = 0.6f)
-private val Red = Color(0xFF62C33F)
+private val Panel = AppColors.Surface
+private val Muted = AppColors.TextSecondary
+private val Red: Color get() = AppColors.Accent
 
 @Composable
 fun UpdatePrompt(
@@ -200,7 +202,7 @@ fun UpdateCard(viewModel: UpdateViewModel = hiltViewModel()) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (focused) Color(0xFF27342A) else Panel, RoundedCornerShape(14.dp))
+            .background(if (focused) AppColors.SurfaceFocused else Panel, RoundedCornerShape(14.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
                 color = if (focused) Color.White else Color.White.copy(alpha = 0.08f),

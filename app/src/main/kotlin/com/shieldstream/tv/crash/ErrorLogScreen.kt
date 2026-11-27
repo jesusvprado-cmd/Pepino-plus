@@ -89,7 +89,7 @@ fun ErrorLogScreen(onBack: () -> Unit) {
             Text(
                 if (en) "▲▼ to scroll · Back to exit · take a photo of what you need"
                 else "▲▼ para desplazarte · Atrás para salir · haz foto de lo que haga falta",
-                color = Color.White.copy(alpha = 0.6f),
+                color = AppColors.TextSecondary,
                 fontSize = 16.sp,
             )
             Spacer(Modifier.height(16.dp))

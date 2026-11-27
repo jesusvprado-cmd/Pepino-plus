@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -43,10 +45,10 @@ import com.shieldstream.tv.strings.localizedTitle
 import com.shieldstream.tv.ui.component.tvClickable
 import kotlinx.coroutines.delay
 
-private val Panel = Color(0xFF18211B)
-private val PanelFocused = Color(0xFF27342A)
-private val Dim = Color.White.copy(alpha = 0.6f)
-private val Red = Color(0xFF62C33F)
+private val Panel = AppColors.Surface
+private val PanelFocused = AppColors.SurfaceFocused
+private val Dim = AppColors.TextSecondary
+private val Red: Color get() = AppColors.Accent
 
 @Composable
 internal fun HomeCategoriesDialog(
@@ -127,7 +129,7 @@ private fun CategoryToggle(category: Category, shown: Boolean, onClick: () -> Un
                 .background(if (shown) Red else Color.Transparent, RoundedCornerShape(5.dp))
                 .border(2.dp, if (shown) Red else Color.White.copy(alpha = 0.4f), RoundedCornerShape(5.dp)),
         ) {
-            if (shown) Text("✓", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            if (shown) Text("✓", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.width(12.dp))
         Text(

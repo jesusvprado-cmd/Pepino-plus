@@ -1,5 +1,7 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -111,7 +113,7 @@ fun MyListScreen(
             }
             Spacer(Modifier.weight(1f))
             if (state is MyListUiState.Content) {
-                Text(localizedStringResource(StringsR.string.home_hold_ok_to_remove), color = Color.White.copy(alpha = 0.5f), style = MaterialTheme.typography.bodyMedium)
+                Text(localizedStringResource(StringsR.string.home_hold_ok_to_remove), color = AppColors.TextTertiary, style = MaterialTheme.typography.bodyMedium)
             }
         }
         Spacer(Modifier.height(10.dp))
@@ -133,7 +135,7 @@ fun MyListScreen(
         }
         Spacer(Modifier.height(12.dp))
         when (val s = state) {
-            MyListUiState.Loading -> Text(localizedStringResource(StringsR.string.home_loading), color = Color.White.copy(alpha = 0.6f))
+            MyListUiState.Loading -> Text(localizedStringResource(StringsR.string.home_loading), color = AppColors.TextSecondary)
             is MyListUiState.Empty -> Text(
                 if (s.filter == MyListFilter.ALL) {
                     localizedStringResource(StringsR.string.home_your_list_is_empty_add_movies_and)
@@ -142,7 +144,7 @@ fun MyListScreen(
                 } else {
                     localizedStringResource(StringsR.string.home_nothing_of_this_kind_in_your_list)
                 },
-                color = Color.White.copy(alpha = 0.6f),
+                color = AppColors.TextSecondary,
                 style = MaterialTheme.typography.titleMedium,
             )
             is MyListUiState.Content -> LazyVerticalGrid(

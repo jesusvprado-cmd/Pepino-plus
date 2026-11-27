@@ -29,7 +29,6 @@ import com.shieldstream.tv.domain.EpisodeTarget
 import com.shieldstream.tv.domain.SelectedContentHolder
 import com.shieldstream.tv.home.MainScreen
 import com.shieldstream.tv.intro.IntroReveal
-import com.shieldstream.tv.intro.IntroScreen
 import com.shieldstream.tv.intro.IntroViewModel
 import com.shieldstream.tv.intro.ProfileLoadingScreen
 import com.shieldstream.tv.model.Lang
@@ -342,20 +341,8 @@ fun AppNavHost(
     }
     }
     }
-    if (coldIntro) {
-        IntroScreen(
-            onStartPreload = intro::start,
-            awaitReady = intro::awaitReady,
-            onFinished = { coldIntro = false },
-            quick = quickIntro,
-            onReveal = { reveal = it },
-            fadeFromBlack = false,
-            holdStart = !hostComposed,
-            onAnimationStart = { introRunning = true },
-        )
-    } else {
-        ResumeIntroOverlay(resumeIntro, currentEntry?.destination?.route, intro, onResumeIntroDone) { reveal = it }
-    }
+    // Pepino+: sin la intro animada de Bambi (se quitó con sus imágenes); solo la recarga al volver a la app.
+    ResumeIntroOverlay(resumeIntro, currentEntry?.destination?.route, intro, onResumeIntroDone) { reveal = it }
     }
 }
 

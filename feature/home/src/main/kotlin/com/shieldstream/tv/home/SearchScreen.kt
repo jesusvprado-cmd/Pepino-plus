@@ -1,5 +1,7 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.strings.R as StringsR
 import com.shieldstream.tv.strings.localizedStringResource
 import androidx.compose.foundation.background
@@ -157,7 +159,7 @@ fun SearchScreen(
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(AppIcons.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.6f))
+                Icon(AppIcons.Search, contentDescription = null, tint = AppColors.TextSecondary)
                 Spacer(Modifier.width(10.dp))
                 Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     BasicTextField(
@@ -186,7 +188,7 @@ fun SearchScreen(
                     if (query.isEmpty()) {
                         Text(
                             text = localizedStringResource(StringsR.string.home_search),
-                            color = Color.White.copy(alpha = 0.45f),
+                            color = AppColors.TextTertiary,
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -267,7 +269,7 @@ fun SearchScreen(
                             )
                             Text(
                                 localizedStringResource(StringsR.string.home_ask_an_adult_hint),
-                                color = Color.White.copy(alpha = 0.6f),
+                                color = AppColors.TextSecondary,
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
