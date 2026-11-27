@@ -228,7 +228,9 @@ class UpdateRepositoryImpl @Inject constructor(
     }
 
     private fun dexMetadata(apk: File): ByteArray? {
-        if (Build.VERSION.SDK_INT !in 28..30) return null
+        // Pepino+: desactivado. En la Mi Box 4 (Android 9), tras instalar con el perfil (.dm), Android volvía a dar la
+        // app por reinstalada al minuto y medio y la cerraba. El perfil ya lo instala androidx.profileinstaller.
+        if (DEX_METADATA_ENABLED.not() || Build.VERSION.SDK_INT !in 28..30) return null
         val profile = ZipFile(apk).use { zip ->
             val entry = zip.getEntry("assets/dexopt/baseline.prof") ?: return null
             zip.getInputStream(entry).use { it.readBytes() }
@@ -254,6 +256,7 @@ class UpdateRepositoryImpl @Inject constructor(
 
     companion object {
         private const val TAG = "Update"
+        private const val DEX_METADATA_ENABLED = false
         private const val KEY_LAST_CHECK = "last_check"
         private const val AUTO_CHECK_INTERVAL_MS = 6 * 3_600_000L
         const val APK_NAME = "PepinoPlus.apk"
