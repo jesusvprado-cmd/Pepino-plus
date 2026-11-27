@@ -41,6 +41,8 @@ class App : Application(), ImageLoaderFactory, Configuration.Provider {
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     override fun onCreate() {
+        // Lo primero: si la app se cierra por un error, que quede guardado para enseñarlo al volver a abrirla.
+        com.shieldstream.tv.crash.CrashLog.install(this)
         StartupTrace.mark("App.onCreate")
         Lang.current = AppLanguage.fromName(
             getSharedPreferences(AppLanguage.PREFS, MODE_PRIVATE).getString(AppLanguage.PREF_KEY, null),

@@ -11,6 +11,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.shieldstream.tv.crash.CrashDialog
+import com.shieldstream.tv.crash.CrashLog
 import com.shieldstream.tv.intro.IntroKeyGate
 import com.shieldstream.tv.intro.ResumeIntro
 import com.shieldstream.tv.domain.ProfileRepository
@@ -79,6 +84,13 @@ class MainActivity : ComponentActivity() {
                 LocalHighResBackdrops provides highResBackdrops,
             ) {
                 ShieldStreamTheme {
+                    var crash by remember { mutableStateOf(CrashLog.pending(this@MainActivity)) }
+                    crash?.let { report ->
+                        CrashDialog(report) {
+                            CrashLog.markSeen(this@MainActivity, report)
+                            crash = null
+                        }
+                    }
                     AppNavHost(
                         holder = holder,
                         onExit = { finish() },
