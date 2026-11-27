@@ -41,9 +41,6 @@ jobs:
           TRAKT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
           TRAKT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
         run: |
-          if [ -z "$TRAKT_ID" ]; then
-            echo "::warning::Sin el secreto TRAKT_CLIENT_ID: el APK se compila sin Trakt"
-          fi
           {
             printf 'traktClientId=%s\n' "$TRAKT_ID"
             printf 'traktClientSecret=%s\n' "$TRAKT_SECRET"

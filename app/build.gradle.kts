@@ -21,7 +21,10 @@ fun privateProp(name: String): String = if (publicBuild) "" else localProps.getP
 val rdToken: String = seed("rdToken")
 val subdlApiKey: String = seed("subdlApiKey")
 val tmdbApiKey: String = seed("tmdbApiKey")
-val traktClientId: String = localProps.getProperty("traktClientId")?.trim() ?: ""
+// Client ID de la aplicación «Pepino+» en Trakt. Va a la vista: es una app PKCE, sin secreto, y el ID solo no da acceso
+// a ninguna cuenta. Se puede cambiar con traktClientId en local.properties o el secreto TRAKT_CLIENT_ID de GitHub.
+val traktClientId: String = localProps.getProperty("traktClientId")?.trim()?.takeIf { it.isNotEmpty() }
+    ?: "FyeM7E52FdBhe3SjxCpxJGlQb-Cx5_u9X2gxQaa25UU"
 val traktClientSecret: String = privateProp("traktClientSecret")
 val buildNumber: Int = (project.findProperty("buildNumber") as String?)?.toIntOrNull() ?: 1
 // Llave de firma de Pepino+ (app/pepino.p12, cifrada). Su contraseña la pone GitHub desde el secreto SIGNING_PASSWORD
