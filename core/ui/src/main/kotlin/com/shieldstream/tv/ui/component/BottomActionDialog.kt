@@ -216,7 +216,7 @@ fun ActionDockCard(
     } else {
         animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "actionCardScale").value
     }
-    val content = if (focused) Color.Black else Color.White
+    val content = if (focused) FocusStyle.Content else Color.White
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -226,7 +226,7 @@ fun ActionDockCard(
             .onFocusChanged { focused = it.isFocused }
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clip(ActionCardShape)
-            .background(if (focused) Color.White else Color.White.copy(alpha = 0.10f))
+            .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.10f))
             .border(1.dp, if (focused) Color.Transparent else Color.White.copy(alpha = 0.14f), ActionCardShape)
             .tvClickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp),

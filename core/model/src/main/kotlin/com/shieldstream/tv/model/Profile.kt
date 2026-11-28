@@ -36,7 +36,7 @@ enum class ProfileTheme(
     val accentDark: Long,
     val onAccent: Long = 0xFFFFFFFF,
 ) {
-    BAMBI(0xFF62C33F, 0xFF2D6B1E, onAccent = 0xFF0D1F08), // verde pepino
+    BAMBI(0xFFA6EE90, 0xFF268332, onAccent = 0xFF0D1F08), // verde pepino (el mismo de Pepino IPTV)
     OCEAN(0xFF2F80ED, 0xFF1B4C95),
     FOREST(0xFFE50914, 0xFF8C0610), // rojo
     GOLD(0xFFF2C94C, 0xFFC08A12, onAccent = 0xFF1A1A1A),

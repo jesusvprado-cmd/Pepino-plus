@@ -1,5 +1,6 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import com.shieldstream.tv.strings.R as StringsR
@@ -215,7 +216,7 @@ private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
         Modifier
             .background(
                 when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Fill
                     selected -> Color.White.copy(alpha = 0.22f)
                     else -> Color.White.copy(alpha = 0.08f)
                 },
@@ -227,7 +228,7 @@ private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     ) {
         Text(
             label,
-            color = if (focused) Color.Black else Color.White,
+            color = if (focused) FocusStyle.Content else Color.White,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
         )
     }

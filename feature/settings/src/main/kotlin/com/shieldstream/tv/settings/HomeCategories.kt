@@ -1,5 +1,6 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.component.AppIcons
 
 import androidx.compose.material3.Icon
@@ -119,7 +120,7 @@ private fun CategoryToggle(category: Category, shown: Boolean, onClick: () -> Un
             .background(if (focused) PanelFocused else Color.White.copy(alpha = 0.04f), RoundedCornerShape(10.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
-                color = if (focused) Color.White else Color.White.copy(alpha = 0.06f),
+                color = if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.06f),
                 shape = RoundedCornerShape(10.dp),
             )
             .onFocusChanged { focused = it.isFocused }
@@ -151,11 +152,11 @@ private fun DialogButton(text: String, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
     Text(
         text,
-        color = if (focused) Color.Black else Color.White,
+        color = if (focused) FocusStyle.Content else Color.White,
         fontSize = 17.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier
-            .background(if (focused) Color.White else Color.White.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
+            .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.12f), RoundedCornerShape(10.dp))
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick)
             .padding(horizontal = 22.dp, vertical = 12.dp),

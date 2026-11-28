@@ -104,8 +104,11 @@ fun TopBar(
                 modifier = Modifier.height(22.dp),
             )
         }
+        // Con el cursor en el menú, solo la pestaña con el cursor va en verde (como en Pepino IPTV); si estás abajo,
+        // la pestaña abierta.
+        var menuFocused by remember { mutableStateOf(false) }
         Row(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center).onFocusChanged { menuFocused = it.hasFocus },
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -115,6 +118,7 @@ fun TopBar(
                     icon = if (tab == TopTab.SEARCH) AppIcons.Search else null,
                     label = if (tab == TopTab.SEARCH) null else localizedStringResource(tab.labelResource),
                     selected = tab == selected,
+                    menuFocused = menuFocused,
                     badgeCount = if (tab == TopTab.EPISODES) newEpisodeCount else 0,
                     onClick = { onSelect(tab) },
                     modifier = if (tab == selected) Modifier.focusRequester(selectedRequester) else Modifier,
@@ -161,7 +165,7 @@ private fun ProfileButton(initial: String, avatar: Int, image: String?, onClick:
             }
             .border(
                 width = 2.dp,
-                color = if (focused) Color.White else Color.Transparent,
+                color = if (focused) FocusStyle.Frame else Color.Transparent,
                 shape = RoundedCornerShape(8.dp),
             )
             .padding(3.dp)
@@ -180,6 +184,7 @@ private fun TopBarItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     badgeCount: Int = 0,
+    menuFocused: Boolean = false,
 ) {
     var focused by remember { mutableStateOf(false) }
     val scale = if (LocalLightweightUi.current) {
@@ -187,16 +192,13 @@ private fun TopBarItem(
     } else {
         animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "topBarScale").value
     }
-    // Pastilla blanca al enfocar; la pestaña activa, en el color del tema (estado = verde, foco = blanco).
-    val background = when {
-        focused -> Color.White
-        selected -> AppColors.Accent.copy(alpha = 0.22f)
-        else -> Color.Transparent
-    }
+    // Como en Pepino IPTV: sin pastilla ni recuadro. La pestaña con el cursor, en verde y en negrita; la abierta, en
+    // verde solo si el cursor no está en el menú (si no, habría dos en verde).
+    val activeSelected = selected && !menuFocused
     val foreground = when {
-        focused -> Color.Black
-        selected -> AppColors.Accent
-        else -> AppColors.TextSecondary
+        focused -> AppColors.Accent
+        activeSelected -> AppColors.Accent
+        else -> FocusStyle.Idle
     }
     Box(
         modifier = modifier
@@ -204,8 +206,6 @@ private fun TopBarItem(
                 scaleX = scale
                 scaleY = scale
             }
-            // Fondo dibujado ya redondeado (sin clip): en la Shield el clip de una capa escalada se perdía.
-            .background(background, RoundedCornerShape(50))
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick)
             .padding(horizontal = if (label != null) 18.dp else 10.dp, vertical = 7.dp),
@@ -215,13 +215,25 @@ private fun TopBarItem(
             Icon(icon, contentDescription = label, tint = foreground, modifier = Modifier.size(22.dp))
         } else if (label != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = label,
-                    color = foreground,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = if (selected || focused) FontWeight.Bold else FontWeight.Medium,
-                    ),
-                )
+                Box {
+                    // Texto invisible en negrita: reserva el ancho para que el menú no se mueva al cambiar el grosor.
+                    Text(
+                        text = label,
+                        color = Color.Transparent,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                    )
+                    Text(
+                        text = label,
+                        color = foreground,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = when {
+                                focused -> FontWeight.ExtraBold
+                                activeSelected -> FontWeight.SemiBold
+                                else -> FontWeight.Medium
+                            },
+                        ),
+                    )
+                }
                 // Hay novedades: un punto rojo, sin número (como en Netflix).
                 if (badgeCount > 0) {
                     Spacer(Modifier.width(5.dp))

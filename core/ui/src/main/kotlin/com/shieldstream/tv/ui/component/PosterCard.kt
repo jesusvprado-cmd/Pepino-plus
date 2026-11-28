@@ -1,5 +1,6 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.focusFrame
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.ui.theme.AppColors
@@ -52,7 +53,8 @@ import com.shieldstream.tv.strings.localizedPluralResource
 import com.shieldstream.tv.strings.localizedStringResource
 
 val PosterWidth: Dp = 124.dp
-private val CardShape = RoundedCornerShape(6.dp)
+// Esquinas de 8 dp, como las carátulas de Pepino IPTV.
+private val CardShape = RoundedCornerShape(8.dp)
 
 /** Escala al enfocar como en Bambi (animada, salvo con la interfaz ligera). */
 @Composable
@@ -64,7 +66,7 @@ private fun focusScale(focused: Boolean, target: Float): Float =
     }
 
 /**
- * Póster 2:3 con foco estilo Netflix TV: escala + borde blanco. Sin ripple.
+ * Póster 2:3 con el cursor de Pepino IPTV: crece un poco y lleva marco verde fino ([focusFrame]). Sin ripple.
  * [onFocused] se usa para actualizar el fondo/hero de la pantalla. [newEpisodeCount] > 0 pinta la etiqueta de
  * capítulos nuevos. [caption] se mantiene por compatibilidad (Bambi no pone texto bajo los pósteres).
  */
@@ -101,7 +103,7 @@ fun PosterCard(
             }
             .clip(CardShape)
             .background(AppColors.Placeholder)
-            .then(if (focused) Modifier.border(FocusStyle.Border, Color.White, CardShape) else Modifier),
+            .focusFrame(focused, CardShape),
     ) {
         if (item.posterUrl != null) {
             AsyncImage(

@@ -1,5 +1,6 @@
 package com.shieldstream.tv.settings
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.component.AppIcons
 
 import androidx.compose.material3.Icon
@@ -460,7 +461,7 @@ private fun SetupChoice(
             .background(if (selected) Color.White.copy(alpha = 0.14f) else Panel, RoundedCornerShape(12.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
-                color = if (focused) Color.White else if (selected) Green else Color.White.copy(alpha = 0.1f),
+                color = if (focused) FocusStyle.Frame else if (selected) Green else Color.White.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(12.dp),
             )
             .onFocusChanged { focused = it.isFocused }
@@ -708,7 +709,7 @@ private fun KeyField(
                     .background(AppColors.Field, RoundedCornerShape(10.dp))
                     .border(
                         width = if (focused) 2.dp else 1.dp,
-                        color = if (focused) Color.White else Color.White.copy(alpha = 0.2f),
+                        color = if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.2f),
                         shape = RoundedCornerShape(10.dp),
                     )
                     .padding(horizontal = 18.dp, vertical = 15.dp),

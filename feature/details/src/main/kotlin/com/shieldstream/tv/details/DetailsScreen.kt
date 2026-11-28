@@ -1,5 +1,6 @@
 package com.shieldstream.tv.details
 
+import com.shieldstream.tv.ui.theme.focusFrame
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.ui.theme.AppColors
@@ -923,7 +924,7 @@ private fun MoreRow(
     onShift: ((Int) -> Unit)? = null,
 ) {
     var focused by remember { mutableStateOf(false) }
-    val fg = if (focused) Color.Black else Color.White
+    val fg = if (focused) FocusStyle.Content else Color.White
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -944,7 +945,7 @@ private fun MoreRow(
                 },
             )
             .clip(RoundedCornerShape(10.dp))
-            .background(if (focused) Color.White else Color.Transparent)
+            .background(if (focused) FocusStyle.Fill else Color.Transparent)
             .tvClickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
@@ -955,7 +956,7 @@ private fun MoreRow(
                 .clip(RoundedCornerShape(8.dp))
                 .background(
                     when {
-                        focused -> Color.Black.copy(alpha = 0.08f)
+                        focused -> FocusStyle.Fill
                         highlighted -> AppColors.Accent.copy(alpha = 0.25f)
                         else -> Color.White.copy(alpha = 0.08f)
                     },
@@ -967,12 +968,12 @@ private fun MoreRow(
         Column(Modifier.weight(1f)) {
             Text(text, color = fg, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), maxLines = 1, overflow = TextOverflow.Ellipsis)
             detail?.takeIf { it.isNotBlank() }?.let {
-                Text(it, color = if (focused) Color.Black.copy(alpha = 0.6f) else Grey, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(it, color = if (focused) FocusStyle.Content.copy(alpha = 0.8f) else Grey, style = MaterialTheme.typography.bodySmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             progress?.let { p ->
                 Spacer(Modifier.height(4.dp))
                 Box(Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp)).background(fg.copy(alpha = 0.2f))) {
-                    Box(Modifier.fillMaxWidth(p).height(3.dp).background(if (focused) Color.Black else AppColors.Accent))
+                    Box(Modifier.fillMaxWidth(p).height(3.dp).background(if (focused) FocusStyle.Content else AppColors.Accent))
                 }
             }
         }
@@ -1165,7 +1166,7 @@ private fun RatingStarsControl(
             }
             .clip(AppShapes.Control)
             .background(if (focused) Color.White.copy(alpha = 0.08f) else Color.Transparent)
-            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.Transparent, AppShapes.Control)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) FocusStyle.Frame else Color.Transparent, AppShapes.Control)
             .tvClickable(enabled = enabled, onClick = onSave)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
@@ -1182,7 +1183,7 @@ private fun RatingStarsControl(
         Spacer(Modifier.height(8.dp))
         Text(
             text = localizedStringResource(StringsR.string.details_rating_value, value),
-            color = if (focused) Color.White else Grey,
+            color = if (focused) FocusStyle.Content else Grey,
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
         )
     }
@@ -1435,14 +1436,14 @@ private fun SeasonChip(label: String, selected: Boolean, enabled: Boolean, onCli
     var focused by remember { mutableStateOf(false) }
     // Same filled style as the other chips: faint, brighter when selected, inverted on focus.
     val bg = when {
-        focused -> Color.White
+        focused -> FocusStyle.Fill
         selected -> Color.White.copy(alpha = 0.22f)
         else -> Color.White.copy(alpha = 0.08f)
     }
     Text(
         text = label,
         color = when {
-            focused -> Color.Black
+            focused -> FocusStyle.Content
             selected -> Color.White
             else -> AppColors.TextSecondary
         },
@@ -1487,7 +1488,7 @@ private fun EpisodeCard(
                 .aspectRatio(16f / 9f)
                 .clip(shape)
                 .background(AppColors.Placeholder)
-                .then(if (focused) Modifier.border(FocusStyle.Border, Color.White, shape) else Modifier)
+                .focusFrame(focused, shape)
                 .onFocusChanged { focused = it.isFocused }
                 .then(if (enabled) Modifier.tvClickable(onLongClick = onLongClick, onClick = onClick) else Modifier.tvClickable(enabled = false) {}),
         ) {
@@ -1767,12 +1768,12 @@ private fun SourcePanelChip(text: String, highlighted: Boolean, onClick: () -> U
     var focused by remember { mutableStateOf(false) }
     Text(
         text = text,
-        color = if (focused) Color.Black else Color.White,
+        color = if (focused) FocusStyle.Content else Color.White,
         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
         modifier = Modifier
             .background(
                 when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Fill
                     highlighted -> Color.White.copy(alpha = 0.22f)
                     else -> Color.White.copy(alpha = 0.08f)
                 },
@@ -1787,18 +1788,18 @@ private fun SourcePanelChip(text: String, highlighted: Boolean, onClick: () -> U
 @Composable
 private fun ProviderHeader(name: String, count: Int, cached: Int, expanded: Boolean, note: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
-    val color = if (focused) Color.Black else Color.White
+    val color = if (focused) FocusStyle.Content else Color.White
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .background(if (focused) Color.White else Color.White.copy(alpha = 0.10f), RoundedCornerShape(8.dp))
+            .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.10f), RoundedCornerShape(8.dp))
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Text(name, color = color, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), modifier = Modifier.weight(1f))
-        val secondary = if (focused) Color.Black.copy(alpha = 0.7f) else Grey
+        val secondary = if (focused) FocusStyle.Content.copy(alpha = 0.8f) else Grey
         Text(
             note ?: localizedStringResource(StringsR.string.details_source_count, count),
             color = secondary,
@@ -1842,21 +1843,21 @@ private fun SourceRow(
             .fillMaxWidth()
             .onFocusChanged { focused = it.isFocused }
             .clip(RoundedCornerShape(6.dp))
-            .background(if (focused) Color.White else Color.White.copy(alpha = 0.06f))
+            .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.06f))
             .tvClickable(onLongClick = onLongClick, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val fg = when {
-            focused -> Color.Black
+            focused -> FocusStyle.Content
             blocked -> Color.White.copy(alpha = 0.4f)
             else -> Color.White
         }
-        val sub = if (focused) Color.Black.copy(alpha = 0.65f) else Color.White.copy(alpha = if (blocked) 0.3f else 0.55f)
+        val sub = if (focused) FocusStyle.Content.copy(alpha = 0.8f) else Color.White.copy(alpha = if (blocked) 0.3f else 0.55f)
         Column(Modifier.weight(1f)) {
             // Primera línea: lo que decide la elección. Etiquetas (calidad, HDR, códec, audio), tamaño e idiomas.
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SourceMediaBadges(source, onLight = focused)
+                SourceMediaBadges(source)
                 Spacer(Modifier.width(10.dp))
                 if (source.sizeBytes > 0) {
                     Text(

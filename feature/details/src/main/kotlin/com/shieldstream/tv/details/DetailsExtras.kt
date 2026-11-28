@@ -1,5 +1,6 @@
 package com.shieldstream.tv.details
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import android.content.ActivityNotFoundException
@@ -107,7 +108,7 @@ internal fun PersonCard(person: Person, enabled: Boolean, onClick: () -> Unit, b
                 .width(PersonCardWidth)
                 .height(PersonPhotoHeight)
                 // El borde va como fondo de un recuadro algo mayor (en la Shield el recorte de capas escaladas falla).
-                .background(if (focused) Color.White else Color.White.copy(alpha = 0.10f), PersonCardShape)
+                .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.10f), PersonCardShape)
                 .padding(if (focused) 3.dp else 1.dp)
                 .clip(PersonCardShape)
                 .background(PersonPlaceholder),

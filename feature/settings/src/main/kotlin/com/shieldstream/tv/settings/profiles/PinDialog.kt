@@ -1,5 +1,6 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import androidx.compose.foundation.background
@@ -75,7 +76,7 @@ fun PinDialog(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(Color(0xFF15161E), RoundedCornerShape(20.dp))
+                .background(AppColors.Surface, RoundedCornerShape(20.dp))
                 .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
                 .padding(horizontal = 40.dp, vertical = 28.dp)
                 .onPreviewKeyEvent { event ->
@@ -142,10 +143,10 @@ private fun PinKey(label: String, modifier: Modifier = Modifier, onClick: () -> 
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(width = 64.dp, height = 46.dp)
-            .background(if (focused) Color.White else Color.White.copy(alpha = 0.08f), RoundedCornerShape(10.dp))
+            .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.08f), RoundedCornerShape(10.dp))
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick),
     ) {
-        Text(label, color = if (focused) Color.Black else Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = if (focused) FocusStyle.Content else Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }
 }

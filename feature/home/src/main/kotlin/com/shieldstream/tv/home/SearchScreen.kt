@@ -1,5 +1,6 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import com.shieldstream.tv.strings.R as StringsR
@@ -155,7 +156,7 @@ fun SearchScreen(
                     .fillMaxWidth()
                     .height(48.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color(0xFF1C1C1F))
+                    .background(AppColors.Surface)
                     .then(if (systemKeyboard) Modifier.border(2.dp, Color.White, RoundedCornerShape(4.dp)) else Modifier)
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -374,12 +375,12 @@ private fun KeyButton(
             .height(48.dp)
             .onFocusChanged { focused = it.isFocused }
             .clip(RoundedCornerShape(8.dp))
-            .background(if (focused) Color.White else AppColors.Surface)
+            .background(if (focused) FocusStyle.Fill else AppColors.Surface)
             .then(if (focused) Modifier else Modifier.border(1.dp, AppColors.SurfaceFocused, RoundedCornerShape(8.dp)))
             .tvClickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        content(if (focused) Color.Black else Color.White)
+        content(if (focused) FocusStyle.Content else Color.White)
     }
 }
 
@@ -429,7 +430,7 @@ private fun RecentChip(text: String, highlighted: Boolean, onClick: () -> Unit) 
     Text(
         text,
         color = when {
-            focused -> Color.Black
+            focused -> FocusStyle.Content
             highlighted -> AppColors.TextTertiary
             else -> Color.White
         },
@@ -438,7 +439,7 @@ private fun RecentChip(text: String, highlighted: Boolean, onClick: () -> Unit) 
         modifier = Modifier
             .onFocusChanged { focused = it.isFocused }
             .clip(RoundedCornerShape(50))
-            .background(if (focused) Color.White else AppColors.Surface)
+            .background(if (focused) FocusStyle.Fill else AppColors.Surface)
             .tvClickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 8.dp),
     )

@@ -615,7 +615,7 @@ private fun FamilyRequestsCard(count: Int, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(if (focused) CardFocused else CardColor, CardShape)
-            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.White.copy(alpha = 0.08f), CardShape)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.08f), CardShape)
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 18.dp),
@@ -646,7 +646,7 @@ private fun BrokenSourcesCard(count: Int, onRestore: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(if (focused) CardFocused else CardColor, CardShape)
-            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.White.copy(alpha = 0.08f), CardShape)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.08f), CardShape)
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onRestore)
             .padding(horizontal = 24.dp, vertical = 18.dp),
@@ -866,7 +866,7 @@ private fun PhoneConfigCard(onClick: () -> Unit) {
             Text(
                 localizedStringResource(StringsR.string.settings_ok_to_open),
                 style = MaterialTheme.typography.labelLarge,
-                color = if (focused) Color.White else Color.Transparent,
+                color = if (focused) FocusStyle.Content else Color.Transparent,
             )
         }
     }
@@ -893,7 +893,7 @@ private fun ErrorLogCard(onClick: () -> Unit) {
             Text(
                 localizedStringResource(StringsR.string.settings_ok_to_open),
                 style = MaterialTheme.typography.labelLarge,
-                color = if (focused) Color.White else Color.Transparent,
+                color = if (focused) FocusStyle.Content else Color.Transparent,
             )
         }
     }
@@ -920,7 +920,7 @@ private fun SetupGuideCard(onClick: () -> Unit) {
             Text(
                 localizedStringResource(StringsR.string.settings_ok_to_open),
                 style = MaterialTheme.typography.labelLarge,
-                color = if (focused) Color.White else Color.Transparent,
+                color = if (focused) FocusStyle.Content else Color.Transparent,
             )
         }
     }
@@ -1648,7 +1648,7 @@ private fun SourceExclusionGroupCard(title: String, summary: String, expanded: B
             Icon(
                 if (expanded) AppIcons.ExpandMore else AppIcons.ChevronRight,
                 contentDescription = null,
-                tint = if (focused) Color.White else Muted,
+                tint = if (focused) FocusStyle.Content else Muted,
                 modifier = Modifier.size(30.dp),
             )
         }
@@ -1707,9 +1707,10 @@ private fun SegmentOption(text: String, selected: Boolean) {
     Text(
         text,
         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-        color = if (selected) Color.Black else AppColors.TextSecondary,
+        // La opción elegida, en verde (como el estado en Pepino IPTV), no en blanco.
+        color = if (selected) AppColors.Accent else AppColors.TextSecondary,
         modifier = Modifier
-            .background(if (selected) Color.White else Color.Transparent, RoundedCornerShape(50))
+            .background(if (selected) AppColors.Accent.copy(alpha = 0.18f) else Color.Transparent, RoundedCornerShape(50))
             .padding(horizontal = 16.dp, vertical = 8.dp),
     )
 }
@@ -1935,7 +1936,7 @@ private fun KeyEditorDialog(
                             .background(AppColors.Field, RoundedCornerShape(10.dp))
                             .border(
                                 width = if (fieldFocused) 2.dp else 1.dp,
-                                color = if (fieldFocused) Color.White else Color.White.copy(alpha = 0.2f),
+                                color = if (fieldFocused) FocusStyle.Frame else Color.White.copy(alpha = 0.2f),
                                 shape = RoundedCornerShape(10.dp),
                             )
                             .padding(horizontal = 18.dp, vertical = 16.dp),

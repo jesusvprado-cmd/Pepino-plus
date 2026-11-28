@@ -1,11 +1,13 @@
 package com.shieldstream.tv.ui.component
 
 import com.shieldstream.tv.ui.theme.AppColors
+import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.ui.theme.AppShapes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -26,9 +28,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shieldstream.tv.ui.theme.LocalLightweightUi
 
+/**
+ * Botón con el estilo de Pepino IPTV: sin recuadro. Con el cursor, el texto y el icono se ponen en verde vivo y en
+ * negrita; sin él, en gris claro (la acción principal, en verde pepino; las de borrar, en rojo).
+ */
 @Composable
 fun TvButton(
     text: String,
@@ -40,32 +47,22 @@ fun TvButton(
 ) {
     var focused by remember { mutableStateOf(false) }
     val duration = if (LocalLightweightUi.current) 0 else 150
-    val background by animateColorAsState(
-        when {
-            focused -> Color.White
-            variant == TvButtonVariant.Primary -> AppColors.Accent
-            variant == TvButtonVariant.Danger -> AppColors.Error.copy(alpha = 0.22f)
-            else -> Color.White.copy(alpha = 0.16f)
-        },
-        tween(duration),
-        label = "buttonBackground",
-    )
     val content by animateColorAsState(
         when {
-            variant == TvButtonVariant.Danger -> if (focused) Color(0xFFC62828) else AppColors.Error
-            focused -> Color.Black
-            variant == TvButtonVariant.Primary -> AppColors.OnAccent
-            else -> Color.White
+            !enabled -> FocusStyle.Idle.copy(alpha = 0.5f)
+            variant == TvButtonVariant.Danger -> if (focused) Color(0xFFFF7A7E) else AppColors.Error
+            focused -> FocusStyle.Content
+            variant == TvButtonVariant.Primary -> AppColors.Accent
+            else -> FocusStyle.Idle
         },
         tween(duration),
         label = "buttonContent",
     )
+    val style = MaterialTheme.typography.titleMedium
 
     Row(
         modifier = modifier
             .onFocusChanged { focused = it.isFocused }
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(6.dp))
-            .background(background)
             .tvClickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 22.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -74,11 +71,16 @@ fun TvButton(
             Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(22.dp))
             Spacer(Modifier.width(10.dp))
         }
-        Text(
-            text = text,
-            color = content,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
-        )
+        Box {
+            // Texto invisible en negrita: reserva el ancho para que los botones no se muevan al pasar el cursor.
+            Text(text = text, color = Color.Transparent, style = style.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1)
+            Text(
+                text = text,
+                color = content,
+                style = style.copy(fontWeight = if (focused) FontWeight.ExtraBold else FontWeight.SemiBold),
+                maxLines = 1,
+            )
+        }
     }
 }
 

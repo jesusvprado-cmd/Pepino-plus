@@ -1,5 +1,6 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import androidx.annotation.StringRes
@@ -123,8 +124,8 @@ private fun RailItem(
     var focused by remember { mutableStateOf(false) }
     val label = localizedStringResource(destination.labelResource)
     val tint = when {
-        focused -> Color.Black
-        selected -> Color.White
+        focused -> FocusStyle.Content
+        selected -> AppColors.Accent
         else -> AppColors.TextTertiary
     }
     Row(
@@ -133,7 +134,7 @@ private fun RailItem(
             .height(46.dp)
             .onFocusChanged { focused = it.isFocused }
             .clip(RoundedCornerShape(6.dp))
-            .background(if (focused) Color.White else Color.Transparent)
+            .background(if (focused) FocusStyle.Fill else Color.Transparent)
             .tvClickable(onClick = onClick)
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

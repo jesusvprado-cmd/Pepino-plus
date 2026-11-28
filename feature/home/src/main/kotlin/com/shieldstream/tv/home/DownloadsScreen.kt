@@ -1,5 +1,6 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -215,15 +216,15 @@ fun DownloadsScreen(
 @Composable
 private fun DownloadRow(download: Download, onClick: () -> Unit, onLongClick: () -> Unit, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
-    val fg = if (focused) Color.Black else Color.White
-    val sub = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextSecondary
+    val fg = if (focused) FocusStyle.Content else Color.White
+    val sub = if (focused) FocusStyle.Content.copy(alpha = 0.8f) else AppColors.TextSecondary
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged { focused = it.isFocused }
             .clip(RoundedCornerShape(10.dp))
-            .background(if (focused) Color.White else Color.White.copy(alpha = 0.06f))
+            .background(if (focused) FocusStyle.Fill else Color.White.copy(alpha = 0.06f))
             .tvClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(10.dp),
     ) {
@@ -278,13 +279,13 @@ private fun DownloadRow(download: Download, onClick: () -> Unit, onLongClick: ()
                         .fillMaxWidth()
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(if (focused) Color.Black.copy(alpha = 0.15f) else Color.White.copy(alpha = 0.15f)),
+                        .background(Color.White.copy(alpha = 0.15f)),
                 ) {
                     Box(
                         Modifier
                             .fillMaxWidth(download.progress)
                             .height(4.dp)
-                            .background(if (focused) Color.Black else AppColors.Accent),
+                            .background(if (focused) FocusStyle.Content else AppColors.Accent),
                     )
                 }
             }

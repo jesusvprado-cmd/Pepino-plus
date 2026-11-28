@@ -233,7 +233,7 @@ private fun ProfileTile(profile: Profile, manage: Boolean, onClick: () -> Unit, 
                     scaleX = scale
                     scaleY = scale
                 }
-                .border(FocusStyle.Border, if (focused) Color.White else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
+                .border(FocusStyle.Border, if (focused) FocusStyle.Frame else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
                 .padding(6.dp),
         ) {
             ProfileAvatar(initial = profile.initial, avatar = profile.avatar, size = TileSize, image = profile.avatarImage)
@@ -251,7 +251,7 @@ private fun ProfileTile(profile: Profile, manage: Boolean, onClick: () -> Unit, 
         Spacer(Modifier.height(16.dp))
         Text(
             profile.name,
-            color = if (focused) Color.White else ProfileMuted,
+            color = if (focused) FocusStyle.Content else ProfileMuted,
             fontSize = 20.sp,
             fontWeight = if (focused) FontWeight.Bold else FontWeight.Medium,
             maxLines = 1,
@@ -292,7 +292,7 @@ private fun AddTile(onClick: () -> Unit) {
                     scaleX = scale
                     scaleY = scale
                 }
-                .border(FocusStyle.Border, if (focused) Color.White else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
+                .border(FocusStyle.Border, if (focused) FocusStyle.Frame else Color.Transparent, RoundedCornerShape(TileSize * 0.16f))
                 .padding(6.dp),
         ) {
             Box(
@@ -307,7 +307,7 @@ private fun AddTile(onClick: () -> Unit) {
         Spacer(Modifier.height(16.dp))
         Text(
             localizedStringResource(StringsR.string.settings_add_profile),
-            color = if (focused) Color.White else ProfileMuted,
+            color = if (focused) FocusStyle.Content else ProfileMuted,
             fontSize = 20.sp,
             fontWeight = if (focused) FontWeight.Bold else FontWeight.Medium,
         )

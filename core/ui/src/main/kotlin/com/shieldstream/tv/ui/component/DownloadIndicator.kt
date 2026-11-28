@@ -1,5 +1,6 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -66,13 +67,13 @@ val DownloadIndicatorState.busy: Boolean get() = active > 0 || preparing != null
 @Composable
 fun DownloadIndicator(state: DownloadIndicatorState, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
-    val fg = if (focused) Color.Black else Color.White
+    val fg = if (focused) FocusStyle.Content else Color.White
     val shape = RoundedCornerShape(10.dp)
     Column(
         modifier = modifier
             .onFocusChanged { focused = it.isFocused }
             .clip(shape)
-            .background(if (focused) Color.White else Color.Black.copy(alpha = 0.55f))
+            .background(if (focused) FocusStyle.Fill else Color.Black.copy(alpha = 0.55f))
             .border(1.dp, if (focused) Color.Transparent else Color.White.copy(alpha = 0.18f), shape)
             .then(if (onClick != null) Modifier.tvClickable(onClick = onClick) else Modifier)
             .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -105,7 +106,7 @@ fun DownloadIndicator(state: DownloadIndicatorState, onClick: (() -> Unit)?, mod
                     Modifier
                         .fillMaxWidth(p / 100f)
                         .height(3.dp)
-                        .background(if (focused) Color.Black else AppColors.Accent),
+                        .background(if (focused) FocusStyle.Content else AppColors.Accent),
                 )
             }
         }

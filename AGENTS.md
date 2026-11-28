@@ -6,9 +6,22 @@ Bambi is an Android TV streaming client written in Kotlin with Jetpack Compose, 
 
 - Stable application ID: `com.shieldstream.tv`.
 - Debug application ID: `com.shieldstream.tv.debug`; it is a separate installation with separate data.
-- Minimum SDK: 21. Target SDK: 35. TV landscape UI.
+- Minimum SDK: 26 (Android 8; every device at home has it). Target SDK: 35. TV landscape UI.
 - UI text uses `tr("Español", "English")`. Keep both languages in user-facing text.
 - The project is GPL-3.0. Third-party services and components retain their own terms and licenses.
+
+## Visual style (shared with Pepino IPTV)
+
+Pepino+ follows the look of Pepino IPTV, the owner's other app. All colors and the focus rule live in
+`core/ui/.../theme/Tokens.kt`; do not add loose `Color(0x…)` values or white focus styles in screens.
+
+- Background `#050906`; accent (progress, selection, active tab) light cucumber green `#A6EE90` (`AppColors.Accent`).
+- Focus is green, never white: buttons, tabs, menus and rows have no white fill; their text/icon turns
+  `FocusStyle.Content` (`#4FD65A`) and bold. Rows may use the faint `FocusStyle.Fill` veil.
+- Posters and cards: scale `FocusStyle.Scale` plus `Modifier.focusFrame(focused, shape)` (thin green frame with a
+  dark inner line). Poster corners are 8 dp.
+- Text fields: green border (`FocusStyle.Frame`) when focused.
+- Type scale stays Pepino+'s own (`TypeScale`, larger than Pepino IPTV's): it was chosen for reading from the sofa.
 
 ## Modules
 

@@ -1,5 +1,6 @@
 package com.shieldstream.tv.player
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import androidx.compose.foundation.layout.size
 
 import com.shieldstream.tv.ui.component.AppIcons
@@ -466,7 +467,7 @@ private fun AppearanceControlRow(
     onShift: (Int) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
-    val foreground = if (focused) Color.Black else Color.White
+    val foreground = if (focused) FocusStyle.Content else Color.White
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -481,7 +482,7 @@ private fun AppearanceControlRow(
                 }
             }
             .clip(RoundedCornerShape(6.dp))
-            .background(if (focused) Color.White else Color.Transparent)
+            .background(if (focused) FocusStyle.Fill else Color.Transparent)
             .tvClickable(onClick = { onShift(1) })
             .padding(horizontal = 14.dp, vertical = 6.dp),
     ) {
@@ -506,7 +507,7 @@ private fun AppearanceControlRow(
 @Composable
 private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifier = Modifier) {
     var focused by remember { mutableStateOf(false) }
-    val fg = if (focused) Color.Black else Color.White
+    val fg = if (focused) FocusStyle.Content else Color.White
     val shape = RoundedCornerShape(10.dp)
     // Pepino+: cada pista es una tarjeta. La elegida lleva borde y fondo del color del tema y una marca; el foco,
     // como en toda la app, rellena de blanco.
@@ -517,7 +518,7 @@ private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifi
             .clip(shape)
             .background(
                 when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Fill
                     option.selected -> AppColors.Accent.copy(alpha = 0.16f)
                     else -> Color.White.copy(alpha = 0.05f)
                 },
@@ -536,7 +537,7 @@ private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifi
                 Icon(
                     AppIcons.Check,
                     contentDescription = null,
-                    tint = if (focused) Color.Black else AppColors.Accent,
+                    tint = if (focused) FocusStyle.Content else AppColors.Accent,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -554,7 +555,7 @@ private fun OptionRow(option: TrackOption, onClick: () -> Unit, modifier: Modifi
             if (option.detail.isNotBlank()) {
                 Text(
                     text = option.detail,
-                    color = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextSecondary,
+                    color = if (focused) FocusStyle.Content.copy(alpha = 0.8f) else AppColors.TextSecondary,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -731,7 +732,8 @@ private fun subtitleTech(f: Format, texts: Texts): String? = when (f.codecs ?: f
 private val TrackColumnWidth = 236.dp
 private val PlaybackColumnWidth = 214.dp
 private val TracksPanelHeight = 420.dp
-private val TracksPanelColor = Color(0xF2181A20)
+// Panel de pistas: casi negro con el toque verde de la app (antes era gris azulado).
+private val TracksPanelColor = Color(0xF20E1610)
 
 /**
  * Editor de subtítulos en vivo: pausa el vídeo, deja la imagen a la vista y pinta un subtítulo de ejemplo con el

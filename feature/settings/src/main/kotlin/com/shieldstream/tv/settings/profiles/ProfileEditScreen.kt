@@ -362,7 +362,7 @@ private fun NameField(value: String, onValueChange: (String) -> Unit, modifier: 
                     .background(AppColors.Field, RoundedCornerShape(10.dp))
                     .border(
                         width = if (focused) 2.dp else 1.dp,
-                        color = if (focused) Color.White else Color.White.copy(alpha = 0.2f),
+                        color = if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.2f),
                         shape = RoundedCornerShape(10.dp),
                     )
                     .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -388,7 +388,7 @@ private fun ThemeChoice(theme: ProfileTheme, selected: Boolean, onClick: () -> U
         modifier = Modifier
             .background(
                 when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Fill
                     selected -> Color.White.copy(alpha = 0.2f)
                     else -> Color.White.copy(alpha = 0.08f)
                 },
@@ -402,7 +402,7 @@ private fun ThemeChoice(theme: ProfileTheme, selected: Boolean, onClick: () -> U
         Spacer(Modifier.width(8.dp))
         Text(
             themeLabel(theme),
-            color = if (focused) Color.Black else Color.White,
+            color = if (focused) FocusStyle.Content else Color.White,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -424,7 +424,7 @@ private fun AvatarButton(initial: String, avatar: Int, image: String?, onClick: 
     var focused by remember { mutableStateOf(false) }
     Box(
         Modifier
-            .border(FocusStyle.Border, if (focused) Color.White else Color.Transparent, RoundedCornerShape(26.dp))
+            .border(FocusStyle.Border, if (focused) FocusStyle.Frame else Color.Transparent, RoundedCornerShape(26.dp))
             .padding(5.dp)
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick),
@@ -452,7 +452,7 @@ private fun ColorChoice(initial: String, avatar: Int, selected: Boolean, onClick
             .border(
                 width = 3.dp,
                 color = when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Frame
                     selected -> AppColors.TextTertiary
                     else -> Color.Transparent
                 },
@@ -492,7 +492,7 @@ private fun TraktCard(
             .background(if (focused) AppColors.SurfaceFocused else AppColors.Surface, RoundedCornerShape(14.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
-                color = if (focused) Color.White else Color.White.copy(alpha = 0.08f),
+                color = if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.08f),
                 shape = RoundedCornerShape(14.dp),
             )
             .onFocusChanged {
@@ -529,13 +529,13 @@ private fun OptionChip(
     var focused by remember { mutableStateOf(false) }
     Text(
         text,
-        color = if (focused) Color.Black else Color.White,
+        color = if (focused) FocusStyle.Content else Color.White,
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
         modifier = modifier
             .background(
                 when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Fill
                     highlighted -> Color.White.copy(alpha = 0.2f)
                     else -> Color.White.copy(alpha = 0.08f)
                 },

@@ -1,23 +1,26 @@
 package com.shieldstream.tv.ui.theme
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.shieldstream.tv.model.ProfileTheme
 
 /**
- * Colores de Pepino+: fondo casi negro con un toque verde, el foco invierte a blanco y el verde pepino
- * marca progreso, selección, novedades y los indicadores activos.
+ * Colores de Pepino+, los mismos de Pepino IPTV: fondo casi negro con un toque verde y verde pepino claro de acento.
+ * El cursor también es verde (ver [FocusStyle]): sin recuadros blancos.
  */
 object AppColors {
-    /** Full-screen canvas. */
-    val Background = Color(0xFF0D100E)
+    /** Fondo de toda la pantalla: el de Pepino IPTV. */
+    val Background = Color(0xFF050906)
 
-    /** Top stop of subtle full-screen gradients and image placeholders behind backdrops. */
-    val BackgroundRaised = Color(0xFF131B15)
+    /** Parte alta de los degradados de fondo y huecos de imagen detrás de las portadas. */
+    val BackgroundRaised = Color(0xFF0D150F)
 
     /** Panels, cards, dialogs, and unfocused controls. */
     val Surface = Color(0xFF18211B)
@@ -32,11 +35,11 @@ object AppColors {
     val Placeholder = Color(0xFF1F2621)
 
     /** Acento del perfil activo: progreso, selección e indicadores activos. */
-    var Accent by mutableStateOf(Color(0xFF62C33F))
+    var Accent by mutableStateOf(Color(0xFFA6EE90))
         private set
 
     /** Variante oscura del acento (degradados y estados secundarios). */
-    var AccentDark by mutableStateOf(Color(0xFF2D6B1E))
+    var AccentDark by mutableStateOf(Color(0xFF268332))
         private set
 
     /** Content drawn on [Accent]. */
@@ -47,7 +50,7 @@ object AppColors {
      * The single accent: "new" dots and counts, progress bars, the active rail marker and small
      * section labels. Keep it to small details; large accent areas compete with the artwork.
      */
-    var Highlight by mutableStateOf(Color(0xFF62C33F))
+    var Highlight by mutableStateOf(Color(0xFFA6EE90))
         private set
 
     /** Avisos que llaman la atención (punto de novedades). Rojo anaranjado: con la marca verde, el rojo Netflix chocaba. */
@@ -61,10 +64,10 @@ object AppColors {
     /** Translucent backing for pills drawn over artwork. */
     val PillScrim = Color.Black.copy(alpha = 0.62f)
 
-    /** Estado correcto (activado, guardado). Verde agua, para no confundirse con el verde pepino de la marca. */
-    val Success = Color(0xFF35D0BA)
+    /** Estado correcto (activado, guardado): el verde vivo de los interruptores de Pepino IPTV (antes, verde agua). */
+    val Success = Color(0xFF4FD65A)
     val Warning = Color(0xFFF5B83D)
-    val Error = Color(0xFFFF5A5F)
+    val Error = Color(0xFFFF6B6B)
 
     /**
      * Pepino+ solo tiene un color: el verde pepino. El tema guardado en cada perfil se ignora (la elección de tema
@@ -102,10 +105,37 @@ object AppSpacing {
 }
 
 /**
- * Una sola regla de foco en toda la app: lo elegible crece un 5 % y lleva borde blanco de 3 dp. Los botones se
- * rellenan de blanco. El verde marca estado (activado, elegido, visto), nunca el foco.
+ * El cursor, igual que en Pepino IPTV:
+ * - Botones, pestañas, menús y filas: sin recuadro blanco; el texto y el icono se ponen en verde vivo y en negrita.
+ * - Carátulas y tarjetas: crecen un poco y llevan un marco verde pepino fino con una línea oscura por dentro
+ *   (ver [focusFrame]).
  */
 object FocusStyle {
     const val Scale = 1.05f
-    val Border = 3.dp
+
+    /** Grosor del marco verde de las carátulas y tarjetas con el cursor. */
+    val Border = 2.dp
+
+    /** Marco de las carátulas con el cursor: el verde pepino claro de Pepino IPTV. */
+    val Frame = Color(0xFFA6EE90)
+
+    /** Texto e iconos con el cursor (botones, pestañas, menús, filas): verde vivo. */
+    val Content = Color(0xFF4FD65A)
+
+    /** Fondo de una fila o tecla con el cursor: apenas un velo, sin rellenar de blanco. */
+    val Fill = Color.White.copy(alpha = 0.10f)
+
+    /** Texto de los botones y opciones sin el cursor. */
+    val Idle = Color(0xFFB4B4B4)
 }
+
+/**
+ * Marco del cursor en carátulas y tarjetas: verde pepino fino por fuera y una línea oscura por dentro que lo separa
+ * de la imagen (como en Pepino IPTV). Sin el cursor no dibuja nada.
+ */
+fun Modifier.focusFrame(focused: Boolean, shape: Shape): Modifier =
+    if (focused) {
+        this.border(FocusStyle.Border, FocusStyle.Frame, shape).border(3.dp, Color.Black.copy(alpha = 0.6f), shape)
+    } else {
+        this
+    }

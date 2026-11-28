@@ -55,8 +55,10 @@ jobs:
         run: |
           chmod +x gradlew
           set -o pipefail
-          if ! ./gradlew testDebugUnitTest :core:model:test :core:domain:test --no-daemon -PbuildNumber=${{ github.run_number }} 2>&1 | tee test.log; then
-            grep -E "FAILED|Test.*>|e: |What went wrong" -A2 test.log | head -30 | while IFS= read -r l; do echo "::error::$l"; done
+          # En serie (sin paralelo): las pruebas con Robolectric descargan su copia de Android y, si varias lo hacen a la
+          # vez, chocan entre sí. --continue: si algo falla, salen todos los fallos de una vez.
+          if ! ./gradlew testDebugUnitTest :core:model:test :core:domain:test --continue --no-parallel --no-daemon -PbuildNumber=${{ github.run_number }} 2>&1 | tee test.log; then
+            grep -E " FAILED$|^e: |Execution failed for task" -A2 test.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done
             exit 1
           fi
 

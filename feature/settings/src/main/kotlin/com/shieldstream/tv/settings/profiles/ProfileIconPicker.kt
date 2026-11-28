@@ -1,5 +1,6 @@
 package com.shieldstream.tv.settings.profiles
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import android.content.Context
@@ -146,7 +147,7 @@ internal fun ProfileIconPicker(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color(0xFF0B0C10))
+            .background(AppColors.Background)
             .throttleVerticalRepeat(),
     ) {
         Column(Modifier.fillMaxSize()) {
@@ -382,7 +383,7 @@ private fun IconTile(
             .border(
                 width = 3.dp,
                 color = when {
-                    focused -> Color.White
+                    focused -> FocusStyle.Frame
                     selected -> AppColors.TextTertiary
                     else -> Color.Transparent
                 },

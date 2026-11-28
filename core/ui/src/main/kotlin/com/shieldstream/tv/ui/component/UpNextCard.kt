@@ -1,5 +1,6 @@
 package com.shieldstream.tv.ui.component
 
+import com.shieldstream.tv.ui.theme.focusFrame
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.ui.theme.AppColors
@@ -76,7 +77,7 @@ fun UpNextCard(
             }
             .clip(UpNextCardShape)
             .background(AppColors.Placeholder)
-            .then(if (focused) Modifier.border(FocusStyle.Border, Color.White, UpNextCardShape) else Modifier),
+            .focusFrame(focused, UpNextCardShape),
     ) {
         val imageUrl = upNextImageUrl(item, episode)
         if (imageUrl != null) {

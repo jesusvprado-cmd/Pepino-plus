@@ -1,5 +1,6 @@
 package com.shieldstream.tv.crash
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -82,13 +83,13 @@ fun CrashDialog(report: CrashLog.Report, onDismiss: () -> Unit) {
                     .focusRequester(focus)
                     .onFocusChanged { focused = it.isFocused }
                     .clickable(onClick = onDismiss)
-                    .background(if (focused) Color.White else AppColors.SurfaceFocused, RoundedCornerShape(14.dp))
-                    .border(2.dp, if (focused) Color.White else Color.Transparent, RoundedCornerShape(14.dp))
+                    .background(if (focused) FocusStyle.Fill else AppColors.SurfaceFocused, RoundedCornerShape(14.dp))
+                    .border(2.dp, if (focused) FocusStyle.Frame else Color.Transparent, RoundedCornerShape(14.dp))
                     .padding(horizontal = 28.dp, vertical = 12.dp),
             ) {
                 Text(
                     if (en) "Got it" else "Entendido",
-                    color = if (focused) Color.Black else Color.White,
+                    color = if (focused) FocusStyle.Content else Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                 )

@@ -59,7 +59,7 @@ fun CatalogCard(
             )
         } else {
             Box(
-                modifier = Modifier.fillMaxSize().background(Color(0xFF2A2A2E)),
+                modifier = Modifier.fillMaxSize().background(AppColors.Placeholder),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(item.title, color = Color.White, style = MaterialTheme.typography.bodySmall)

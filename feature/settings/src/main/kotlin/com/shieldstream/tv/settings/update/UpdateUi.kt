@@ -1,5 +1,6 @@
 package com.shieldstream.tv.settings.update
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import com.shieldstream.tv.strings.R as StringsR
@@ -205,7 +206,7 @@ fun UpdateCard(viewModel: UpdateViewModel = hiltViewModel()) {
             .background(if (focused) AppColors.SurfaceFocused else Panel, RoundedCornerShape(14.dp))
             .border(
                 width = if (focused) 2.dp else 1.dp,
-                color = if (focused) Color.White else Color.White.copy(alpha = 0.08f),
+                color = if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.08f),
                 shape = RoundedCornerShape(14.dp),
             )
             .onFocusChanged { focused = it.isFocused }

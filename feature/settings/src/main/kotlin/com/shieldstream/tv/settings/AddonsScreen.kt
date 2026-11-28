@@ -198,7 +198,7 @@ private fun AddonCard(
             .fillMaxWidth()
             .onFocusChanged { focused = it.isFocused }
             .background(if (focused) AppColors.SurfaceFocused else AppColors.Surface, AppShapes.Control)
-            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) Color.White else Color.Transparent, AppShapes.Control)
+            .border(if (focused) FocusStyle.Border else 1.dp, if (focused) FocusStyle.Frame else Color.Transparent, AppShapes.Control)
             .tvClickable(onClick = onClick)
             .padding(20.dp),
     ) {
@@ -246,7 +246,7 @@ private fun AddonCard(
             Text(
                 text = localizedStringResource(StringsR.string.settings_ok_to_change),
                 style = MaterialTheme.typography.labelLarge,
-                color = if (focused) Color.White else Color.Transparent,
+                color = if (focused) FocusStyle.Content else Color.Transparent,
             )
         }
     }
@@ -342,7 +342,7 @@ private fun AddonEditorDialog(
                             .background(AppColors.Field, AppShapes.Control)
                             .border(
                                 width = if (fieldFocused) 2.dp else 1.dp,
-                                color = if (fieldFocused) Color.White else Color.White.copy(alpha = 0.2f),
+                                color = if (fieldFocused) FocusStyle.Frame else Color.White.copy(alpha = 0.2f),
                                 shape = AppShapes.Control,
                             )
                             .padding(horizontal = 18.dp, vertical = 16.dp),
