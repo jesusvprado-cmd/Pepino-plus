@@ -1,5 +1,7 @@
 package com.shieldstream.tv.settings
 
+import androidx.compose.foundation.layout.widthIn
+
 import androidx.compose.foundation.layout.heightIn
 
 import androidx.compose.ui.draw.drawBehind
@@ -267,17 +269,16 @@ private fun SettingsList(
     key(section) {
     ProvideMinimalScroll(margin = 56.dp) {
         LazyColumn(
-            contentPadding = PaddingValues(start = 40.dp, end = 72.dp, top = 40.dp, bottom = 40.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = 48.dp, end = 64.dp, top = 44.dp, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.weight(1f).fillMaxHeight(),
         ) {
             item {
-                Text(
-                    section.title(),
-                    style = TypeScale.ScreenTitle,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 4.dp),
-                )
+                Column(Modifier.padding(start = 4.dp, bottom = 6.dp)) {
+                    Text(section.title(), style = TypeScale.ScreenTitle, color = Color.White)
+                    Spacer(Modifier.height(6.dp))
+                    Text(section.description(), style = MaterialTheme.typography.bodyLarge, color = Muted)
+                }
             }
             if (section == SettingsSection.SERVICES) {
             item { SectionTitle(localizedStringResource(StringsR.string.settings_debrid_service)) }
@@ -307,9 +308,9 @@ private fun SettingsList(
                     } else {
                         localizedStringResource(StringsR.string.settings_real_debrid_connects_directly_from_the_shield)
                     },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Muted,
-                    modifier = Modifier.padding(start = 4.dp, top = 2.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppColors.TextTertiary,
+                    modifier = Modifier.padding(start = 6.dp, top = 2.dp),
                 )
             }
             item { SectionTitle(localizedStringResource(StringsR.string.settings_other_services)) }
@@ -326,9 +327,9 @@ private fun SettingsList(
             item {
                 Text(
                     localizedStringResource(StringsR.string.settings_torrentio_sources_opensubtitles_and_podnapisi_subtitles_don),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Muted,
-                    modifier = Modifier.padding(start = 4.dp, top = 2.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppColors.TextTertiary,
+                    modifier = Modifier.padding(start = 6.dp, top = 2.dp),
                 )
             }
             }
@@ -347,9 +348,9 @@ private fun SettingsList(
             item {
                 Text(
                     localizedStringResource(StringsR.string.settings_source_exclusions_summary),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Muted,
-                    modifier = Modifier.padding(start = 4.dp, top = 2.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppColors.TextTertiary,
+                    modifier = Modifier.padding(start = 6.dp, top = 2.dp),
                 )
             }
             item(key = "excluded-quality-header") {
@@ -406,9 +407,9 @@ private fun SettingsList(
             item {
                 Text(
                     localizedStringResource(StringsR.string.settings_audio_codec_exclusions_summary),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Muted,
-                    modifier = Modifier.padding(start = 4.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppColors.TextTertiary,
+                    modifier = Modifier.padding(start = 6.dp),
                 )
             }
             if (audioExclusionsExpanded) {
@@ -505,6 +506,18 @@ private fun SettingsSection.title(): String {
     }
 }
 
+private fun SettingsSection.description(): String {
+    val en = com.shieldstream.tv.model.Lang.isEnglish
+    return when (this) {
+        SettingsSection.SERVICES -> if (en) "Your debrid account and the keys of the services you use." else "Tu cuenta debrid y las claves de los servicios que usas."
+        SettingsSection.SOURCES -> if (en) "Where links are searched and which ones are hidden." else "Dónde se buscan los enlaces y cuáles se descartan."
+        SettingsSection.LOOK -> if (en) "Home rows, backdrops and language." else "Filas del Inicio, fondos e idioma."
+        SettingsSection.PLAYBACK -> if (en) "Quality, subtitles, autoplay and buffer." else "Calidad, subtítulos, reproducción automática y búfer."
+        SettingsSection.SYSTEM -> if (en) "Version, updates, phone setup and error log." else "Versión, actualizaciones, configuración desde el móvil y registro."
+    }
+}
+
+@Suppress("unused")
 private fun SettingsSection.subtitle(): String {
     val en = com.shieldstream.tv.model.Lang.isEnglish
     return when (this) {
@@ -531,13 +544,22 @@ private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: 
                 enter = { requesters.getValue(current) }
             }
             .focusGroup()
-            .width(320.dp)
+            .width(290.dp)
             .fillMaxHeight()
             .background(AppColors.BackgroundRaised)
-            .padding(start = 40.dp, end = 20.dp, top = 40.dp),
+            .padding(start = 20.dp, end = 16.dp, top = 40.dp),
     ) {
-        Text(title, style = TypeScale.ScreenTitle, color = Color.White)
-        Spacer(Modifier.height(24.dp))
+        // Cabecera como Pepino IPTV: la rodaja y «Ajustes».
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 8.dp)) {
+            com.shieldstream.tv.ui.component.BrandMark(40.dp)
+            Spacer(Modifier.width(14.dp))
+            Text(
+                if (com.shieldstream.tv.model.Lang.isEnglish) "Settings" else "Ajustes",
+                style = TypeScale.ScreenTitle,
+                color = Color.White,
+            )
+        }
+        Spacer(Modifier.height(34.dp))
         SettingsSection.entries.forEach { item ->
             var focused by remember { mutableStateOf(false) }
             val selected = item == current
@@ -554,13 +576,13 @@ private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: 
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (focused) Color.White.copy(alpha = 0.06f) else Color.Transparent)
                     .tvClickable(onClick = { onSelect(item) })
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(horizontal = 8.dp, vertical = 14.dp),
             ) {
                 // Como Pepino IPTV: el apartado abierto lleva la raya verde y el icono y el título en verde.
                 Box(
                     Modifier
                         .width(4.dp)
-                        .height(36.dp)
+                        .height(30.dp)
                         .background(if (selected || focused) AppColors.Accent else Color.Transparent, RoundedCornerShape(2.dp)),
                 )
                 Spacer(Modifier.width(14.dp))
@@ -578,12 +600,6 @@ private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: 
                             fontWeight = if (selected || focused) FontWeight.ExtraBold else FontWeight.Medium,
                         ),
                         color = if (selected || focused) AppColors.Accent else Color.White,
-                    )
-                    Text(
-                        item.subtitle(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppColors.TextTertiary,
-                        maxLines = 1,
                     )
                 }
             }
@@ -608,12 +624,14 @@ private fun FamilyRequestsCard(count: Int, onClick: () -> Unit) {
             Text(
                 localizedStringResource(StringsR.string.settings_family_requests),
                 color = Color.White,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             )
             Text(
                 localizedStringResource(StringsR.string.settings_family_requests_pending, count),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Muted,
+                maxLines = summaryMaxLines(),
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Text("OK ›", color = Muted, style = MaterialTheme.typography.titleMedium)
@@ -637,12 +655,14 @@ private fun BrokenSourcesCard(count: Int, onRestore: () -> Unit) {
             Text(
                 localizedStringResource(StringsR.string.settings_broken_sources, count),
                 color = Color.White,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             )
             Text(
                 localizedStringResource(StringsR.string.settings_broken_sources_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Muted,
+                maxLines = summaryMaxLines(),
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Text(localizedStringResource(StringsR.string.settings_restore), color = Muted, style = MaterialTheme.typography.titleMedium)
@@ -700,6 +720,10 @@ private fun FocusCard(
 
 private val LocalCardFocused = androidx.compose.runtime.compositionLocalOf { false }
 
+/** Las explicaciones de cada opción ocupan una línea; con el cursor encima se ven enteras. */
+@Composable
+private fun summaryMaxLines(): Int = if (LocalCardFocused.current) 6 else 1
+
 /** Color del título de una fila de Ajustes: verde con el cursor encima, blanco si no. */
 @Composable
 private fun cardTitleColor(): Color = if (LocalCardFocused.current) AppColors.Accent else Color.White
@@ -729,48 +753,52 @@ private fun SubtitleColor.shift(colors: List<SubtitleColor>, delta: Int): Subtit
 
 @Composable
 internal fun ServiceCard(ui: ServiceUi, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    // Fila compacta (como Pepino IPTV): logo pequeño, nombre y para qué sirve; el estado a la derecha con «›».
+    // La clave enmascarada solo se enseña con el cursor encima.
     FocusCard(modifier = modifier, onClick = onClick) { focused ->
-        Column(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ServiceLogo(ui.service)
-                Spacer(Modifier.width(20.dp))
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            localizedStringResource(ui.service.titleResource),
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = cardTitleColor(),
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Text(
-                            when {
-                                ui.service.isDebrid -> localizedStringResource(StringsR.string.settings_in_use)
-                                ui.service.required -> localizedStringResource(StringsR.string.settings_required)
-                                else -> localizedStringResource(StringsR.string.settings_optional)
-                            },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Muted,
-                        )
-                    }
-                    Text(localizedStringResource(ui.service.usedForResource), style = MaterialTheme.typography.bodyMedium, color = Muted)
-                    Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ServiceLogo(ui.service)
+            Spacer(Modifier.width(18.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        ui.maskedKey ?: localizedStringResource(StringsR.string.settings_no_key),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 15.sp,
+                        localizedStringResource(ui.service.titleResource),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = cardTitleColor(),
+                        maxLines = 1,
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        when {
+                            ui.service.isDebrid -> localizedStringResource(StringsR.string.settings_in_use)
+                            ui.service.required -> localizedStringResource(StringsR.string.settings_required)
+                            else -> localizedStringResource(StringsR.string.settings_optional)
+                        },
+                        style = MaterialTheme.typography.labelMedium,
                         color = AppColors.TextTertiary,
                     )
                 }
-                Spacer(Modifier.width(16.dp))
                 Text(
-                    if (ui.status == ServiceStatus.Missing) localizedStringResource(StringsR.string.settings_ok_to_add) else localizedStringResource(StringsR.string.settings_ok_to_change),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (focused) Color.White else Color.Transparent,
+                    localizedStringResource(ui.service.usedForResource),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Muted,
+                    maxLines = if (focused) 4 else 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
+                if (focused && ui.maskedKey != null) {
+                    Text(
+                        ui.maskedKey,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 14.sp,
+                        color = AppColors.TextTertiary,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                }
             }
-            // Status messages can be long: give them their own row so they cannot squeeze the provider details.
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.width(16.dp))
             StatusPill(ui.status)
+            Spacer(Modifier.width(8.dp))
+            Icon(AppIcons.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.45f), modifier = Modifier.size(24.dp))
         }
     }
 }
@@ -790,9 +818,9 @@ private fun ServiceLogo(service: ApiService) {
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(52.dp).background(color, CircleShape),
+        modifier = Modifier.size(38.dp).background(color, CircleShape),
     ) {
-        Text(initials, fontFamily = DisplayFont, fontSize = 22.sp, lineHeight = 26.sp, color = Color.White)
+        Text(initials, fontFamily = DisplayFont, fontSize = 15.sp, lineHeight = 18.sp, color = Color.White)
     }
 }
 
@@ -804,19 +832,15 @@ private fun StatusPill(status: ServiceStatus) {
         is ServiceStatus.Ok -> Green to (status.detail ?: localizedStringResource(StringsR.string.settings_connected))
         is ServiceStatus.Bad -> Red to status.message
     }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(color.copy(alpha = 0.14f), RoundedCornerShape(50))
-            .padding(horizontal = 14.dp, vertical = 6.dp),
-    ) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.widthIn(max = 260.dp)) {
         Box(Modifier.size(8.dp).background(color, CircleShape))
         Spacer(Modifier.width(8.dp))
         Text(
             text,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             color = color,
-            modifier = Modifier.weight(1f, fill = false).padding(end = 2.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -828,13 +852,15 @@ private fun PhoneConfigCard(onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_configure_from_phone),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_phone_config_card_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
@@ -853,13 +879,15 @@ private fun ErrorLogCard(onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(
                     if (com.shieldstream.tv.model.Lang.isEnglish) "Error log" else "Registro de errores",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     if (com.shieldstream.tv.model.Lang.isEnglish) "Why Pepino+ closed unexpectedly" else "Por qué se ha cerrado Pepino+ de repente",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
@@ -878,13 +906,15 @@ private fun SetupGuideCard(onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_setup_guide),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_repeat_the_first_run_setup_step_by),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
@@ -916,13 +946,15 @@ internal fun DebridSelectorCard(active: DebridService, onChange: (DebridService)
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_service_in_use),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     if (active.viaTorrentio) localizedStringResource(StringsR.string.settings_sources_and_links_through_torrentio) else localizedStringResource(StringsR.string.settings_direct_connection_to_real_debrid),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -984,13 +1016,15 @@ private fun HomeRowLimitCard(viewModel: SettingsViewModel = hiltViewModel()) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_items_per_home_row),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_items_per_home_row_explanation),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1028,13 +1062,15 @@ private fun LightweightModeCard(viewModel: SettingsViewModel = hiltViewModel()) 
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_lightweight_ui),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_smaller_backdrops_no_automatic_rotation_or_focus),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1097,13 +1133,15 @@ private fun OnOffCard(title: String, summary: String, enabled: Boolean, onChange
             Column(Modifier.weight(1f)) {
                 Text(
                     title,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     summary,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1130,13 +1168,15 @@ private fun AutoNextCard(viewModel: SettingsViewModel = hiltViewModel()) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_autoplay_next_episode),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_shows_during_the_credits_next_episode_appears),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1163,13 +1203,15 @@ private fun SwitchPickedSourceCard(viewModel: SettingsViewModel = hiltViewModel(
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_switch_picked_source),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_switch_picked_source_detail),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1196,13 +1238,15 @@ private fun ShowCastCard(viewModel: SettingsViewModel = hiltViewModel()) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_show_cast),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_show_cast_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1229,13 +1273,15 @@ private fun TracksPanelStyleCard(viewModel: SettingsViewModel = hiltViewModel())
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_tracks_panel),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_tracks_panel_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1269,13 +1315,15 @@ private fun AutoSkipIntroCard(viewModel: SettingsViewModel = hiltViewModel()) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_auto_skip_intro),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_auto_skip_intro_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1313,13 +1361,15 @@ private fun EpisodeNotificationsCard(viewModel: SettingsViewModel = hiltViewMode
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_new_episode_notifications),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_followed_shows_only_checks_for_releases_every),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1348,13 +1398,15 @@ private fun MatchContentFrameRateCard(enabled: Boolean, onChange: (Boolean) -> U
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_match_content_frame_rate),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_match_content_frame_rate_explanation),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1380,13 +1432,15 @@ private fun ExperimentalSyncCard(enabled: Boolean, onChange: (Boolean) -> Unit) 
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_experimental_subtitle_sync),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_sync_demux_explanation),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1419,7 +1473,7 @@ private fun DeviceOptimizationCard(
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_device_optimization),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
@@ -1430,6 +1484,8 @@ private fun DeviceOptimizationCard(
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
                 val codecs = capabilities.hardwareVideoCodecs
                     .sortedBy { it.ordinal }
@@ -1481,7 +1537,7 @@ private fun SeekModeCard(thumbnails: Boolean, enabled: Boolean, onChange: (Boole
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_seeking_in_the_player),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
@@ -1494,6 +1550,8 @@ private fun SeekModeCard(thumbnails: Boolean, enabled: Boolean, onChange: (Boole
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1529,7 +1587,7 @@ private fun LanguageCard(current: AppLanguage, onApply: (AppLanguage) -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_app_language),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
@@ -1575,7 +1633,7 @@ private fun SourceExclusionGroupCard(title: String, summary: String, expanded: B
             Column(Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
@@ -1603,7 +1661,7 @@ private fun SourceExclusionCard(label: String, excluded: Boolean, onClick: () ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = cardTitleColor(),
                 modifier = Modifier.weight(1f),
             )
@@ -1623,8 +1681,8 @@ private fun ProviderCard(provider: SourceProvider, enabled: Boolean, onClick: ()
     FocusCard(onClick = onClick) { _ ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(localizedStringResource(provider.sectionResource), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = cardTitleColor())
-                Text(providerNote(provider), style = MaterialTheme.typography.bodyMedium, color = Muted)
+                Text(localizedStringResource(provider.sectionResource), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = cardTitleColor())
+                Text(providerNote(provider), style = MaterialTheme.typography.bodyMedium, color = Muted, maxLines = summaryMaxLines(), overflow = TextOverflow.Ellipsis)
             }
             Spacer(Modifier.width(24.dp))
             SegmentOption(if (enabled) localizedStringResource(StringsR.string.settings_on_5f22c1) else localizedStringResource(StringsR.string.settings_off_25e189), selected = enabled)
@@ -1678,7 +1736,7 @@ private fun BufferCard(seconds: Int, enabled: Boolean, onChange: (Int) -> Unit) 
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.settings_player_buffer),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
@@ -1689,6 +1747,8 @@ private fun BufferCard(seconds: Int, enabled: Boolean, onChange: (Int) -> Unit) 
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Spacer(Modifier.width(24.dp))
@@ -1753,13 +1813,15 @@ private fun AboutCard() {
             Column(Modifier.weight(1f)) {
                 Text(
                     if (testing) localizedStringResource(StringsR.string.settings_bambi_testing) else "Pepino+",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_catalog_by_tmdb_sources_from_torrentio_playback),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(localizedStringResource(StringsR.string.settings_version, version), style = MaterialTheme.typography.titleMedium, color = Muted)
@@ -1825,6 +1887,8 @@ private fun KeyEditorDialog(
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Muted,
+                        maxLines = summaryMaxLines(),
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -1971,13 +2035,15 @@ internal fun DownloadStorageCard(viewModel: DownloadStorageViewModel = hiltViewM
             Column(Modifier.weight(1f)) {
                 Text(
                     localizedStringResource(StringsR.string.downloads_storage),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.downloads_storage_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
+                    maxLines = summaryMaxLines(),
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -2059,8 +2125,8 @@ private fun CyclingSettingCard(title: String, hint: String, value: String, onShi
     ) { _ ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = cardTitleColor())
-                Text(hint, style = MaterialTheme.typography.bodyMedium, color = Muted)
+                Text(title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = cardTitleColor())
+                Text(hint, style = MaterialTheme.typography.bodyMedium, color = Muted, maxLines = summaryMaxLines(), overflow = TextOverflow.Ellipsis)
             }
             Spacer(Modifier.width(24.dp))
             ValueSelector(value)
