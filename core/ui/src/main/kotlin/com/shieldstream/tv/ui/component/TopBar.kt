@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import androidx.compose.runtime.LaunchedEffect
+
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.ui.theme.AppColors
@@ -124,6 +126,9 @@ fun TopBar(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Hora discreta en la esquina, como en Pepino IPTV.
+            TopBarClock()
+            Spacer(Modifier.width(8.dp))
             if (downloads != null) {
                 DownloadIndicator(state = downloads, onClick = onDownloads)
             }
@@ -231,4 +236,24 @@ private fun TopBarItem(
             }
         }
     }
+}
+
+/** Hora (HH:mm) en gris, que se actualiza al cambiar el minuto. */
+@Composable
+private fun TopBarClock() {
+    val format = remember { java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()) }
+    var now by remember { mutableStateOf(format.format(java.util.Date())) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val ms = System.currentTimeMillis()
+            kotlinx.coroutines.delay(60_000 - ms % 60_000 + 200)
+            now = format.format(java.util.Date())
+        }
+    }
+    Text(
+        now,
+        color = AppColors.TextSecondary,
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+        maxLines = 1,
+    )
 }

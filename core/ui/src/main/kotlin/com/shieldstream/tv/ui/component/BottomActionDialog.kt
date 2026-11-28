@@ -1,5 +1,9 @@
 package com.shieldstream.tv.ui.component
 
+import androidx.compose.foundation.layout.fillMaxWidth
+
+import com.shieldstream.tv.ui.theme.AppColors
+
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import androidx.compose.foundation.rememberScrollState
@@ -113,25 +117,85 @@ fun ActionMenuDialog(
     LaunchedEffect(Unit) {
         firstActionRequester.requestFocusWithRetry()
     }
-    BottomActionDialog(
-        title = title,
-        onDismiss = onDismiss,
-        scrimAlpha = scrimAlpha,
-        consumeOpeningKeyRelease = consumeOpeningKeyRelease,
+    // Pepino+ (como Pepino IPTV): panel en el centro con las opciones en lista; la que tiene el cursor, en verde
+    // con la raya verde a la izquierda. Sin pastillas ni rellenos.
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = scrimAlpha))
+            .then(if (consumeOpeningKeyRelease) Modifier.consumeInitialConfirmationKeyUp() else Modifier)
+            .onBackKey(enabled = true, onBack = onDismiss),
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 48.dp, vertical = 8.dp),
+        Column(
+            Modifier
+                .widthIn(min = 380.dp, max = 560.dp)
+                .background(AppColors.BackgroundRaised, RoundedCornerShape(18.dp))
+                .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+                .padding(horizontal = 24.dp, vertical = 22.dp),
         ) {
+            Text(
+                text = title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 14.dp, bottom = 12.dp),
+            )
             actions.forEachIndexed { index, action ->
-                ActionDockCard(
+                MenuOption(
                     text = action.text,
                     icon = action.icon,
                     onClick = action.onClick,
                     modifier = if (index == 0) Modifier.focusRequester(firstActionRequester) else Modifier,
                 )
             }
+            Text(
+                text = if (com.shieldstream.tv.model.Lang.isEnglish) "Back to close" else "Atrás para cerrar",
+                color = AppColors.TextTertiary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 14.dp, top = 12.dp),
+            )
         }
+    }
+}
+
+/** Opción de un menú: icono y texto en gris; con el cursor, en verde y negrita, con la raya verde a la izquierda. */
+@Composable
+fun MenuOption(
+    text: String,
+    icon: ImageVector?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var focused by remember { mutableStateOf(false) }
+    val fg = if (focused) AppColors.Accent else AppColors.TextSecondary
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .onFocusChanged { focused = it.isFocused }
+            .tvClickable(onClick = onClick),
+    ) {
+        Box(
+            Modifier
+                .width(if (focused) 4.dp else 0.dp)
+                .height(28.dp)
+                .background(AppColors.Accent, RoundedCornerShape(2.dp)),
+        )
+        Spacer(Modifier.width(if (focused) 10.dp else 14.dp))
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(14.dp))
+        }
+        Text(
+            text = text,
+            color = if (focused) AppColors.Accent else Color.White,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = if (focused) FontWeight.ExtraBold else FontWeight.Medium),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

@@ -1,5 +1,9 @@
 package com.shieldstream.tv.settings
 
+import androidx.compose.foundation.layout.heightIn
+
+import androidx.compose.ui.draw.drawBehind
+
 import androidx.compose.foundation.focusGroup
 
 import androidx.compose.ui.focus.focusProperties
@@ -482,6 +486,14 @@ private fun SettingsList(
 /** Apartados de Ajustes, en el orden del menú lateral. */
 private enum class SettingsSection { SERVICES, SOURCES, LOOK, PLAYBACK, SYSTEM }
 
+private fun SettingsSection.icon(): androidx.compose.ui.graphics.vector.ImageVector = when (this) {
+    SettingsSection.SERVICES -> AppIcons.Tv
+    SettingsSection.SOURCES -> AppIcons.List
+    SettingsSection.LOOK -> AppIcons.Home
+    SettingsSection.PLAYBACK -> AppIcons.Play
+    SettingsSection.SYSTEM -> AppIcons.Settings
+}
+
 private fun SettingsSection.title(): String {
     val en = com.shieldstream.tv.model.Lang.isEnglish
     return when (this) {
@@ -540,37 +552,37 @@ private fun SettingsSideMenu(title: String, current: SettingsSection, onSelect: 
                         if (it.isFocused) onSelect(item)
                     }
                     .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        when {
-                            focused -> Color.White
-                            selected -> AppColors.Accent.copy(alpha = 0.16f)
-                            else -> Color.Transparent
-                        },
-                    )
+                    .background(if (focused) Color.White.copy(alpha = 0.06f) else Color.Transparent)
                     .tvClickable(onClick = { onSelect(item) })
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
             ) {
+                // Como Pepino IPTV: el apartado abierto lleva la raya verde y el icono y el título en verde.
                 Box(
                     Modifier
                         .width(4.dp)
                         .height(36.dp)
-                        .background(if (selected && !focused) AppColors.Accent else Color.Transparent, RoundedCornerShape(2.dp)),
+                        .background(if (selected || focused) AppColors.Accent else Color.Transparent, RoundedCornerShape(2.dp)),
                 )
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(14.dp))
+                Icon(
+                    item.icon(),
+                    contentDescription = null,
+                    tint = if (selected || focused) AppColors.Accent else AppColors.TextSecondary,
+                    modifier = Modifier.size(26.dp),
+                )
+                Spacer(Modifier.width(14.dp))
                 Column {
                     Text(
                         item.title(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = when {
-                            focused -> Color.Black
-                            selected -> AppColors.Accent
-                            else -> Color.White
-                        },
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = if (selected || focused) FontWeight.ExtraBold else FontWeight.Medium,
+                        ),
+                        color = if (selected || focused) AppColors.Accent else Color.White,
                     )
                     Text(
                         item.subtitle(),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (focused) Color.Black.copy(alpha = 0.65f) else AppColors.TextTertiary,
+                        color = AppColors.TextTertiary,
                         maxLines = 1,
                     )
                 }
@@ -639,12 +651,14 @@ private fun BrokenSourcesCard(count: Int, onRestore: () -> Unit) {
 
 @Composable
 private fun SectionTitle(text: String) {
+    // Etiqueta de grupo (como Pepino IPTV): pequeña, en mayúsculas y espaciada.
     Text(
-        text = text,
-        fontFamily = DisplayFont,
-        fontSize = 22.sp, lineHeight = 26.sp,
-        color = AppColors.TextSecondary,
-        modifier = Modifier.padding(top = 18.dp, bottom = 2.dp, start = 4.dp),
+        text = text.uppercase(com.shieldstream.tv.model.Lang.locale),
+        fontSize = 14.sp, lineHeight = 18.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.4.sp,
+        color = AppColors.TextTertiary,
+        modifier = Modifier.padding(top = 20.dp, bottom = 2.dp, start = 6.dp),
     )
 }
 
@@ -655,20 +669,56 @@ private fun FocusCard(
     content: @Composable (focused: Boolean) -> Unit,
 ) {
     var focused by remember { mutableStateOf(false) }
+    // Pepino+ (como Pepino IPTV): sin marco ni relleno blanco. Con el cursor, raya verde a la izquierda y el
+    // título en verde; el fondo de la fila apenas se aclara.
     Box(
         modifier
             .fillMaxWidth()
+            .heightIn(min = 64.dp)
             .background(if (focused) CardFocused else CardColor, CardShape)
-            .border(
-                width = if (focused) 2.dp else 1.dp,
-                color = if (focused) Color.White else Color.White.copy(alpha = 0.08f),
-                shape = CardShape,
-            )
+            .drawBehind {
+                if (focused) {
+                    val w = 4.dp.toPx()
+                    drawRoundRect(
+                        AppColors.Accent,
+                        topLeft = androidx.compose.ui.geometry.Offset(0f, size.height * 0.2f),
+                        size = androidx.compose.ui.geometry.Size(w, size.height * 0.6f),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(w / 2),
+                    )
+                }
+            }
             .onFocusChanged { focused = it.isFocused }
             .tvClickable(onClick = onClick ?: {})
-            .padding(horizontal = 24.dp, vertical = 18.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        contentAlignment = Alignment.CenterStart,
     ) {
-        content(focused)
+        androidx.compose.runtime.CompositionLocalProvider(LocalCardFocused provides focused) {
+            content(focused)
+        }
+    }
+}
+
+private val LocalCardFocused = androidx.compose.runtime.compositionLocalOf { false }
+
+/** Color del título de una fila de Ajustes: verde con el cursor encima, blanco si no. */
+@Composable
+private fun cardTitleColor(): Color = if (LocalCardFocused.current) AppColors.Accent else Color.White
+
+/** Interruptor (como Pepino IPTV): pista verde con la bola a la derecha si está activado; gris si no. */
+@Composable
+private fun SettingSwitch(on: Boolean) {
+    androidx.compose.foundation.Canvas(Modifier.size(width = 56.dp, height = 32.dp)) {
+        val h = size.height
+        drawRoundRect(
+            if (on) AppColors.Accent.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.16f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(h / 2),
+        )
+        val r = h / 2 - 4.dp.toPx()
+        drawCircle(
+            if (on) AppColors.Accent else Color.White.copy(alpha = 0.85f),
+            radius = r,
+            center = androidx.compose.ui.geometry.Offset(if (on) size.width - h / 2 else h / 2, h / 2),
+        )
     }
 }
 
@@ -689,7 +739,7 @@ internal fun ServiceCard(ui: ServiceUi, onClick: () -> Unit, modifier: Modifier 
                         Text(
                             localizedStringResource(ui.service.titleResource),
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = Color.White,
+                            color = cardTitleColor(),
                         )
                         Spacer(Modifier.width(10.dp))
                         Text(
@@ -779,7 +829,7 @@ private fun PhoneConfigCard(onClick: () -> Unit) {
                 Text(
                     localizedStringResource(StringsR.string.settings_configure_from_phone),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_phone_config_card_body),
@@ -804,7 +854,7 @@ private fun ErrorLogCard(onClick: () -> Unit) {
                 Text(
                     if (com.shieldstream.tv.model.Lang.isEnglish) "Error log" else "Registro de errores",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     if (com.shieldstream.tv.model.Lang.isEnglish) "Why Pepino+ closed unexpectedly" else "Por qué se ha cerrado Pepino+ de repente",
@@ -829,7 +879,7 @@ private fun SetupGuideCard(onClick: () -> Unit) {
                 Text(
                     localizedStringResource(StringsR.string.settings_setup_guide),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_repeat_the_first_run_setup_step_by),
@@ -867,7 +917,7 @@ internal fun DebridSelectorCard(active: DebridService, onChange: (DebridService)
                 Text(
                     localizedStringResource(StringsR.string.settings_service_in_use),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     if (active.viaTorrentio) localizedStringResource(StringsR.string.settings_sources_and_links_through_torrentio) else localizedStringResource(StringsR.string.settings_direct_connection_to_real_debrid),
@@ -935,7 +985,7 @@ private fun HomeRowLimitCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 Text(
                     localizedStringResource(StringsR.string.settings_items_per_home_row),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_items_per_home_row_explanation),
@@ -979,7 +1029,7 @@ private fun LightweightModeCard(viewModel: SettingsViewModel = hiltViewModel()) 
                 Text(
                     localizedStringResource(StringsR.string.settings_lightweight_ui),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_smaller_backdrops_no_automatic_rotation_or_focus),
@@ -988,14 +1038,7 @@ private fun LightweightModeCard(viewModel: SettingsViewModel = hiltViewModel()) 
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1055,7 +1098,7 @@ private fun OnOffCard(title: String, summary: String, enabled: Boolean, onChange
                 Text(
                     title,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     summary,
@@ -1064,14 +1107,7 @@ private fun OnOffCard(title: String, summary: String, enabled: Boolean, onChange
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), AppShapes.Pill)
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1095,7 +1131,7 @@ private fun AutoNextCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 Text(
                     localizedStringResource(StringsR.string.settings_autoplay_next_episode),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_shows_during_the_credits_next_episode_appears),
@@ -1104,14 +1140,7 @@ private fun AutoNextCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1135,7 +1164,7 @@ private fun SwitchPickedSourceCard(viewModel: SettingsViewModel = hiltViewModel(
                 Text(
                     localizedStringResource(StringsR.string.settings_switch_picked_source),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_switch_picked_source_detail),
@@ -1144,14 +1173,7 @@ private fun SwitchPickedSourceCard(viewModel: SettingsViewModel = hiltViewModel(
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1175,7 +1197,7 @@ private fun ShowCastCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 Text(
                     localizedStringResource(StringsR.string.settings_show_cast),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_show_cast_hint),
@@ -1184,14 +1206,7 @@ private fun ShowCastCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1215,7 +1230,7 @@ private fun TracksPanelStyleCard(viewModel: SettingsViewModel = hiltViewModel())
                 Text(
                     localizedStringResource(StringsR.string.settings_tracks_panel),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_tracks_panel_hint),
@@ -1255,7 +1270,7 @@ private fun AutoSkipIntroCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 Text(
                     localizedStringResource(StringsR.string.settings_auto_skip_intro),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_auto_skip_intro_hint),
@@ -1264,14 +1279,7 @@ private fun AutoSkipIntroCard(viewModel: SettingsViewModel = hiltViewModel()) {
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1306,7 +1314,7 @@ private fun EpisodeNotificationsCard(viewModel: SettingsViewModel = hiltViewMode
                 Text(
                     localizedStringResource(StringsR.string.settings_new_episode_notifications),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_followed_shows_only_checks_for_releases_every),
@@ -1341,7 +1349,7 @@ private fun MatchContentFrameRateCard(enabled: Boolean, onChange: (Boolean) -> U
                 Text(
                     localizedStringResource(StringsR.string.settings_match_content_frame_rate),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_match_content_frame_rate_explanation),
@@ -1350,14 +1358,7 @@ private fun MatchContentFrameRateCard(enabled: Boolean, onChange: (Boolean) -> U
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1380,7 +1381,7 @@ private fun ExperimentalSyncCard(enabled: Boolean, onChange: (Boolean) -> Unit) 
                 Text(
                     localizedStringResource(StringsR.string.settings_experimental_subtitle_sync),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_sync_demux_explanation),
@@ -1389,14 +1390,7 @@ private fun ExperimentalSyncCard(enabled: Boolean, onChange: (Boolean) -> Unit) 
                 )
             }
             Spacer(Modifier.width(24.dp))
-            Row(
-                Modifier
-                    .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(50))
-                    .padding(4.dp),
-            ) {
-                SegmentOption(localizedStringResource(StringsR.string.settings_on), selected = enabled)
-                SegmentOption(localizedStringResource(StringsR.string.settings_off_9847b4), selected = !enabled)
-            }
+            SettingSwitch(enabled)
         }
     }
 }
@@ -1426,7 +1420,7 @@ private fun DeviceOptimizationCard(
                 Text(
                     localizedStringResource(StringsR.string.settings_device_optimization),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     if (optimization == DeviceOptimization.AUTOMATIC) {
@@ -1488,7 +1482,7 @@ private fun SeekModeCard(thumbnails: Boolean, enabled: Boolean, onChange: (Boole
                 Text(
                     localizedStringResource(StringsR.string.settings_seeking_in_the_player),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     if (!enabled) {
@@ -1536,7 +1530,7 @@ private fun LanguageCard(current: AppLanguage, onApply: (AppLanguage) -> Unit) {
                 Text(
                     localizedStringResource(StringsR.string.settings_app_language),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     if (changing) {
@@ -1582,7 +1576,7 @@ private fun SourceExclusionGroupCard(title: String, summary: String, expanded: B
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     text = summary,
@@ -1610,7 +1604,7 @@ private fun SourceExclusionCard(label: String, excluded: Boolean, onClick: () ->
             Text(
                 text = label,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
+                color = cardTitleColor(),
                 modifier = Modifier.weight(1f),
             )
             Spacer(Modifier.width(24.dp))
@@ -1629,7 +1623,7 @@ private fun ProviderCard(provider: SourceProvider, enabled: Boolean, onClick: ()
     FocusCard(onClick = onClick) { _ ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(localizedStringResource(provider.sectionResource), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = Color.White)
+                Text(localizedStringResource(provider.sectionResource), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = cardTitleColor())
                 Text(providerNote(provider), style = MaterialTheme.typography.bodyMedium, color = Muted)
             }
             Spacer(Modifier.width(24.dp))
@@ -1685,7 +1679,7 @@ private fun BufferCard(seconds: Int, enabled: Boolean, onChange: (Int) -> Unit) 
                 Text(
                     localizedStringResource(StringsR.string.settings_player_buffer),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     when {
@@ -1760,7 +1754,7 @@ private fun AboutCard() {
                 Text(
                     if (testing) localizedStringResource(StringsR.string.settings_bambi_testing) else "Pepino+",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.settings_catalog_by_tmdb_sources_from_torrentio_playback),
@@ -1978,7 +1972,7 @@ internal fun DownloadStorageCard(viewModel: DownloadStorageViewModel = hiltViewM
                 Text(
                     localizedStringResource(StringsR.string.downloads_storage),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
+                    color = cardTitleColor(),
                 )
                 Text(
                     localizedStringResource(StringsR.string.downloads_storage_hint),
@@ -2065,7 +2059,7 @@ private fun CyclingSettingCard(title: String, hint: String, value: String, onShi
     ) { _ ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = Color.White)
+                Text(title, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = cardTitleColor())
                 Text(hint, style = MaterialTheme.typography.bodyMedium, color = Muted)
             }
             Spacer(Modifier.width(24.dp))

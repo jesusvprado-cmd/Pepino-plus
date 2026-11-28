@@ -1,5 +1,7 @@
 package com.shieldstream.tv.ui.component
 
+import androidx.compose.foundation.layout.widthIn
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,15 +23,17 @@ fun ValueSelector(
     showArrows: Boolean = true,
     color: Color = Color.White,
 ) {
+    // Pepino+ (como Pepino IPTV): el valor en verde claro a la derecha con «›». ◀ ▶ y OK lo siguen cambiando.
+    val shown = if (color == Color.White) Color(0xFFA6EE90) else color
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        if (showArrows) Icon(AppIcons.ChevronLeft, contentDescription = null, tint = color.copy(alpha = 0.7f), modifier = Modifier.size(24.dp))
         Text(
             value,
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-            color = color,
+            color = shown,
             maxLines = 1,
-            modifier = Modifier.padding(horizontal = 6.dp),
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            modifier = Modifier.widthIn(max = 300.dp).padding(horizontal = 6.dp),
         )
-        if (showArrows) Icon(AppIcons.ChevronRight, contentDescription = null, tint = color.copy(alpha = 0.7f), modifier = Modifier.size(24.dp))
+        if (showArrows) Icon(AppIcons.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.45f), modifier = Modifier.size(24.dp))
     }
 }

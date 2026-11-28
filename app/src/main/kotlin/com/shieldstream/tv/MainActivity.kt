@@ -1,5 +1,7 @@
 package com.shieldstream.tv
 
+import androidx.compose.foundation.layout.fillMaxSize
+
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
@@ -91,6 +93,7 @@ class MainActivity : ComponentActivity() {
                             crash = null
                         }
                     }
+                    androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize()) {
                     AppNavHost(
                         holder = holder,
                         onExit = { finish() },
@@ -103,6 +106,9 @@ class MainActivity : ComponentActivity() {
                             }
                         },
                     )
+                    // Pantalla de arranque con la rodaja (una vez por sesión), encima de todo.
+                    com.shieldstream.tv.intro.SplashOverlay()
+                    }
                 }
             }
         }

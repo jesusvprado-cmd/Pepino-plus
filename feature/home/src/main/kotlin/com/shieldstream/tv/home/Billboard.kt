@@ -1,5 +1,9 @@
 package com.shieldstream.tv.home
 
+import androidx.compose.ui.draw.drawBehind
+
+import androidx.compose.animation.core.LinearEasing
+
 import androidx.compose.foundation.layout.wrapContentWidth
 
 import androidx.compose.ui.layout.positionInParent
@@ -139,19 +143,22 @@ internal fun FeaturedCarousel(
     // Cambiar de destacado a mano reinicia la cuenta (el efecto depende de index).
     // Interfaz ligera (Ajustes): sin avance automático para ahorrar trabajo en cajas lentas.
     val lightweightUi = LocalLightweightUi.current
-    LaunchedEffect(index, items.size, lightweightUi) {
-        if (!lightweightUi && items.size > 1) {
-            delay(10_000)
-            index = (index + 1) % items.size
-        }
+    // Pepino+ (como Pepino IPTV): el indicador del destacado actual se va llenando y al completarse pasa al
+    // siguiente. Con el foco en la portada se para (para leer con calma) y sigue al salir.
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(index) { progress.snapTo(0f) }
+    LaunchedEffect(index, items.size, lightweightUi, focused) {
+        if (lightweightUi || items.size < 2 || focused) return@LaunchedEffect
+        val remaining = ((1f - progress.value) * 10_000).toInt().coerceAtLeast(1)
+        progress.animateTo(1f, tween(remaining, easing = LinearEasing))
+        index = (index + 1) % items.size
     }
     val current = items[index]
     Box(
+        // Sin marco: la imagen se funde con el fondo de la pantalla (como en Pepino IPTV). El foco se marca con la
+        // raya verde junto al título.
         modifier
             .fillMaxWidth()
-            .padding(horizontal = 28.dp)
-            .clip(CardShape)
-            .border(if (focused) FocusStyle.Border else 0.dp, if (focused) Color.White else Color.Transparent, CardShape)
             .onFocusChanged { focused = it.isFocused }
             .onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown || items.size < 2) return@onPreviewKeyEvent false
@@ -171,7 +178,7 @@ internal fun FeaturedCarousel(
     ) {
         // Cambio inmediato, sin fundido: con el fundido se veían a la vez los datos de dos diapositivas.
         key(current.item.key) {
-            FeaturedSlide(current)
+            FeaturedSlide(current, focused)
         }
         if (items.size > 1) {
             Row(
@@ -179,12 +186,27 @@ internal fun FeaturedCarousel(
                 modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 12.dp),
             ) {
                 items.indices.forEach { i ->
+                    val active = i == index
                     Box(
                         Modifier
-                            .size(width = if (i == index) 18.dp else 6.dp, height = 6.dp)
-                            // Forma en el propio fondo (sin clip): el punto activo cambia de ancho y en la Shield
-                            // el recorte no se actualizaba al cambiar de tamaño → salían cuadrados.
-                            .background(if (i == index) Color.White else Color.White.copy(alpha = 0.4f), CircleShape),
+                            .size(width = if (active) 28.dp else 6.dp, height = 6.dp)
+                            // Forma en el propio fondo (sin clip): en la Shield el recorte no se actualizaba al cambiar
+                            // de tamaño. El llenado del activo se lee al dibujar (no recompone cada fotograma).
+                            .background(Color.White.copy(alpha = if (active) 0.3f else 0.4f), CircleShape)
+                            .then(
+                                if (active) {
+                                    Modifier.drawBehind {
+                                        val w = size.width * progress.value.coerceAtLeast(if (lightweightUi) 1f else 0f)
+                                        drawRoundRect(
+                                            AppColors.Accent,
+                                            size = androidx.compose.ui.geometry.Size(w.coerceAtLeast(size.height), size.height),
+                                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2),
+                                        )
+                                    }
+                                } else {
+                                    Modifier
+                                },
+                            ),
                     )
                 }
             }
@@ -193,9 +215,10 @@ internal fun FeaturedCarousel(
 }
 
 @Composable
-private fun FeaturedSlide(featured: FeaturedItem) {
+private fun FeaturedSlide(featured: FeaturedItem, focused: Boolean) {
     val item = featured.item
-    Box(Modifier.fillMaxSize().background(Color(0xFF111114))) {
+    val page = AppColors.Background
+    Box(Modifier.fillMaxSize().background(page)) {
         AsyncImage(
             model = BackdropUrls.fullScreen(
                 url = item.backdropUrl,
@@ -210,19 +233,30 @@ private fun FeaturedSlide(featured: FeaturedItem) {
             Modifier.fillMaxSize().background(
                 Brush.horizontalGradient(
                     // Pepino+: más oscuro bajo el texto para que se lea sobre cualquier imagen.
-                    0f to Color.Black.copy(alpha = 0.92f),
-                    0.45f to Color.Black.copy(alpha = 0.55f),
+                    // Se funde con el fondo de la pantalla por la izquierda (sin bordes duros).
+                    0f to page,
+                    0.3f to page.copy(alpha = 0.85f),
+                    0.55f to page.copy(alpha = 0.4f),
                     0.8f to Color.Transparent,
                 ),
             ),
         )
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.92f))))
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to page.copy(alpha = 0.6f), 0.18f to Color.Transparent, 0.5f to Color.Transparent, 1f to page)))
 
+        // Raya verde junto al título cuando la portada tiene el foco (la selección, como en Ajustes).
+        Box(
+            Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 36.dp, bottom = 32.dp)
+                .width(4.dp)
+                .height(if (focused) 110.dp else 0.dp)
+                .background(AppColors.Accent, RoundedCornerShape(2.dp)),
+        )
         Column(
             Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth(0.6f)
-                .padding(start = 32.dp, bottom = 28.dp),
+                .padding(start = 56.dp, bottom = 28.dp),
         ) {
             if (featured.logoUrl != null) {
                 AsyncImage(
