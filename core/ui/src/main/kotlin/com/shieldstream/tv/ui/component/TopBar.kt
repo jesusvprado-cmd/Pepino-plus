@@ -107,7 +107,8 @@ fun TopBar(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            TopTab.entries.forEach { tab ->
+            // Pepino+: sin la pestaña «Episodios» (los nuevos episodios siguen en su fila del Inicio).
+            TopTab.entries.filter { it != TopTab.EPISODES }.forEach { tab ->
                 TopBarItem(
                     icon = if (tab == TopTab.SEARCH) AppIcons.Search else null,
                     label = if (tab == TopTab.SEARCH) null else localizedStringResource(tab.labelResource),
