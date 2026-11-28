@@ -94,7 +94,8 @@ class SharedComponentsLocaleTest {
         renderTopBar()
 
         composeRule.onNodeWithText("Inicio").assertExists()
-        composeRule.onNodeWithText("Episodios").assertExists()
+        // Pepino+ quitó la pestaña «Episodios» de la barra (los nuevos episodios siguen en su fila del Inicio).
+        composeRule.onNodeWithText("Episodios").assertDoesNotExist()
         composeRule.onNodeWithText("Series").assertExists()
         composeRule.onNodeWithText("Mi lista").assertExists()
     }
@@ -105,7 +106,7 @@ class SharedComponentsLocaleTest {
         renderTopBar()
 
         composeRule.onNodeWithText("Home").assertExists()
-        composeRule.onNodeWithText("Episodes").assertExists()
+        composeRule.onNodeWithText("Episodes").assertDoesNotExist()
         composeRule.onNodeWithText("TV Shows").assertExists()
         composeRule.onNodeWithText("My list").assertExists()
     }

@@ -27,7 +27,13 @@ import org.robolectric.annotation.Config
 class PhoneConfigServerTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val controller = mockk<PhoneConfigController>()
-    private val server = PhoneConfigServer(context, controller, Json { ignoreUnknownKeys = true }, mockk<Texts>(relaxed = true))
+    private val server = PhoneConfigServer(
+        context,
+        controller,
+        Json { ignoreUnknownKeys = true },
+        mockk<Texts>(relaxed = true),
+        mockk<com.shieldstream.tv.domain.ConfigBackupRepository>(relaxed = true),
+    )
     private val client = OkHttpClient()
 
     @After

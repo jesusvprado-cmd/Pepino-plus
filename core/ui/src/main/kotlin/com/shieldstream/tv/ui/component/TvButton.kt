@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -73,7 +74,7 @@ fun TvButton(
         }
         Box {
             // Texto invisible en negrita: reserva el ancho para que los botones no se muevan al pasar el cursor.
-            Text(text = text, color = Color.Transparent, style = style.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1)
+            Text(text = text, color = Color.Transparent, style = style.copy(fontWeight = FontWeight.ExtraBold), maxLines = 1, modifier = Modifier.clearAndSetSemantics {})
             Text(
                 text = text,
                 color = content,
