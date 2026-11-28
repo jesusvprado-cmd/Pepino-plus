@@ -143,18 +143,6 @@ fun ProfileEditScreen(
                         }
                     }
                     Spacer(Modifier.height(20.dp))
-                    Text(localizedStringResource(StringsR.string.settings_app_theme), color = ProfileMuted, fontSize = 16.sp)
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ProfileTheme.entries.forEach { theme ->
-                            ThemeChoice(
-                                theme = theme,
-                                selected = profile.theme == theme,
-                                onClick = { viewModel.setTheme(theme) },
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(20.dp))
                     TraktCard(
                         state = editing,
                         onConnect = { viewModel.save()?.let(onConnectTrakt) },

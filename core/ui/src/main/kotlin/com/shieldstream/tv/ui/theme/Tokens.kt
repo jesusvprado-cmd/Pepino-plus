@@ -66,8 +66,13 @@ object AppColors {
     val Warning = Color(0xFFF5B83D)
     val Error = Color(0xFFFF5A5F)
 
-    /** Aplica el acento del perfil. Las pantallas leen estos valores como estado de Compose. */
-    fun applyTheme(theme: ProfileTheme) {
+    /**
+     * Pepino+ solo tiene un color: el verde pepino. El tema guardado en cada perfil se ignora (la elección de tema
+     * se quitó de Editar perfil), así que da igual lo que tuviera un perfil antiguo.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun applyTheme(ignored: ProfileTheme) {
+        val theme = ProfileTheme.BAMBI
         Accent = Color(theme.accent)
         AccentDark = Color(theme.accentDark)
         OnAccent = Color(theme.onAccent)
