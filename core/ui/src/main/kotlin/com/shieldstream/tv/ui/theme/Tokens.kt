@@ -25,7 +25,7 @@ object AppColors {
     /** Panels, cards, dialogs, and unfocused controls. */
     val Surface = Color(0xFF18211B)
 
-    /** Focused panel rows when the control does not invert to white. */
+    /** Fondo de una tarjeta o panel con el cursor (el cursor nunca rellena de blanco). */
     val SurfaceFocused = Color(0xFF27342A)
 
     /** Text fields and inset areas inside a [Surface]. */

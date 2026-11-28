@@ -1434,7 +1434,7 @@ private fun SeasonsAndEpisodes(
 @Composable
 private fun SeasonChip(label: String, selected: Boolean, enabled: Boolean, onClick: () -> Unit) {
     var focused by remember { mutableStateOf(false) }
-    // Same filled style as the other chips: faint, brighter when selected, inverted on focus.
+    // Como los demás chips: tenue, más claro si está elegido; con el cursor, texto verde (estilo Pepino IPTV).
     val bg = when {
         focused -> FocusStyle.Fill
         selected -> Color.White.copy(alpha = 0.22f)
@@ -1539,7 +1539,12 @@ private fun EpisodeCard(
         Spacer(Modifier.height(8.dp))
         Text(
             text = "${episode.number}. ${episode.title}",
-            color = if (selected || focused) Color.White else AppColors.TextSecondary,
+            // Con el cursor, el título en verde (como las carátulas de Pepino IPTV).
+            color = when {
+                focused -> FocusStyle.Content
+                selected -> Color.White
+                else -> AppColors.TextSecondary
+            },
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

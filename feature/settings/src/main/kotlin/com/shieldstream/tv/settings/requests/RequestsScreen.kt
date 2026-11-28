@@ -1,5 +1,6 @@
 package com.shieldstream.tv.settings.requests
 
+import com.shieldstream.tv.ui.theme.FocusStyle
 import com.shieldstream.tv.ui.theme.AppColors
 
 import com.shieldstream.tv.strings.R as StringsR
@@ -116,8 +117,8 @@ private fun RequestCard(request: TitleRequest, onApprove: () -> Unit, onDismiss:
             .clip(AppShapes.Control)
             .background(if (focused) AppColors.SurfaceFocused else AppColors.Surface)
             .border(
-                1.dp,
-                if (focused) Color.White.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.08f),
+                if (focused) FocusStyle.Border else 1.dp,
+                if (focused) FocusStyle.Frame else Color.White.copy(alpha = 0.08f),
                 AppShapes.Control,
             )
             .onFocusChanged { focused = it.isFocused }
