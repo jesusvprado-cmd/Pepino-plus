@@ -440,7 +440,14 @@ private fun CategoryChipsRow(
     val offset = remember { Animatable(0f) }
     val density = androidx.compose.ui.platform.LocalDensity.current
 
-    fun targetFor(v: Int): Float = containerWidth / 2f - (itemX[v] + itemW[v] / 2f)
+    // Vale para cualquier posición, también fuera de la tira triple: al pulsar ◀ ▶ muy seguido, la animación
+    // anterior se cancela antes de recolocar y la posición podía salirse (cierre en la 2.26).
+    fun targetFor(v: Int): Float {
+        val m = Math.floorMod(v, n)
+        val period = itemX[n] - itemX[0]
+        val x = itemX[m] + Math.floorDiv(v - m, n) * period
+        return containerWidth / 2f - (x + itemW[m] / 2f)
+    }
 
     // Recoloca o anima la tira cuando cambia la categoría; al salir de la copia central salta a la equivalente.
     LaunchedEffect(virtual, measured, containerWidth) {
@@ -454,7 +461,7 @@ private fun CategoryChipsRow(
         }
     }
 
-    val boxWidthPx = if (measured) itemW[virtual.coerceIn(0, 3 * n - 1)] else 0
+    val boxWidthPx = if (measured) itemW[Math.floorMod(virtual, n)] else 0
     val boxWidth by animateDpAsState(
         targetValue = with(density) { boxWidthPx.toDp() }.coerceAtLeast(120.dp),
         animationSpec = tween(180),
