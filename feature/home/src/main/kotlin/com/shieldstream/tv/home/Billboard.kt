@@ -1,5 +1,15 @@
 package com.shieldstream.tv.home
 
+import androidx.compose.foundation.layout.wrapContentWidth
+
+import androidx.compose.ui.layout.positionInParent
+
+import androidx.compose.ui.layout.onPlaced
+
+import androidx.compose.foundation.focusable
+
+import androidx.compose.animation.core.Animatable
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -370,6 +380,11 @@ private data class HomeChip(
     val onClick: () -> Unit,
 )
 
+/**
+ * Fila de categorías del Inicio, estilo ruleta: un recuadro blanco fijo en el centro y las categorías como palabras
+ * que se deslizan por debajo. La fila es un único elemento enfocable: ◀ ▶ cambian la categoría (la tira se anima hasta
+ * dejarla bajo el recuadro), OK la abre. La tira se repite tres veces para dar la vuelta sin saltos.
+ */
 @Composable
 private fun CategoryChipsRow(
     chips: List<HomeChip>,
@@ -379,127 +394,132 @@ private fun CategoryChipsRow(
     onDown: () -> Unit,
     modifier: Modifier,
 ) {
-    val state = rememberLoopingRowState(chips.size)
-    var focusedVirtual by rememberSaveable { mutableIntStateOf(state.firstVisibleItemIndex) }
+    val n = chips.size
+    var selected by rememberSaveable { mutableIntStateOf(0) }
+    // Posición en la tira triple (n..2n-1 = copia central).
+    var virtual by remember { mutableIntStateOf(n + selected.coerceIn(0, n - 1)) }
     var rowFocused by remember { mutableStateOf(false) }
-    var focusedWidth by remember { mutableStateOf(0) }
+    var containerWidth by remember { mutableStateOf(0) }
+    val itemX = remember(n) { IntArray(n * 3) }
+    val itemW = remember(n) { IntArray(n * 3) }
+    var measured by remember { mutableStateOf(false) }
+    val offset = remember { Animatable(0f) }
     val density = androidx.compose.ui.platform.LocalDensity.current
-    // Pepino+: recuadro blanco fijo en el centro; las categorías son palabras que se deslizan por debajo. Cada palabra
-    // se dibuja en blanco y, encima, en negro recortada a la zona del recuadro (vale en Android 9, sin modos de mezcla).
-    var boxBounds by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
+
+    fun targetFor(v: Int): Float = containerWidth / 2f - (itemX[v] + itemW[v] / 2f)
+
+    // Recoloca o anima la tira cuando cambia la categoría; al salir de la copia central salta a la equivalente.
+    LaunchedEffect(virtual, measured, containerWidth) {
+        if (!measured || containerWidth == 0) return@LaunchedEffect
+        val target = targetFor(virtual)
+        if (offset.value == 0f) offset.snapTo(target) else offset.animateTo(target, tween(220, easing = FastOutSlowInEasing))
+        if (virtual < n || virtual >= 2 * n) {
+            val wrapped = n + Math.floorMod(virtual, n)
+            offset.snapTo(targetFor(wrapped))
+            virtual = wrapped
+        }
+    }
+
+    val boxWidthPx = if (measured) itemW[virtual.coerceIn(0, 3 * n - 1)] else 0
     val boxWidth by animateDpAsState(
-        targetValue = with(density) { focusedWidth.toDp() }.coerceAtLeast(120.dp),
+        targetValue = with(density) { boxWidthPx.toDp() }.coerceAtLeast(120.dp),
         animationSpec = tween(180),
         label = "chipBoxWidth",
     )
     val boxAlpha by animateFloatAsState(if (rowFocused) 1f else 0f, tween(150), label = "chipBoxAlpha")
-    // Desplazamiento propio: la categoría enfocada se lleva al centro, justo bajo el recuadro, con una animación corta.
-    val scope = rememberCoroutineScope()
-    var centerJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
-    fun centerOn(virtual: Int) {
-        centerJob?.cancel()
-        centerJob = scope.launch {
-            val layout = state.layoutInfo
-            val info = layout.visibleItemsInfo.firstOrNull { it.index == virtual } ?: run {
-                state.scrollToItem(virtual)
-                state.layoutInfo.visibleItemsInfo.firstOrNull { it.index == virtual }
-            } ?: return@launch
-            val center = (state.layoutInfo.viewportStartOffset + state.layoutInfo.viewportEndOffset) / 2f
-            val delta = info.offset + info.size / 2f - center
-            if (kotlin.math.abs(delta) > 1f) {
-                state.animateScrollBy(delta, tween(durationMillis = 220, easing = FastOutSlowInEasing))
-            }
-        }
-    }
+
     Box(
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.CenterStart,
         modifier = modifier
             .fillMaxWidth()
             .height(76.dp)
-            .onFocusChanged { rowFocused = it.hasFocus },
+            .onSizeChanged { containerWidth = it.width }
+            .focusRequester(requester)
+            .focusProperties { up = upRequester }
+            .onFocusChanged {
+                rowFocused = it.isFocused
+                if (it.isFocused) onFocused()
+            }
+            .onPreviewKeyEvent { event ->
+                if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                when (event.key) {
+                    Key.DirectionLeft -> { virtual -= 1; selected = Math.floorMod(virtual, n); true }
+                    Key.DirectionRight -> { virtual += 1; selected = Math.floorMod(virtual, n); true }
+                    Key.DirectionDown -> { onDown(); true }
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter -> { chips[Math.floorMod(virtual, n)].onClick(); true }
+                    else -> false
+                }
+            }
+            .focusable(),
     ) {
+        // Recuadro blanco fijo en el centro.
         Box(
             Modifier
+                .align(Alignment.Center)
                 .size(width = boxWidth, height = 48.dp)
-                .onGloballyPositioned { boxBounds = it.boundsInRoot() }
                 .graphicsLayer { alpha = boxAlpha }
                 .background(Color.White, RoundedCornerShape(10.dp)),
         )
-        ProvideManualScroll {
-            LazyRow(
-                state = state,
-                contentPadding = PaddingValues(vertical = 14.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onPreviewKeyEvent { event ->
-                        if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
-                            onDown()
-                            true
-                        } else {
-                            false
-                        }
-                    },
-            ) {
-                loopingItems(chips) { virtual, _, chip ->
-                    CategoryChip(
-                        label = chip.label,
-                        icon = chip.icon,
-                        onClick = chip.onClick,
-                        highlight = { if (boxAlpha > 0.5f) boxBounds else null },
-                        onFocused = { width ->
-                            focusedVirtual = virtual
-                            focusedWidth = width
-                            centerOn(virtual)
-                            onFocused()
-                        },
-                        modifier = (if (virtual == focusedVirtual) Modifier.focusRequester(requester) else Modifier)
-                            .focusProperties { up = upRequester },
-                    )
-                }
-            }
+        // Tira en blanco.
+        ChipStrip(chips, Color.White, offset, itemX, itemW) { measured = true }
+        // La misma tira en negro, recortada a la zona del recuadro.
+        Box(
+            Modifier
+                .matchParentSize()
+                .drawWithContent {
+                    if (boxAlpha < 0.5f) return@drawWithContent
+                    val bw = boxWidth.toPx()
+                    val left = (size.width - bw) / 2f
+                    val top = (size.height - 48.dp.toPx()) / 2f
+                    clipRect(left, top, left + bw, top + 48.dp.toPx()) { this@drawWithContent.drawContent() }
+                },
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            ChipStrip(chips, Color.Black, offset, null, null) {}
         }
     }
 }
 
-/** Una categoría: solo la palabra (y su icono), en blanco. El recuadro blanco central marca la elegida. */
+/** Las categorías repetidas tres veces, en fila, desplazadas por [offset]. Si recibe los arrays, anota posición y ancho. */
 @Composable
-private fun CategoryChip(
-    label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector?,
-    onClick: () -> Unit,
-    highlight: () -> androidx.compose.ui.geometry.Rect?,
-    onFocused: (widthPx: Int) -> Unit,
-    modifier: Modifier = Modifier,
+private fun ChipStrip(
+    chips: List<HomeChip>,
+    color: Color,
+    offset: Animatable<Float, *>,
+    itemX: IntArray?,
+    itemW: IntArray?,
+    onMeasured: () -> Unit,
 ) {
-    var width by remember { mutableStateOf(0) }
-    var origin by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .height(48.dp)
-            .widthIn(min = 120.dp)
-            .onSizeChanged { width = it.width }
-            .onFocusChanged { if (it.isFocused) onFocused(width) }
-            .tvClickable(onClick = onClick)
-            .padding(horizontal = 22.dp),
+    val n = chips.size
+    androidx.compose.foundation.layout.Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .wrapContentWidth(align = Alignment.Start, unbounded = true)
+            .graphicsLayer { translationX = offset.value },
     ) {
-        ChipLabel(label, icon, Color.White)
-        // La misma palabra en negro, visible solo dentro del recuadro blanco (se lee en el dibujo, sin recomponer).
-        ChipLabel(
-            label,
-            icon,
-            Color.Black,
-            Modifier
-                .onGloballyPositioned { origin = it.positionInRoot() }
-                .drawWithContent {
-                    val box = highlight() ?: return@drawWithContent
-                    clipRect(box.left - origin.x, box.top - origin.y, box.right - origin.x, box.bottom - origin.y) {
-                        this@drawWithContent.drawContent()
-                    }
-                },
-        )
+        repeat(3 * n) { v ->
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .height(48.dp)
+                    .widthIn(min = 120.dp)
+                    .then(
+                        if (itemX != null && itemW != null) {
+                            Modifier.onPlaced {
+                                itemX[v] = it.positionInParent().x.toInt()
+                                itemW[v] = it.size.width
+                                if (v == 3 * n - 1) onMeasured()
+                            }
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .padding(horizontal = 22.dp),
+            ) {
+                val chip = chips[v % n]
+                ChipLabel(chip.label, chip.icon, color)
+            }
+        }
     }
 }
 
