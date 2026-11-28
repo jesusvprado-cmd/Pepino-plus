@@ -753,8 +753,10 @@ private fun SubtitleColor.shift(colors: List<SubtitleColor>, delta: Int): Subtit
 
 @Composable
 internal fun ServiceCard(ui: ServiceUi, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    // Fila compacta (como Pepino IPTV): logo pequeño, nombre y para qué sirve; el estado a la derecha con «›».
-    // La clave enmascarada solo se enseña con el cursor encima.
+    // Fila compacta (como Pepino IPTV): logo pequeño, nombre y para qué sirve; el estado corto a la derecha con «›».
+    // Los errores y los estados largos van en su propia línea debajo, enteros (a la derecha se cortaban y no se
+    // podía leer qué pasaba). La clave enmascarada solo se enseña con el cursor encima.
+    val statusBelow = statusGoesBelow(ui.status)
     FocusCard(modifier = modifier, onClick = onClick) { focused ->
         Row(verticalAlignment = Alignment.CenterVertically) {
             ServiceLogo(ui.service)
@@ -794,10 +796,13 @@ internal fun ServiceCard(ui: ServiceUi, onClick: () -> Unit, modifier: Modifier 
                         modifier = Modifier.padding(top = 4.dp),
                     )
                 }
+                if (statusBelow) StatusPill(ui.status, inline = false, modifier = Modifier.padding(top = 6.dp))
             }
             Spacer(Modifier.width(16.dp))
-            StatusPill(ui.status)
-            Spacer(Modifier.width(8.dp))
+            if (!statusBelow) {
+                StatusPill(ui.status)
+                Spacer(Modifier.width(8.dp))
+            }
             Icon(AppIcons.ChevronRight, contentDescription = null, tint = Color.White.copy(alpha = 0.45f), modifier = Modifier.size(24.dp))
         }
     }
@@ -825,25 +830,39 @@ private fun ServiceLogo(service: ApiService) {
 }
 
 @Composable
-private fun StatusPill(status: ServiceStatus) {
+private fun StatusPill(status: ServiceStatus, inline: Boolean = true, modifier: Modifier = Modifier) {
     val (color, text) = when (status) {
         ServiceStatus.Missing -> Amber to localizedStringResource(StringsR.string.settings_not_set_up)
         ServiceStatus.Checking -> Muted to localizedStringResource(StringsR.string.settings_checking)
         is ServiceStatus.Ok -> Green to (status.detail ?: localizedStringResource(StringsR.string.settings_connected))
         is ServiceStatus.Bad -> Red to status.message
     }
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.widthIn(max = 260.dp)) {
-        Box(Modifier.size(8.dp).background(color, CircleShape))
+    // A la derecha: una línea corta. Debajo (errores y textos largos): entero, en las líneas que haga falta.
+    Row(
+        verticalAlignment = if (inline) Alignment.CenterVertically else Alignment.Top,
+        modifier = if (inline) modifier.widthIn(max = 260.dp) else modifier,
+    ) {
+        Box(Modifier.padding(top = if (inline) 0.dp else 7.dp).size(8.dp).background(color, CircleShape))
         Spacer(Modifier.width(8.dp))
         Text(
             text,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             color = color,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            maxLines = if (inline) 1 else Int.MAX_VALUE,
+            overflow = if (inline) TextOverflow.Ellipsis else TextOverflow.Clip,
         )
     }
 }
+
+/** Los errores, y cualquier estado que no quepa corto a la derecha, van debajo del nombre y enteros. */
+private fun statusGoesBelow(status: ServiceStatus): Boolean = when (status) {
+    is ServiceStatus.Bad -> true
+    is ServiceStatus.Ok -> (status.detail?.length ?: 0) > SHORT_STATUS_CHARS
+    else -> false
+}
+
+/** Hasta este largo, un estado correcto cabe en una línea a la derecha de la fila. */
+private const val SHORT_STATUS_CHARS = 28
 
 @Composable
 private fun PhoneConfigCard(onClick: () -> Unit) {
