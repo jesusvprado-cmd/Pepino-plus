@@ -1,5 +1,19 @@
 package com.shieldstream.tv.home
 
+import androidx.compose.ui.graphics.drawscope.clipRect
+
+import androidx.compose.ui.draw.drawWithContent
+
+import androidx.compose.ui.layout.positionInRoot
+
+import androidx.compose.ui.layout.boundsInRoot
+
+import androidx.compose.ui.layout.onGloballyPositioned
+
+import androidx.compose.ui.layout.onSizeChanged
+
+import androidx.compose.animation.core.animateDpAsState
+
 import com.shieldstream.tv.ui.theme.Manrope
 
 import com.shieldstream.tv.ui.component.ProvideCenterScroll
@@ -357,79 +371,119 @@ private fun CategoryChipsRow(
 ) {
     val state = rememberLoopingRowState(chips.size)
     var focusedVirtual by rememberSaveable { mutableIntStateOf(state.firstVisibleItemIndex) }
-    ProvideCenterScroll {
-        LazyRow(
-            state = state,
-            contentPadding = PaddingValues(horizontal = 28.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = modifier
-                .fillMaxWidth()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
-                        onDown()
-                        true
-                    } else {
-                        false
-                    }
-                },
-        ) {
-            loopingItems(chips) { virtual, _, chip ->
-                CategoryChip(
-                    label = chip.label,
-                    icon = chip.icon,
-                    onClick = chip.onClick,
-                    onFocused = {
-                        focusedVirtual = virtual
-                        onFocused()
+    var rowFocused by remember { mutableStateOf(false) }
+    var focusedWidth by remember { mutableStateOf(0) }
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    // Pepino+: recuadro blanco fijo en el centro; las categorías son palabras que se deslizan por debajo. Cada palabra
+    // se dibuja en blanco y, encima, en negro recortada a la zona del recuadro (vale en Android 9, sin modos de mezcla).
+    var boxBounds by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
+    val boxWidth by animateDpAsState(
+        targetValue = with(density) { focusedWidth.toDp() }.coerceAtLeast(120.dp),
+        animationSpec = tween(180),
+        label = "chipBoxWidth",
+    )
+    val boxAlpha by animateFloatAsState(if (rowFocused) 1f else 0f, tween(150), label = "chipBoxAlpha")
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(76.dp)
+            .onFocusChanged { rowFocused = it.hasFocus },
+    ) {
+        Box(
+            Modifier
+                .size(width = boxWidth, height = 48.dp)
+                .onGloballyPositioned { boxBounds = it.boundsInRoot() }
+                .graphicsLayer { alpha = boxAlpha }
+                .background(Color.White, RoundedCornerShape(10.dp)),
+        )
+        ProvideCenterScroll {
+            LazyRow(
+                state = state,
+                contentPadding = PaddingValues(vertical = 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
+                            onDown()
+                            true
+                        } else {
+                            false
+                        }
                     },
-                    modifier = (if (virtual == focusedVirtual) Modifier.focusRequester(requester) else Modifier)
-                        .focusProperties { up = upRequester },
-                )
+            ) {
+                loopingItems(chips) { virtual, _, chip ->
+                    CategoryChip(
+                        label = chip.label,
+                        icon = chip.icon,
+                        onClick = chip.onClick,
+                        highlight = { if (boxAlpha > 0.5f) boxBounds else null },
+                        onFocused = { width ->
+                            focusedVirtual = virtual
+                            focusedWidth = width
+                            onFocused()
+                        },
+                        modifier = (if (virtual == focusedVirtual) Modifier.focusRequester(requester) else Modifier)
+                            .focusProperties { up = upRequester },
+                    )
+                }
             }
         }
     }
 }
 
+/** Una categoría: solo la palabra (y su icono), en blanco. El recuadro blanco central marca la elegida. */
 @Composable
 private fun CategoryChip(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector?,
     onClick: () -> Unit,
-    onFocused: () -> Unit,
+    highlight: () -> androidx.compose.ui.geometry.Rect?,
+    onFocused: (widthPx: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var focused by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "chipScale")
-    val shape = RoundedCornerShape(10.dp)
+    var width by remember { mutableStateOf(0) }
+    var origin by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
             .height(48.dp)
-            .widthIn(min = 132.dp)
-            // Sin clip: el fondo se dibuja ya con la forma (ver TopBarItem).
-            .background(
-                shape = shape,
-                brush = if (focused) {
-                    Brush.verticalGradient(listOf(Color.White, Color.White))
-                } else {
-                    Brush.verticalGradient(listOf(AppColors.SurfaceFocused, AppColors.Surface))
-                },
-            )
-            .border(1.dp, Color.White.copy(alpha = if (focused) 0f else 0.12f), shape)
-            .onFocusChanged {
-                focused = it.isFocused
-                if (it.isFocused) onFocused()
-            }
+            .widthIn(min = 120.dp)
+            .onSizeChanged { width = it.width }
+            .onFocusChanged { if (it.isFocused) onFocused(width) }
             .tvClickable(onClick = onClick)
             .padding(horizontal = 22.dp),
     ) {
-        androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically) {
+        ChipLabel(label, icon, Color.White)
+        // La misma palabra en negro, visible solo dentro del recuadro blanco (se lee en el dibujo, sin recomponer).
+        ChipLabel(
+            label,
+            icon,
+            Color.Black,
+            Modifier
+                .onGloballyPositioned { origin = it.positionInRoot() }
+                .drawWithContent {
+                    val box = highlight() ?: return@drawWithContent
+                    clipRect(box.left - origin.x, box.top - origin.y, box.right - origin.x, box.bottom - origin.y) {
+                        this@drawWithContent.drawContent()
+                    }
+                },
+        )
+    }
+}
+
+@Composable
+private fun ChipLabel(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.foundation.layout.Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         if (icon != null) {
-            androidx.compose.material3.Icon(icon, null, tint = if (focused) Color.Black else Color.White, modifier = Modifier.size(22.dp))
+            androidx.compose.material3.Icon(icon, null, tint = color, modifier = Modifier.size(22.dp))
             androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
         }
         Text(
@@ -437,9 +491,8 @@ private fun CategoryChip(
             fontFamily = Manrope,
             fontWeight = FontWeight.ExtraBold,
             fontSize = 18.sp, lineHeight = 22.sp,
-            color = if (focused) Color.Black else Color.White,
+            color = color,
             maxLines = 1,
         )
-        }
     }
 }
