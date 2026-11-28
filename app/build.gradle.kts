@@ -40,7 +40,7 @@ android {
     defaultConfig {
         // Mismo identificador que el Pepino+ anterior: se instala encima de él y conserva su sistema de actualizaciones.
         applicationId = "com.suso.pepinoplus"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 35
         // Número de compilación de GitHub Actions (-PbuildNumber). Coincide con la etiqueta vN de la versión publicada.
         versionCode = buildNumber

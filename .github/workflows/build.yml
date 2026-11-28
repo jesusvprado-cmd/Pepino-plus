@@ -1,19 +1,21 @@
 name: Compilar APK
 
-# Cada cambio en main compila Pepino+, lo firma con app/pepino.p12 y lo publica en Releases como PepinoPlus.apk.
-# La app comprueba esas versiones y se actualiza sola (etiqueta vN = número de compilación = versionCode).
+# Cada cambio en main compila Pepino+, pasa las pruebas, lo firma con app/pepino.p12 y lo publica en Releases como
+# PepinoPlus.apk. La app comprueba esas versiones y se actualiza sola (etiqueta vN = número de compilación = versionCode).
+# En cualquier otra rama solo compila y pasa las pruebas: sirve para comprobar los cambios sin publicar nada.
 on:
   push:
-    branches: [ main ]
+    branches: [ '**', '!registro' ]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 # Una compilación cada vez y en orden, para que una antigua no quede como «última versión».
+# En las ramas de prueba, una compilación nueva cancela la anterior de esa rama (no publica nada).
 concurrency:
-  group: compilar-apk
-  cancel-in-progress: false
+  group: compilar-apk-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
@@ -48,6 +50,16 @@ jobs:
           } > local.properties
           chmod 600 local.properties
 
+      # Pruebas automáticas (reglas de fuentes, perfiles, subtítulos, Trakt...). Si alguna falla no se publica nada.
+      - name: Pruebas
+        run: |
+          chmod +x gradlew
+          set -o pipefail
+          if ! ./gradlew testDebugUnitTest :core:model:test :core:domain:test --no-daemon -PbuildNumber=${{ github.run_number }} 2>&1 | tee test.log; then
+            grep -E "FAILED|Test.*>|e: |What went wrong" -A2 test.log | head -30 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          fi
+
       - name: Compilar
         env:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
@@ -65,10 +77,10 @@ jobs:
 
       # Si falla, el registro se guarda en la rama «registro» (para poder leerlo sin entrar en GitHub).
       - name: Guardar registro si falla
-        if: failure()
+        if: failure() && github.ref == 'refs/heads/main'
         run: |
           mkdir -p /tmp/reg
-          cp build.log /tmp/reg/ 2>/dev/null || true
+          cp build.log test.log /tmp/reg/ 2>/dev/null || true
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git checkout --orphan registro-tmp
@@ -88,6 +100,7 @@ jobs:
           path: PepinoPlus.apk
 
       - name: Publicar versión descargable
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
