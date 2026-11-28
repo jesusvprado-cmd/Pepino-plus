@@ -27,6 +27,8 @@ enum class Category(val forMovies: Boolean = true, val forTv: Boolean = true) {
     MOODS,
     CRIME,
     SPANISH,
+    /** Películas estrenadas este año (el título lleva el año: «Estrenos 2026»). */
+    NEW_RELEASES(forTv = false),
     ACTION,
     ADVENTURE,
     BOOKS,
@@ -52,7 +54,7 @@ enum class Category(val forMovies: Boolean = true, val forTv: Boolean = true) {
     ;
 
     companion object {
-        val DEFAULT_VISIBLE = setOf(ACCLAIMED, CLASSICS, DRAMAS, SPANISH, ACTION, COMEDY, SCIFI, KIDS, FAMILY, DOCUMENTARY)
+        val DEFAULT_VISIBLE = setOf(ACCLAIMED, CLASSICS, DRAMAS, SPANISH, NEW_RELEASES, ACTION, COMEDY, SCIFI, KIDS, FAMILY, DOCUMENTARY)
         val DEFAULT_HIDDEN: Set<String> = entries.filterNot { it in DEFAULT_VISIBLE }.map { it.name }.toSet()
 
         val KIDS_SAFE = setOf(KIDS, FAMILY)

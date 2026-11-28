@@ -112,6 +112,7 @@
     <string name="category_horror">Horror</string>
     <string name="category_moods">Moods</string>
     <string name="category_crime">Crime</string>
+    <string name="category_new_releases_year">%1$d releases</string>
     <string name="category_spanish">Spanish</string>
     <string name="category_action">Action</string>
     <string name="category_adventure">Adventure</string>

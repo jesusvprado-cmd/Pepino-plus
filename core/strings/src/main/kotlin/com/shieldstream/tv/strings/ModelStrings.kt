@@ -18,6 +18,7 @@ val Category.titleResource: Int
         Category.MOODS -> R.string.category_moods
         Category.CRIME -> R.string.category_crime
         Category.SPANISH -> R.string.category_spanish
+        Category.NEW_RELEASES -> R.string.category_new_releases_year
         Category.ACTION -> R.string.category_action
         Category.ADVENTURE -> R.string.category_adventure
         Category.BOOKS -> R.string.category_books
@@ -84,9 +85,14 @@ val com.shieldstream.tv.model.SubtitleEdge.labelResource: Int
     }
 
 @Composable
-fun Category.localizedTitle(): String = localizedStringResource(titleResource)
+fun Category.localizedTitle(): String =
+    if (this == Category.NEW_RELEASES) localizedStringResource(titleResource, currentYear()) else localizedStringResource(titleResource)
 
-fun Texts.categoryTitle(category: Category): String = get(category.titleResource)
+fun Texts.categoryTitle(category: Category): String =
+    if (category == Category.NEW_RELEASES) get(category.titleResource, currentYear()) else get(category.titleResource)
+
+/** Año actual, para «Estrenos 2026». */
+fun currentYear(): Int = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
 
 @Composable
 fun FeaturedBadge.localizedLabel(): String = localizedStringResource(labelResource)

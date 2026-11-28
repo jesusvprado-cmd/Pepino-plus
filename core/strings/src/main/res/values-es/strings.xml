@@ -112,6 +112,7 @@
     <string name="category_horror">Terror</string>
     <string name="category_moods">Estados de ánimo</string>
     <string name="category_crime">Policiacas</string>
+    <string name="category_new_releases_year">Estrenos %1$d</string>
     <string name="category_spanish">Españolas</string>
     <string name="category_action">Acción</string>
     <string name="category_adventure">Aventuras</string>

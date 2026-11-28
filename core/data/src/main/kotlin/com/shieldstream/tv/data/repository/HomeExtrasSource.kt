@@ -256,6 +256,7 @@ class HomeExtrasSource @Inject constructor(
         Category.MOODS -> Spec(null, null)
         Category.HORROR -> Spec(Query("27"), Query(keyword = "horror"))
         Category.SPANISH -> Spec(Query(country = "ES"), Query(country = "ES"))
+        Category.NEW_RELEASES -> Spec(Query(), null)
         Category.ADVENTURE -> Spec(Query("12"), Query("10759"))
         Category.MYSTERY -> Spec(Query("9648"), Query("9648"))
         Category.KIDS -> Spec(Query("16,10751"), Query("10762"))
@@ -271,6 +272,7 @@ class HomeExtrasSource @Inject constructor(
             Category.MOODS -> moodRows(filter)
             Category.ACCLAIMED -> acclaimedRows(filter)
             Category.CLASSICS -> classicRows(filter)
+            Category.NEW_RELEASES -> newReleaseRows(filter)
             else -> standardRows(category, filter)
         }
         loaders.mapIndexed { index, (title, load) ->
@@ -312,6 +314,29 @@ class HomeExtrasSource @Inject constructor(
             texts.get(StringsR.string.data_classic_movies) to suspend { movies(Query(), CLASSIC_MOVIES) },
             texts.get(StringsR.string.data_more_classic_movies) to suspend { movies(Query(), CLASSIC_MOVIES, page = 2) },
             texts.get(StringsR.string.data_classics_to_discover) to suspend { movies(Query(), CLASSIC_MOVIES, page = 3) },
+        )
+    }
+
+    /** Estrenos del año en curso: lo más visto, lo mejor valorado y lo último en salir (solo ya estrenadas). */
+    private fun newReleaseRows(filter: HomeFilter): List<Pair<String, suspend () -> List<CatalogItem>>> {
+        if (filter == HomeFilter.TV) return emptyList()
+        val year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()
+        val today = isoDate(Date())
+        val base = mapOf("primary_release_year" to year, "primary_release_date.lte" to today)
+        val en = com.shieldstream.tv.model.Lang.isEnglish
+        return listOf(
+            (if (en) "Most watched $year releases" else "Estrenos de $year más vistos") to suspend {
+                movies(Query(), base + mapOf("sort_by" to "popularity.desc", "vote_count.gte" to "20"))
+            },
+            (if (en) "Best rated of $year" else "Mejor valoradas de $year") to suspend {
+                movies(Query(), base + mapOf("sort_by" to "vote_average.desc", "vote_count.gte" to "100"))
+            },
+            (if (en) "Just released" else "Recién estrenadas") to suspend {
+                movies(Query(), base + mapOf("sort_by" to "primary_release_date.desc", "vote_count.gte" to "10"))
+            },
+            (if (en) "More $year releases" else "Más estrenos de $year") to suspend {
+                movies(Query(), base + mapOf("sort_by" to "popularity.desc", "vote_count.gte" to "20"), page = 2)
+            },
         )
     }
 

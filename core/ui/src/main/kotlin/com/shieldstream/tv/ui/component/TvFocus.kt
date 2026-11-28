@@ -47,6 +47,19 @@ fun ProvidePivotScroll(leading: Dp, content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalBringIntoViewSpec provides spec, content = content)
 }
 
+/** Lleva el elemento enfocado al centro de la fila (la fila de categorías del Inicio). */
+@OptIn(ExperimentalFoundationApi::class)
+private object CenterBringIntoViewSpec : BringIntoViewSpec {
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float =
+        offset - (containerSize - abs(size)) / 2f
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ProvideCenterScroll(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalBringIntoViewSpec provides CenterBringIntoViewSpec, content = content)
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 private class MinimalBringIntoViewSpec(private val marginPx: Float) : BringIntoViewSpec {
     override fun calculateScrollDistance(offset: Float, rawSize: Float, containerSize: Float): Float {

@@ -1,5 +1,9 @@
 package com.shieldstream.tv.home
 
+import com.shieldstream.tv.ui.theme.Manrope
+
+import com.shieldstream.tv.ui.component.ProvideCenterScroll
+
 import com.shieldstream.tv.ui.theme.FocusStyle
 
 import com.shieldstream.tv.model.Lang
@@ -131,8 +135,9 @@ internal fun FeaturedCarousel(
             }
             .tvClickable { onOpen(current.item) },
     ) {
-        Crossfade(targetState = current, animationSpec = tween(500), label = "featured") { featured ->
-            FeaturedSlide(featured)
+        // Cambio inmediato, sin fundido: con el fundido se veían a la vez los datos de dos diapositivas.
+        key(current.item.key) {
+            FeaturedSlide(current)
         }
         if (items.size > 1) {
             Row(
@@ -228,6 +233,9 @@ private fun MetaLine(featured: FeaturedItem) {
             text = text,
             color = Color.White,
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
         )
         featured.certification?.let { cert ->
             Spacer(Modifier.width(10.dp))
@@ -235,6 +243,8 @@ private fun MetaLine(featured: FeaturedItem) {
                 text = cert,
                 color = Color.White,
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                maxLines = 1,
+                softWrap = false,
                 modifier = Modifier
                     .background(certificationColor(cert), RoundedCornerShape(4.dp))
                     .padding(horizontal = 6.dp, vertical = 1.dp),
@@ -248,6 +258,8 @@ private fun MetaLine(featured: FeaturedItem) {
                 text = String.format(UiLocale, "%.1f", rating),
                 color = Color.White,
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                maxLines = 1,
+                softWrap = false,
             )
         }
     }
@@ -345,7 +357,7 @@ private fun CategoryChipsRow(
 ) {
     val state = rememberLoopingRowState(chips.size)
     var focusedVirtual by rememberSaveable { mutableIntStateOf(state.firstVisibleItemIndex) }
-    ProvidePivotScroll(leading = 28.dp) {
+    ProvideCenterScroll {
         LazyRow(
             state = state,
             contentPadding = PaddingValues(horizontal = 28.dp, vertical = 14.dp),
@@ -387,7 +399,7 @@ private fun CategoryChip(
     modifier: Modifier = Modifier,
 ) {
     var focused by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(if (focused) 1.07f else 1f, label = "chipScale")
+    val scale by animateFloatAsState(if (focused) FocusStyle.Scale else 1f, label = "chipScale")
     val shape = RoundedCornerShape(10.dp)
     Box(
         contentAlignment = Alignment.Center,
@@ -422,9 +434,9 @@ private fun CategoryChip(
         }
         Text(
             text = label,
-            fontFamily = DisplayFont,
-            fontSize = 18.sp, lineHeight = 21.sp,
-            letterSpacing = 0.6.sp,
+            fontFamily = Manrope,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 18.sp, lineHeight = 22.sp,
             color = if (focused) Color.Black else Color.White,
             maxLines = 1,
         )
