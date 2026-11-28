@@ -59,14 +59,21 @@ jobs:
           key: robolectric-android-all-15-robolectric-12650502-i7
 
       - name: Copia de Android para las pruebas (descarga)
+        timeout-minutes: 20
         run: |
           V=15-robolectric-12650502-i7
           D=~/.m2/repository/org/robolectric/android-all-instrumented/$V
-          if [ ! -s "$D/android-all-instrumented-$V.jar" ]; then
-            mkdir -p "$D"
-            curl -fsSL --retry 6 --retry-all-errors --retry-delay 5 -o "$D/android-all-instrumented-$V.jar" \
-              "https://repo1.maven.org/maven2/org/robolectric/android-all-instrumented/$V/android-all-instrumented-$V.jar"
-          fi
+          F="$D/android-all-instrumented-$V.jar"
+          P="org/robolectric/android-all-instrumented/$V/android-all-instrumented-$V.jar"
+          mkdir -p "$D"
+          # Primero el espejo de Maven Central en Google (rápido desde GitHub) y, si no, Maven Central. Si la descarga
+          # se atasca (menos de 100 KB/s durante un minuto) se corta y se reintenta: antes se quedaba colgada 40 minutos.
+          for url in "https://maven-central.storage-download.googleapis.com/maven2/$P" "https://repo1.maven.org/maven2/$P"; do
+            [ -s "$F" ] && break
+            curl -fsSL --retry 4 --retry-all-errors --retry-delay 5 --connect-timeout 20 \
+              --speed-limit 100000 --speed-time 60 --max-time 900 -o "$F.part" "$url" && mv "$F.part" "$F" || rm -f "$F.part"
+          done
+          [ -s "$F" ] || { echo "::error::No se pudo descargar la copia de Android para las pruebas"; exit 1; }
           ls -l "$D"
 
       # Pruebas automáticas (reglas de fuentes, perfiles, subtítulos, Trakt...). Si alguna falla no se publica nada.
