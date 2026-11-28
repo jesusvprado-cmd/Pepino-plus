@@ -1,7 +1,6 @@
 package com.shieldstream.tv.data.repository
 
 import android.content.Context
-import android.os.Build
 import com.shieldstream.tv.data.security.TokenStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -20,11 +19,8 @@ class ProfileDataCleaner @Inject constructor(
             MyListRepositoryImpl.prefsNameFor(profileId),
             EpisodeTrackingRepositoryImpl.prefsNameFor(profileId),
         )) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                context.deleteSharedPreferences(name)
-            } else {
-                context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().apply()
-            }
+            // Mínimo Android 8: siempre se puede borrar el archivo entero.
+            context.deleteSharedPreferences(name)
         }
         clearTrakt(profileId)
     }

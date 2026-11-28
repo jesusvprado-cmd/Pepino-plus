@@ -50,6 +50,25 @@ jobs:
           } > local.properties
           chmod 600 local.properties
 
+      # Copia de Android que usan las pruebas con Robolectric (Android 15). Se descarga aquí, con reintentos, y se
+      # guarda entre compilaciones: si la bajaba cada prueba por su cuenta, a veces fallaba la descarga.
+      - name: Copia de Android para las pruebas (caché)
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/robolectric/android-all-instrumented
+          key: robolectric-android-all-15-robolectric-12650502-i7
+
+      - name: Copia de Android para las pruebas (descarga)
+        run: |
+          V=15-robolectric-12650502-i7
+          D=~/.m2/repository/org/robolectric/android-all-instrumented/$V
+          if [ ! -s "$D/android-all-instrumented-$V.jar" ]; then
+            mkdir -p "$D"
+            curl -fsSL --retry 6 --retry-all-errors --retry-delay 5 -o "$D/android-all-instrumented-$V.jar" \
+              "https://repo1.maven.org/maven2/org/robolectric/android-all-instrumented/$V/android-all-instrumented-$V.jar"
+          fi
+          ls -l "$D"
+
       # Pruebas automáticas (reglas de fuentes, perfiles, subtítulos, Trakt...). Si alguna falla no se publica nada.
       - name: Pruebas
         run: |
