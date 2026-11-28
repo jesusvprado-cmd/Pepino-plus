@@ -60,6 +60,18 @@ fun ProvideCenterScroll(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalBringIntoViewSpec provides CenterBringIntoViewSpec, content = content)
 }
 
+/** La fila no se desplaza sola al cambiar el foco: la desplaza quien la usa (fila de categorías del Inicio). */
+@OptIn(ExperimentalFoundationApi::class)
+private object NoBringIntoViewSpec : BringIntoViewSpec {
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float = 0f
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ProvideManualScroll(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalBringIntoViewSpec provides NoBringIntoViewSpec, content = content)
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 private class MinimalBringIntoViewSpec(private val marginPx: Float) : BringIntoViewSpec {
     override fun calculateScrollDistance(offset: Float, rawSize: Float, containerSize: Float): Float {

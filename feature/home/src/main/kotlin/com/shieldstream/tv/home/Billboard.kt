@@ -1,5 +1,15 @@
 package com.shieldstream.tv.home
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+
+import androidx.compose.foundation.gestures.animateScrollBy
+
+import kotlinx.coroutines.launch
+
+import androidx.compose.runtime.rememberCoroutineScope
+
+import com.shieldstream.tv.ui.component.ProvideManualScroll
+
 import androidx.compose.ui.graphics.drawscope.clipRect
 
 import androidx.compose.ui.draw.drawWithContent
@@ -383,6 +393,24 @@ private fun CategoryChipsRow(
         label = "chipBoxWidth",
     )
     val boxAlpha by animateFloatAsState(if (rowFocused) 1f else 0f, tween(150), label = "chipBoxAlpha")
+    // Desplazamiento propio: la categoría enfocada se lleva al centro, justo bajo el recuadro, con una animación corta.
+    val scope = rememberCoroutineScope()
+    var centerJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    fun centerOn(virtual: Int) {
+        centerJob?.cancel()
+        centerJob = scope.launch {
+            val layout = state.layoutInfo
+            val info = layout.visibleItemsInfo.firstOrNull { it.index == virtual } ?: run {
+                state.scrollToItem(virtual)
+                state.layoutInfo.visibleItemsInfo.firstOrNull { it.index == virtual }
+            } ?: return@launch
+            val center = (state.layoutInfo.viewportStartOffset + state.layoutInfo.viewportEndOffset) / 2f
+            val delta = info.offset + info.size / 2f - center
+            if (kotlin.math.abs(delta) > 1f) {
+                state.animateScrollBy(delta, tween(durationMillis = 220, easing = FastOutSlowInEasing))
+            }
+        }
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -397,7 +425,7 @@ private fun CategoryChipsRow(
                 .graphicsLayer { alpha = boxAlpha }
                 .background(Color.White, RoundedCornerShape(10.dp)),
         )
-        ProvideCenterScroll {
+        ProvideManualScroll {
             LazyRow(
                 state = state,
                 contentPadding = PaddingValues(vertical = 14.dp),
@@ -423,6 +451,7 @@ private fun CategoryChipsRow(
                         onFocused = { width ->
                             focusedVirtual = virtual
                             focusedWidth = width
+                            centerOn(virtual)
                             onFocused()
                         },
                         modifier = (if (virtual == focusedVirtual) Modifier.focusRequester(requester) else Modifier)
